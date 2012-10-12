@@ -1,0 +1,17 @@
+language: node_js
+
+# test on these node.js versions
+node_js:
+  - 0.9
+
+before_script:
+  # Run lint on every commit
+  - grunt lint
+
+notifications:
+  email:
+    recipients:
+      - dbrans@gmail.com
+      - nick@sullivanflock.com
+    on_success: [change]
+    on_failure: [always]
