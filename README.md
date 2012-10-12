@@ -1,10 +1,44 @@
 # Overview
 
+Derek.
+
 # Usage
 
-# Browser Compatibility
+Derek.
+
+# FAQ
+##### Does it work with jQuery, Prototype, Backbone, Underscore, jQuery UI, YUI, mooTools, dojo, etc.?
+Yep. It neither depends on nor conflicts with any of the existing popular javascript frameworks.
+
+##### Does it work with another tag writing library on the page?
+[Wat?](http://izit.org/sites/izit.org/files/1329697955565.jpg) No. Only one tag writer at a time.
+
 
 # Who is using it
+This project was originally developed at [Krux](http://www.krux.com) as part of it's [SuperTag](http://www.krux.com/pro/whatwedo/manage/supertag/) product. There it was battletested on high profile sites like [The New York Times](http://www.nytimes.com), [The Wall Street Journal](http://online.wsj.com), [NBCU](http://www.nbcuni.com), and hundreds of others. It is actively maintained by Krux.
+
+Plug: Using this standalone library is fine, but if you want to go further and have your tags centrally managed instead of having them hard coded on the page, Check out [Krux's SuperTag](http://www.krux.com/pro/whatwedo/manage/supertag/).
+
+# Browser Compatibility
+Postscribe was designed to behave as closely to the native `document.write`/`innerHTML` does as feasible, and we've taken great care to make sure that it works on every browser we can get our hands on. We expect it to work on every browser built after 2005. There are over 400 [unit tests](https://github.com/krux/postscribe/tree/master/test) that run on every commit, and we add more all the time. Postscribe is thoroughly tested and known to work well in the following browsers:
+
+* Firefox - 3.6 and 4+
+* Chrome 10+
+* Safari - 5.0+
+* Opera - 10.0+
+* Internet Explorer 7+ (as far as we know, it will work on IE 6, but we're trying to encourage [its death](http://ie6funeral.com), so we haven't tested it) 
+* iPhone/iPad and other webkit-based browsers
+
+Curious if a specific browser will work? Run the tests yourself (TODO link) and let us know if there are any failures.
+
+# Alternatives
+We've stood on the shoulders of giants with our work, and there are other alternative approaches to solve this problem. Shout out to the best ones we found:
+
+* [writeCapture](https://github.com/iamnoah/writeCapture)
+* [Ghostwriter](http://digital-fulcrum.com/ghostwriter/docs/files/ghostwriter-js.html) by Digital Fulcrum (it looks like they have removed references to it on their site?)
+* [ControlJS](http://stevesouders.com/controljs/) by [Steve Souders](http://stevesouders.com)
+
+If you would like to be added to this list, file an issue and we'd be happy to.
 
 # More information
 * [Documentation](https://github.com/krux/postscribe/tree/master/doc)
@@ -12,7 +46,7 @@
 
 # Help/Bugs/Requests
 Have a problem? Need help? Would you like additional functionality added? We use github's ticket system for keeping track of these requests. Please check out the [existing issues](https://github.com/krux/postscribe/issues), and if you don't see that your problem is already being
-worked on, please file a [new issue](https://github.com/krux/postscribe/issues/new). The more information the better to describe your problem. We ♥ [Jing](http://www.techsmith.com/jing.html) bug reports.
+worked on, please [file a new issue](https://github.com/krux/postscribe/issues/new). The more information the better to describe your problem. We ♥ [Jing](http://www.techsmith.com/jing.html) bug reports.
 
 # Contributing
 We ♥  [forks and pull requests](https://help.github.com/articles/using-pull-requests).
