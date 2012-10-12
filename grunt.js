@@ -46,7 +46,12 @@ module.exports = function(grunt) {
         },
 
         qunit: {
-          files: ['test/test.html']
+            files: ['test/test.html']
+        },
+
+        watch: {
+            files: ['postscribe.js', 'test/*'],
+            tasks: 'lint qunit'
         }
 
     });
