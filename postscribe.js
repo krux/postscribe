@@ -1,38 +1,77 @@
+//     postscribe.js 1.0
+//     (c) 2012 Krux
+//     postscribe is freely distributable under the MIT license.
+//     For all details and documentation:
+//     http://krux.github.com/postscribe
+
 
 (function() {
+
   var globals = this;
 
-  // Helpers
-  var isFunction = function(x) {
-    return {}.toString.call(x) == '[object Function]';
-  };
+  // Debug write tasks.
+  var DEBUG = true;
 
-  var isString = function(x) {
-    return {}.toString.call(x) == '[object String]';
-  };
+  // Turn on to debug how each chunk affected the DOM.
+  var DEBUG_CHUNK = false;
 
-  var each = function(arr, fn, me) {
+  // # Helper Functions
+
+  var slice = Array.prototype.slice;
+
+  // A function that intentionally does nothing.
+  function doNothing() {}
+
+
+  // Is value a function?
+  function isFunction(x) {
+    return "function" == typeof x;
+  }
+
+  // Loop over each item in an array-like value.
+  function each(arr, fn, _this) {
     var i, len = (arr && arr.length) || 0;
     for(i = 0; i < len; i++) {
-      fn.call(me, arr[i], i);
+      fn.call(_this, arr[i], i);
     }
-  };
+  }
 
-  var eachKey = function(obj, fn, me) {
-    if(obj) {
-      var key;
-      for(key in obj) {
-        if(obj.hasOwnProperty(key)) {
-          fn.call(me, key, obj[key]);
-        }
+  // Loop over each key/value pair in a hash.
+  function eachKey(obj, fn, _this) {
+    var key;
+    for(key in obj) {
+      if(obj.hasOwnProperty(key)) {
+        fn.call(_this, key, obj[key]);
       }
     }
-  };
+  }
 
-  var toArray = function(obj) {
-    var i;
+  // Extend hash by rest of arguments
+  function extend(orig) {
+    var rest = slice.call(arguments, 1);
+    each(rest, function(arg) {
+      eachKey(arg, function(key, value) {
+        orig[key] = value;
+      });
+    });
+    return orig;
+  }
+
+  // Set default options where some option was not specified.
+  function defaults(options, _defaults) {
+    options = options || {};
+    eachKey(_defaults, function(key, val) {
+      if(options.hasOwnProperty(key) && val !== undefined) {
+        options[key] = val;
+      }
+    });
+    return options;
+  }
+
+  // Convert value (e.g., a NodeList) to an array.
+  function toArray(obj) {
     try {
-      return Array.prototype.slice.call(obj);
+      return slice.call(obj);
     } catch(e) {
       var ret = [];
       each(obj, function(val) {
@@ -40,758 +79,591 @@
       });
       return ret;
     }
-  };
+  }
 
-  var bindMethod = function(obj, name) {
-    var method = obj[name];
-    obj[name] = function boundMethod() {
-      method.apply(obj, arguments);
-    };
-    obj[name].actual = method;
-  };
-
-  var chainPrototype = function(Parent, Child) {
-    var Proto = function(){};
-    Proto.prototype = Parent.prototype;
-    Child.prototype = new Proto();
-    Child.prototype.constructor = Child;
-  };
-
-  var isScript = function(tok) {
+  // Test if token is a script tag.
+  function isScript(tok) {
     return (/^script$/i).test(tok.tagName);
-  };
+  }
 
-  var log = function() {
-    /*
-    var console = this.console;
-    if(console && console.log) {
-      try {
-        console.log.apply(console, arguments);
-      } catch(e) {
-        console.log(toArray(arguments).join(' '));
-      }
-    }
-    */
-  };
+  // # Class WriteStream
 
-  var clip = function(str) {
-    var limit = 40;
-    return str.substr(0, limit).replace(/\n\s*/g, ' ') +
-      (str.length > limit ? '...' : '');
-  };
+  // Stream static html to an element, where "static html" denotes "html without scripts".
 
-  var remove = function(el) {
-    if(el.parentNode) {
-      el.parentNode.removeChild(el);
-    }
-    return el;
-  };
+  // This class maintains a *history of writes devoid of any attributes* or "proxy history".
+  // Injecting the proxy history into a temporary div has no side-effects,
+  // other than to create proxy elements for previously written elements.
 
-  var appendChild = function(parent, child) {
-    //parent.insertBefore(remove(child), null);
-    parent.appendChild(remove(child));
-  };
+  // Given the `staticHtml` of a new write, a `tempDiv`'s innerHTML is set to `proxy_history + staticHtml`.
+  // The *structure* of `tempDiv`'s contents, (i.e., the placement of new nodes beside or inside of proxy elements),
+  // reflects the DOM structure that would have resulted if all writes had been squashed into a single write.
 
-  // Class Writer
+  // For each descendent `node` of `tempDiv` whose parentNode is a *proxy*, `node` is appended to the corresponding *real* element within the DOM.
 
-  var Writer = (function(){
+  // Proxy elements are mapped to *actual* elements in the DOM by injecting a data-id attribute into each start tag in `staticHtml`.
+  var WriteStream = (function(){
 
-
+    // Prefix for data attributes on DOM elements.
     var BASEATTR = 'data-ps-';
 
-    // Class Chunk
-
-    var Chunk = (function() {
-
-      function Chunk(tokens, baseId) {
-        var i, tok;
-
-        this.tokens = tokens;
-        this.baseId = this.nextId = baseId;
-        this.tags = [];
-        this.raw = "";
-        this._html = [];
-
-        each(tokens, function(tok) {
-          this.raw += tok.text;
-          this[tok.type](tok);
-        }, this);
-        delete this.nextId;
-
-        this.html = this._html.join('');
-
-        delete this._html;
-      }
-
-      Chunk.prototype.startTag = function(tok) {
-        var id = this.nextId++;
-        this.tags.push(tok);
-        this._html.push(tok.text.replace(/(\/?>)/, ' '+BASEATTR+'id='+id+' $1'));
-      };
-
-
-      Chunk.prototype.atomicTag = function(tok) {
-        if(isScript(tok)) {
-          throw 'Cannot handle scripts here';
-
-        } else if(/^noscript$/i.test(tok.tagName)) {
-          // no point in writing noscript tags. Do nothing
-          return;
-        } else {
-          // style element, for example
-          // this just appends the entire tag
-          this.startTag(tok);
-        }
-      };
-
-      Chunk.prototype.append = function (tok) {
-        this._html.push(tok.text);
-      };
-
-      Chunk.prototype.comment = Chunk.prototype.append;
-
-      Chunk.prototype.endTag = Chunk.prototype.append;
-
-      Chunk.prototype.chars = Chunk.prototype.append;
-
-      return Chunk;
-    }());
-
-
-    // Class ProxyChunk
-
-    var ProxyChunk = (function() {
-
-      function ProxyChunk(tokens, baseId) {
-        Chunk.apply(this, arguments);
-      }
-
-      chainPrototype(Chunk, ProxyChunk);
-
-      ProxyChunk.prototype.startTag = function(tok) {
-        var id = this.nextId++;
-
-        // No attributes
-        this._html.push('<'+tok.tagName+' '+BASEATTR+'proxyof='+id+
-          (tok.unary ? '/>' : '>'));
-      };
-
-      // No atomic nodes
-      ProxyChunk.prototype.atomicTag = function(tok) {};
-      // No text nodes
-      ProxyChunk.prototype.chars = function(tok) {};
-      // No comment nodes
-      ProxyChunk.prototype.comment = function(tok) {};
-
-      return ProxyChunk;
-    }());
-
-
-
-
-    var data = function(el, name, value) {
+    // get / set data attributes
+    function data(el, name, value) {
       var attr = BASEATTR + name;
+
       if(arguments.length === 2) {
         // Get
         var val = el.getAttribute(attr);
+
         // IE 8 returns a number if it's a number
         return val == null ? val : String(val);
+
       } else if( value != null && value !== '') {
         // Set
         el.setAttribute(attr, value);
-        return value;
+
       } else {
         // Remove
         el.removeAttribute(attr);
       }
-    };
-
-    var isProxy = function(el) {
-      return el && el.nodeType === 1 && !!data(el, 'proxyof');
-    };
-
-    var isActual = function(el) {
-      return el && (el.nodeType !== 1 || !isProxy(el));
-    };
-
-    function Writer(root, name) {
-      this.root = root;
-      this.name = name;
-
-      this.doc = root.ownerDocument;
-
-      this.chunks = [];
-
-      this.chunk = null;
-
-      this.actuals = [];
-
-      this.rootProxy = this.doc.createElement(root.nodeName);
-      data(this.rootProxy, 'proxyof', 0);
-
-      this.proxyHtml = '';
-
-      // register root element
-      data(root, 'id', 0);
-      this.registerElement(root);
-
     }
 
-    Writer.prototype.registerElement = function(el) {
-      var id = parseInt(data(el, 'id'), 10);
+    function WriteStream(root) {
+      // Actual elements by id.
+      this.actuals = [root];
 
-      this.actuals.push({
-        node: el,
-        token: this.chunk && this.chunk.tags[id - this.chunk.baseId]
+      // Embodies the "structure" of what's been written so far, devoid of attributes.
+      this.proxyHistory = '';
+
+      // Create a proxy of the root element.
+      this.proxyRoot = root.ownerDocument.createElement(root.nodeName);
+      data(this.proxyRoot, 'proxyof', 0);
+    }
+
+    WriteStream.prototype.buildChunk = function (tokens) {
+      var nextId = this.actuals.length,
+
+          // The raw html of this chunk.
+          raw = [],
+
+          // The html to create the nodes in the tokens (with id's injected).
+          actual = [],
+
+          // Html that can later be used to proxy the nodes in the tokens.
+          proxy = [];
+
+      each(tokens, function(tok) {
+        raw.push(tok.text);
+
+        if(tok.attrs) {
+          // Visit a token with attributes (startTag or atomicTag).
+          // Ignore noscript tags. They are atomic, so we don't have to worry about children.
+          if(!(/^noscript$/i).test(tok.tagName)) {
+            var id = nextId++;
+
+            // Actual: inject id attribute: replace '>' at end of start tag with id attribute + '>'
+            actual.push(
+              tok.text.replace(/(\/?>)/, ' '+BASEATTR+'id='+id+' $1')
+            );
+
+            // Proxy: strip all attributes and inject proxyof attribute
+            proxy.push(
+              // ignore atomic tags (e.g., style): they have no "structural" effect
+              tok.type === 'atomicTag' ? '' :
+                '<'+tok.tagName+' '+BASEATTR+'proxyof='+id+(tok.unary ? '/>' : '>')
+            );
+          }
+
+        } else {
+          // Visit any other type of token
+          // Actual: append.
+          actual.push(tok.text);
+          // Proxy: append endTags. Ignore everything else.
+          proxy.push(tok.type === 'endTag' ? tok.text : '');
+        }
       });
 
-      data(el, 'id', null);
+      return {
+        tokens: tokens,
+        raw: raw.join(''),
+        actual: actual.join(''),
+        proxy: proxy.join('')
+      };
     };
 
-    Writer.prototype.write = function(tokens) {
-      var baseId = this.actuals.length;
+    WriteStream.prototype.write = function(tokens) {
 
-      // Create a chunk based on these tokens
-      var chunk = this.chunk = new Chunk(tokens, baseId);
+      var chunk = this.buildChunk(tokens);
 
-      if(!chunk.html) {
-        // a noscript that got ignored, for example
-        return chunk;
+      if(!chunk.actual) {
+        // e.g., no tokens, or a noscript that got ignored
+        return;
       }
+      chunk.html = this.proxyHistory + chunk.actual;
+      this.proxyHistory += chunk.proxy;
 
-      this.rootProxy.innerHTML = this.proxyHtml + chunk.html;
+      this.proxyRoot.innerHTML = chunk.html;
 
-      // for debugging
-      chunk.fullHtml = this.proxyHtml + chunk.html;
-      chunk.proxyInnerHTML = this.rootProxy.innerHTML;
+      if(DEBUG_CHUNK) {
+        chunk.proxyInnerHTML = this.proxyRoot.innerHTML;
+      }
 
       this.walkNodes();
 
-      // for debugging
-      chunk.rootInnerHTML = this.root.innerHTML;
-
-      // Add the proxyHtml for this chunk.
-      this.proxyHtml += new ProxyChunk(tokens, baseId).html;
-
-      this.chunk = null;
+      if(DEBUG_CHUNK) {
+        chunk.actualInnerHTML = this.actuals[0].innerHTML; //root
+      }
 
       return chunk;
     };
 
-    Writer.prototype.actual = function(node) {
-      return isActual(node) ? node :
-             isProxy(node) && this.actuals[
-              data(node, 'proxyof')
-             ].node;
-    };
 
-    Writer.prototype.walkNodes = function() {
-      var stack = [this.rootProxy];
-      var node = stack.shift();
-      var lastId = -1;
-      var id;
+    WriteStream.prototype.walkNodes = function() {
+      var node, stack = [this.proxyRoot];
+
       // use shift/unshift so that children are walked in document order
 
-      while(node) {
+      while((node = stack.shift()) != null) {
 
-        if(isActual(node)) {
-          if(node.nodeType === 1) { // Element
-            this.registerElement(node);
+        var isElement = node.nodeType === 1;
+        var isProxy = isElement && data(node, 'proxyof');
+
+        // Ignore proxies
+        if(!isProxy) {
+
+          if(isElement) {
+            // New actual element: register it and remove the the id attr.
+            this.actuals[data(node, 'id')] = node;
+            data(node, 'id', null);
           }
 
-          var parent = node.parentNode;
-          if(isProxy(parent)) {
-            appendChild(this.actual(parent), node);
+          // Is node's parent just a proxy?
+          var parentIsProxyOf = node.parentNode && data(node.parentNode, 'proxyof');
+          if(parentIsProxyOf) {
+            // Move node under actual parent.
+            this.actuals[parentIsProxyOf].appendChild(node);
           }
         }
-
         // prepend childNodes to stack
-        [].unshift.apply(stack, toArray(node.childNodes));
-        node = stack.shift();
+        stack.unshift.apply(stack, toArray(node.childNodes));
       }
     };
 
-    Writer.prototype.log = function() {
-      /*
-      var args = ['wr'];
-      if(this.name) {
-        args.push(this.name);
-      }
-      [].push.apply(args, arguments);
-
-      log.apply(null, args);
-      */
-    };
-
-
-
-    return Writer;
+    return WriteStream;
 
   }());
 
+  // # Class Worker
+  // Perform tasks in the context of an element.
+  var Worker = (function() {
 
-  // Class WriteContext
-
-  var WriteContext = (function(){
-
-    // WriteContext brings together a writer, a parser and a writeQueue
-
-    function WriteContext(el, options) {
-
-      this.options = options;
-
-      this.name = options.name;
+    function Worker(el) {
 
       this.root = el;
 
-      this.writer = new Writer(el, options.name);
+      this.stream = new WriteStream(this.root);
 
       this.parser = globals.htmlParser('', { autoFix: true });
 
-      this.writeQueue = [[]]; // stack of queues
+      // init document and window references
+      var doc = this.doc = this.root.ownerDocument;
 
-      // those tasks with no parent
-      this.rootTasks = [];
-
-      // tasks by id
-      this.tasks = [];
-
-      // The currently running script
-      this.current = null;
-
-      // The deferred script
-      this.deferred = null;
-
-      // initialize document and window
-      var doc = this.doc = el.ownerDocument;
       var win = this.win = doc.defaultView || doc.parentWindow;
-
       // Creates win.eval in IE. I can't remember where I saw this trick.
       if( win.execScript && !win['eval'] ) {
         win.execScript('0');
       }
-
-      bindMethod(this, 'write');
-      bindMethod(this, 'callScriptDone');
-
     }
 
-    WriteContext.prototype.kill = function() {
-      this.killed = true;
-      if(this.current && !this.current.async) {
-        this.options.done();
-      }
+    Worker.prototype.exec = function(task, done) {
+      task.run.call(task._this);
+      delete task.run;
+      delete task._this;
+      done();
     };
 
-    WriteContext.prototype.error = function(e) {
-      postscribe.logs.push('ERROR '+ this.currentToString()+ ' ' + e.message);
-      this.current.error = e;
-      if(this.options.error) {
+    Worker.prototype.script_inline = function(task, done) {
+      try {
+        this.win['eval'](task.expr);
+      } catch(e) {
         this.options.error(e);
       }
+      done();
     };
 
-    WriteContext.prototype.currentToString = function() {
-      var task = this.current;
-      return this.name + '/' + task.type + task.id;
-    };
-
-    WriteContext.prototype.beginTask = function(task) {
-
-      if(this.current) {
-        task.parent = this.current.id;
-        (this.current.childIds = this.current.childIds || []).push(task.id);
-        (this.current.children = this.current.children || []).push(task);
-      } else {
-        this.rootTasks.push(task);
-      }
-
-      this.current = task;
-      task.state = 'begun';
-
-      // stash writes
-      this.writeQueue.unshift([]);
-
-      postscribe.logs.push('beg ' + this.currentToString());
-    };
-
-    WriteContext.prototype.endTask = function(task) {
-      task.state = 'done';
-
-      if(this.killed && task.async) {
-        return this.options.done();
-      }
-
-
-      if(task !== this.current) {
-        this.error({ message: 'malformed task stack', expected: this.current, actual: task});
-      }
-
-      postscribe.logs.push('end ' + this.currentToString());
-      this.current = task.parent != null && this.tasks[task.parent];
-
-      // pop and apply writes
-      var newWrites = this.writeQueue.shift();
-
-      // prepend newWrites to queue
-      [].unshift.apply(this.writeQueue[0], newWrites);
-
-      this.checkWriteQueue();
-
-      if(!this.current && this.deferred) {
-        // execute the deferred script
-        var deferred = this.deferred;
-        this.deferred = null;
-        this.callScript(deferred);
-      }
-    };
-
-    WriteContext.prototype.initTask = function(type) {
-      var task = {type: type};
-      task.id = this.tasks.length;
-      this.tasks.push(task);
-
-      if(this.current) {
-        task.cause = this.current.id;
-        (this.current.effects = this.current.effects || []).push(task.id);
-      }
-      return task;
-    };
-
-    // Write Handling
-
-    // Public
-    WriteContext.prototype.write = function(str) {
-      this.firstWrite = this.firstWrite || str;
-      this.addWrite( str );
-    };
-
-    // value can be a string of a function
-    WriteContext.prototype.addWrite = function(value) {
-
-      var wr = this.initTask('write');
-      wr.value = value;
-
-      if(isFunction(value)) {
-        wr.isFunction = value.name || true;
-      }
-
-      this.writeQueue[0].push(wr);
-
-      if(this.deferred) {
-        wr.deferredBy = this.deferred.id;
-      }
-
-      this.checkWriteQueue();
-    };
-
-    WriteContext.prototype.checkWriteQueue = function() {
-      if(this.killed) {
-        return;
-      }
-      if(!this.deferred) {
-        var wr = this.writeQueue[0].shift();
-        if(wr) {
-
-          this.beginTask(wr);
-
-          if(isFunction(wr.value)) {
-            // call function - must be synchronous
-            wr.value.call(this);
-            delete wr.value;
-          } else {
-            // string
-            this.doWrite(wr);
-          }
-
-          this.endTask(wr);
-        }
-      }
-    };
-
-    WriteContext.prototype.doWrite = function(wr) {
-
-      this.parser.append(wr.value);
-
-      var tokens = [];
-      var tok = this.parser.readToken();
-      while(tok && !isScript(tok)) {
-        // simplify memory and logs
-        delete tok.escapedAttrs;
-        tokens.push(tok);
-        tok = this.parser.readToken();
-      }
-
-      if(tokens.length) {
-        // Write out this chunk of tokens
-        wr.chunk = this.writer.write(tokens).raw;
-      }
-
-      var rest = this.parser.rest();
-
-      if(tok) {
-        delete tok.escapedAttrs;
-
-        // clear parser before doing anything else.
-        this.parser.clear();
-
-        // handle script token
-        // extract expression from content
-        var expr = (tok.content || '')
-          // remove CDATA
-          .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
-          // remove HTML comments
-          .replace(/<!--([\s\S]*?)-->/g, "$1");
-
-        this.addScript({
-          expr: expr,
-          src: tok.attrs.src || tok.attrs.SRC
-        });
-
-        if(rest) {
-          // write the rest later.
-          this.addWrite(rest);
-        }
-
-      } else if (rest) {
-        // log the remainder
-        //sideEffect(wr, { logs: ['remainder', clip(rest), {rest: rest}]});
-        wr.remainder = rest;
-      }
-
-    };
-
-    // Public
-    WriteContext.prototype.run = function() {
-      // TODO: other options like remote script or js expression!
-
-      if(this.killed) {
-        if(this.options.done) {
-          this.options.done();
-        }
-        return;
-      }
-
-      var this_ = this;
-      var options = this.options;
-      var script = {
-
-        run: function rootScript() {
-
-          options.run.call(this_);
-
-          this_.addWrite(function() {
-            if(options.done) {
-              this_.addWrite(options.done);
-            }
-          });
-        }
-      };
-
-      this.addScript(script);
-    };
-
-    WriteContext.prototype.addScript = function(s) {
-
-      // get "type" to be the first attribute
-      var script = this.initTask('script');
-      eachKey(s, function(key, val) {
-        script[key] = val;
-      });
-
-      if(script.run) {
-
-        script.isFunction = script.run.name || true;
-
-      } else if (script.src) {
-        // Remote
-
-        script.run = function(done) {
-          this.loadRemote(script.src, done);
-        };
-
-      } else if (script.expr) {
-        // Inline eval
-
-        script.run = function() {
-          this._eval(script.expr);
-        };
-
-      }
-
-
-      // function.length is number of arguments
-      script.async = script.run.length === 1;
-      if(script.async) {
-        if(this.deferred) {
-          throw 'double deferral'; // sanity
-        }
-        // defer until current script stack has exited.
-        this.deferred = script;
-      } else {
-        // run it now
-        this.callScript(script);
-      }
-
-    };
-
-    WriteContext.prototype.callScript = function(script) {
-      if(this.killed) {
-        return;
-      }
-
-      this.beginTask(script);
-
-      var this_ = this;
-      var done = function endTask() {
-        this_.endTask(script);
-        // ensure this only gets called once.
-        done = function () {};
-      };
-
-
-      var run = function() {
-        var fn = script.run;
-        delete script.run;
-        if(script.async) {
-          fn.call(this_, done);
-        } else {
-          fn.call(this_);
-          done();
-        }
-      };
-
-      if(location.href.match(/\bnotry=1/)) {
-        run();
-      } else {
-        try {
-          run();
-        } catch(e) {
-          this.error({message: e.message});
-          done();
-        }
-      }
-    };
-
-    // Script Handling
-
-    WriteContext.prototype._eval = function(expr) {
-      this.win['eval'](expr);
-    };
-
-    WriteContext.prototype.loadRemote = function(src, done) {
+    Worker.prototype.script_remote = function(task, done) {
       var s = this.doc.createElement('script');
-      var this_ = this;
-
-      s.src = src;
-
-      var cleanup = function() {
+      var _done = function() {
         s = s.onload = s.onreadystatechange = s.onerror = null;
         done();
       };
+
       s.onload = s.onreadystatechange = function() {
         if ( !s.readyState || /^(loaded|complete)$/.test( s.readyState ) ) {
-          cleanup();
+          _done();
         }
       };
+
+      var options = this.options;
       s.onerror = function() {
-        this_.error({message: 'remote script failed ' + src, url: src});
-        cleanup();
+        options.error({ message: 'remote script failed ' + task.src });
+        _done();
       };
-      appendChild(this.writer.root.parentNode, s);
+
+      s.src = task.src;
+      this.root.parentNode.appendChild(s);
     };
 
 
-    return WriteContext;
+    // Write task
+    Worker.prototype.write = function(task, done, flow) {
 
+      this.parser.append(task.html);
+
+      var tok, tokens = [];
+
+      // stop if we see a script token
+      while((tok = this.parser.readToken()) != null && !isScript(tok)) {
+        tokens.push(tok);
+      }
+
+      // Write out this chunk of tokens
+      var chunk = this.stream.write(tokens);
+
+      if(DEBUG_CHUNK) {
+        task.chunk = chunk;
+      }
+
+      if(tok) {
+        this.onScriptToken(tok, flow);
+      }
+
+      done();
+
+    };
+
+    // We encountered a script token while writing.
+    Worker.prototype.onScriptToken = function(tok, flow) {
+
+      // Stash remainder of parser for during this script.
+      var remainder = this.parser.clear();
+
+      // Subtask: Run this script.
+      var src = tok.attrs.src || tok.attrs.SRC;
+      flow.subtask( src ?
+        // Remote script: cannot be inlined.
+        { type: 'script_remote', src: src } :
+
+        // Inline script.
+        { type: 'script_inline', inlinable: true, expr: (tok.content)
+            // remove CDATA and HTML comments
+            .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
+            .replace(/<!--([\s\S]*?)-->/g, "$1")
+        }
+      );
+
+      // Subtask: Write remainder behind script.
+      if(remainder) {
+        flow.subtask({ type: 'write', html: remainder, inlinable: true });
+      }
+    };
+
+    return Worker;
 
   }());
+
+  // ## Class Flow
+  // Controls the flow of a tree of tasks with subtasks
+  // Subtasks of a task are those tasks that are added while that task is the active task.
+  // 1. task _A_ and all its "subtasks" are done before any tasks following _A_ (in tree order)
+  // 2. A task is inlined if it is inlinable and there are no deferred tasks (because of point #1). Else it is defered.
+
+  // Special task properties:
+
+  // * type
+  // * start
+  // * complete
+  var Flow = (function() {
+
+    // param worker[task.type](task, done): an object with async callbacks to execute each task type.
+    function Flow(worker, options) {
+
+      // The worker performs the tasks.
+      this.worker = worker;
+
+      this.options = options = options || {};
+      options.taskAdd = options.taskAdd || doNothing;
+      options.taskStart = options.taskStart || doNothing;
+      options.taskDone = options.taskDone || doNothing;
+
+      // Flow is initialized stopped by default.
+      this.stopRequested = true;
+
+      // The active (currently executing) task.
+      this.active = null;
+
+      // The list of deferred tasks.
+      // Only done when idle.
+      this.deferred = [];
+
+      // The active task's deferred decendant subtasks.
+      this._deferred = this.deferred;
+
+    }
+
+    // Add a "root" task.
+    Flow.prototype.task = function(task, done) {
+      this.options.taskAdd(task);
+
+      this.deferred.push(task, done || doNothing);
+
+      this.nextIfIdle();
+
+      return this;
+    };
+
+    // Add a subtask of active task.
+    Flow.prototype.subtask = function(child) {
+
+      this.options.taskAdd(child);
+
+      if(child.inlinable && !this._deferred.length) {
+        // Inline this child.
+        this.startTask(child);
+      } else {
+        // Defer this child.
+        this._deferred.push(child);
+      }
+    };
+
+    // Start a task.
+    Flow.prototype.startTask = function(task) {
+      var _this = this;
+
+      if(this.stopRequested) {
+        return this._deferred.unshift(task);
+      }
+
+      // Functions are light-weight tasks.
+      if(isFunction(task)) {
+        task.call(this);
+        return this.nextIfIdle();
+      }
+
+      // Stash the active task and queue
+      var stash = { active: this.active, _deferred: this._deferred };
+
+      // Collect deferred subtasks for this task.
+      extend(this, { active: task, _deferred: [] });
+
+      this.options.taskStart(task);
+
+      // Worker's method is passed the task, done callback, and this flow.
+      this.worker[task.type](task, function() {
+        _this.doneTask(stash);
+      }, this);
+    };
+
+    // Called when active task is done.
+    Flow.prototype.doneTask = function(stash) {
+
+      this.options.taskDone(this.active);
+
+      // Prepend deferred to stashed deferred in-place.
+      // When idle, this.deferred will hold all _deferred in the right order.
+      [].unshift.apply(stash._deferred, this._deferred);
+
+      // Restore stashed state.
+      extend(this, stash);
+
+      // Are we are waiting to stop?
+      if( this.onStop && !this.active ) {
+        this.onStop(); delete this.onStop;
+      }
+
+      this.nextIfIdle();
+    };
+
+    // Run the next deferred task if no other task is running.
+    Flow.prototype.nextIfIdle = function() {
+      // !this.active <==> (this._deferred === this.deferred)
+      var task = !this.active && this.deferred.shift();
+
+      if(task) {
+        this.startTask(task);
+      }
+    };
+
+    // Stop this flow
+    Flow.prototype.stop = function(onStop) {
+      // Callback when flow has actually stopped.
+      onStop = onStop || doNothing;
+      this.stopRequested = true;
+
+      if(!this.active) {
+        // We are ready to stop now.
+        onStop();
+      } else {
+        // We will stop when next we are idle.
+        this.onStop = onStop;
+      }
+    };
+
+    // Start this flow.
+    Flow.prototype.start = function() {
+      this.stopRequested = false;
+      delete this.onStop;
+
+      this.nextIfIdle();
+      return this;
+    };
+
+    return Flow;
+
+  }());
+
+
+  var Tracer = (function() {
+
+    function Tracer() {
+
+      this.tasks = [];
+
+      this.roots = [];
+
+      this.active = null;
+    }
+
+    Tracer.prototype.taskAdd = function(task) {
+      task.id = this.tasks.length;
+      this.tasks.push(task);
+
+      task.state = 'waiting';
+
+      if(this.active) {
+        task.cause = this.active.id;
+        (this.active.effects = this.active.effects || []).push(task.id);
+      }
+
+      return task;
+    };
+
+    Tracer.prototype.taskStart = function(task) {
+
+      var parent = this.active;
+
+      if(parent) {
+
+        task.parent = parent.id;
+        (parent.childIds = parent.childIds || []).push(task.id);
+        (parent.children = parent.children || []).push(task);
+
+      } else {
+
+        this.roots.push(task);
+      }
+
+      task.state = 'started';
+
+      this.active = task;
+
+    };
+
+    Tracer.prototype.taskDone = function(task) {
+
+      task.state = 'done';
+
+      this.active = task.parent != null ? this.tasks[task.parent] : null;
+
+    };
+
+    return Tracer;
+  }());
+
+
+
+
 
   // Public-facing interface and queuing
   var postscribe = (function() {
 
-    var queue = [];
+    function start(el, rootTask, options, done) {
 
-    var next = function() {
-      var ctx;
-      if(postscribe.current) {
-        // cleanup
-        ctx = postscribe.current;
-        ctx.doc.write = ctx._write;
-        ctx.doc.writeln = ctx._writeln;
+      // Create the flow.
+
+      var worker = new Worker(el);
+
+      var flow = new Flow(worker, DEBUG && new Tracer());
+
+      flow.name = options.name;
+
+      postscribe.writers[flow.name] = flow;
+
+      // Override document.write.
+
+      var doc = el.ownerDocument;
+
+      var stash = { write: doc.write, writeln: doc.writeln };
+
+      function write(str) {
+
+        flow.subtask({ type: 'write', html: str, inlinable: true });
+
+        if(options.afterWrite) { options.afterWrite(str); }
+
       }
-      postscribe.current = queue.shift();
-      if(postscribe.current) {
-        ctx = postscribe.current;
-        if(ctx.options.before) {
-          ctx.options.before();
-        }
 
-        ctx._write = ctx.doc.write;
-        ctx._writeln = ctx.doc.writeln;
+      extend(doc, { write: write, writeln: function(str) { write(str + '\n'); } });
 
-        ctx.doc.write = ctx.write;
-        ctx.doc.writeln = function(str) {
-          ctx.write(str+'\n');
-        };
+      // Start the flow
 
-        ctx._run();
-      }
-    };
+      return flow.task(rootTask, function() {
 
-    function postscribe(el, options) {
-      // extract node from jquery if necessary
-      var root = el.jquery ? el[0] : el;
+        // restore document.write
+        extend(doc, stash);
 
-      // implement queueing
-      var oldDone = options.done || function(){};
-      options.done = function startNextContext() {
-        oldDone();
-        next();
-      };
+        if (options.done) { options.done(); }
 
+        done();
 
-      var ctx = new WriteContext(root, options);
+      }).start();
 
-      root.postscribe = ctx;
-
-      postscribe.instances[ctx.name] = ctx;
-
-      ctx._run = ctx.run;
-      ctx.run = function() {
-        queue.push(ctx);
-        if(!postscribe.current) {
-          next();
-        }
-      };
-
-      // TODO: move options into "run" method
-      return ctx;
     }
 
-    postscribe.instances = {};
+    var queue = new Flow({
+      rootTask: function(args, done) {
+        args.push(done);
+        args.flow = start.apply(null, args);
+      }
+    }).start();
 
-    postscribe.json = function() {
-      var ret = {};
-      eachKey(this.instances, function(name, ctx) {
-        ret[name] = {
-          tasks: ctx.rootTasks,
-          innerHTML: ctx.root.innerHTML
-        };
+    function postscribe(el, html, options) {
+
+      var rootTask = isFunction(html) ?
+        { type: 'exec', run: html } :
+        { type: 'write', html: html };
+
+      var args = extend([el, rootTask, options], { type: 'rootTask' });
+
+      queue.task(args);
+
+      return (el.postscribe = {
+        stop: function() {
+          if(args.flow) {
+            args.flow.stop();
+          } else {
+            // Set a root task that does nothing.
+            args[1] = { type: "exec", run: doNothing };
+          }
+        }
       });
-      ret.logs = postscribe.logs;
-      return ret;
-    };
+    }
 
-    postscribe.logs = [];
-    postscribe.queue = queue;
+    return extend(postscribe, { writers: {}, queue: queue });
 
-    postscribe.WriteContext = WriteContext;
-
-    return postscribe;
   }());
 
+
   // export postscribe
-  this.postscribe = postscribe;
+  globals.postscribe = postscribe;
 
 }());

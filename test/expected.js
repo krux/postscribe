@@ -1,4 +1,4 @@
-var expectedBehavior =  {
+var expectedBehavior = {
     "test simple style": {
         "tag0": {
             "calls": [{
@@ -9,6 +9,86 @@ var expectedBehavior =  {
                 "1": "tag0:Final InnerHtml"
             }, {
                 "0": "<style> h3 {color: blue;}</style>",
+                "1": "tag0:<script class=\"test_cb\">cb_1();//Rendering Complete</script>"
+            }]
+        }
+    },
+    "test string double quote": {
+        "tag0": {
+            "calls": [{
+                "0": "<img alt=\"foo\">",
+                "1": "tag0:<img alt=\"foo\">"
+            }, {
+                "0": "foo"
+            }, {
+                "0": "<img alt=\"foo\">",
+                "1": "tag0:Final InnerHtml"
+            }, {
+                "0": "<img alt=\"foo\">",
+                "1": "tag0:<script class=\"test_cb\">cb_1();//Rendering Complete</script>"
+            }]
+        }
+    },
+    "test string single quote": {
+        "tag0": {
+            "calls": [{
+                "0": "<img alt=\"foo\">",
+                "1": "tag0:<img alt='foo'>"
+            }, {
+                "0": "foo"
+            }, {
+                "0": "<img alt=\"foo\">",
+                "1": "tag0:Final InnerHtml"
+            }, {
+                "0": "<img alt=\"foo\">",
+                "1": "tag0:<script class=\"test_cb\">cb_1();//Rendering Complete</script>"
+            }]
+        }
+    },
+    "test string unquoted": {
+        "tag0": {
+            "calls": [{
+                "0": "<img alt=\"foo\">",
+                "1": "tag0:<img alt=foo>"
+            }, {
+                "0": "foo"
+            }, {
+                "0": "<img alt=\"foo\">",
+                "1": "tag0:Final InnerHtml"
+            }, {
+                "0": "<img alt=\"foo\">",
+                "1": "tag0:<script class=\"test_cb\">cb_1();//Rendering Complete</script>"
+            }]
+        }
+    },
+    "test empty string": {
+        "tag0": {
+            "calls": [{
+                "0": "<img alt=\"\">",
+                "1": "tag0:<img alt=\"\">"
+            }, {
+                "0": ""
+            }, {
+                "0": "<img alt=\"\">",
+                "1": "tag0:Final InnerHtml"
+            }, {
+                "0": "<img alt=\"\">",
+                "1": "tag0:<script class=\"test_cb\">cb_1();//Rendering Complete</script>"
+            }]
+        }
+    },
+    "test no value": {
+        "tag0": {
+            "calls": [{
+                "0": "<input type=\"checkbox\" checked=\"\">",
+                "1": "tag0:<input type=\"checkbox\" checked>"
+            }, {
+                "0": "checked"
+            }, {
+                "0": "<input type=\"checkbox\" checked=\"\">",
+                "1": "tag0:Final InnerHtml"
+            }, {
+                "0": "<input type=\"checkbox\" checked=\"\">",
                 "1": "tag0:<script class=\"test_cb\">cb_1();//Rendering Complete</script>"
             }]
         }
@@ -222,86 +302,6 @@ var expectedBehavior =  {
             }, {
                 "0": "VQ<div id=\"remote\">remote</div>STXYQVQXSTSTXYEVQXSTF758Z<div id=\"remote\">remote</div>NAVQ<div id=\"remote\">remote</div>STXYQVQXSTSTXYEVQXSTF758Z<div id=\"remote\">remote</div>NBVQ<div id=\"remote\">remote</div>STXYQVQXSTSTXYEVQXSTF758Z<div id=\"remote\">remote</div>N",
                 "1": "tag0:Final InnerHtml"
-            }]
-        }
-    },
-    "test string double quote": {
-        "tag0": {
-            "calls": [{
-                "0": "<img alt=\"foo\">",
-                "1": "tag0:<img alt=\"foo\">"
-            }, {
-                "0": "foo"
-            }, {
-                "0": "<img alt=\"foo\">",
-                "1": "tag0:Final InnerHtml"
-            }, {
-                "0": "<img alt=\"foo\">",
-                "1": "tag0:<script class=\"test_cb\">cb_1();//Rendering Complete</script>"
-            }]
-        }
-    },
-    "test string single quote": {
-        "tag0": {
-            "calls": [{
-                "0": "<img alt=\"foo\">",
-                "1": "tag0:<img alt='foo'>"
-            }, {
-                "0": "foo"
-            }, {
-                "0": "<img alt=\"foo\">",
-                "1": "tag0:Final InnerHtml"
-            }, {
-                "0": "<img alt=\"foo\">",
-                "1": "tag0:<script class=\"test_cb\">cb_1();//Rendering Complete</script>"
-            }]
-        }
-    },
-    "test string unquoted": {
-        "tag0": {
-            "calls": [{
-                "0": "<img alt=\"foo\">",
-                "1": "tag0:<img alt=foo>"
-            }, {
-                "0": "foo"
-            }, {
-                "0": "<img alt=\"foo\">",
-                "1": "tag0:Final InnerHtml"
-            }, {
-                "0": "<img alt=\"foo\">",
-                "1": "tag0:<script class=\"test_cb\">cb_1();//Rendering Complete</script>"
-            }]
-        }
-    },
-    "test empty string": {
-        "tag0": {
-            "calls": [{
-                "0": "<img alt=\"\">",
-                "1": "tag0:<img alt=\"\">"
-            }, {
-                "0": ""
-            }, {
-                "0": "<img alt=\"\">",
-                "1": "tag0:Final InnerHtml"
-            }, {
-                "0": "<img alt=\"\">",
-                "1": "tag0:<script class=\"test_cb\">cb_1();//Rendering Complete</script>"
-            }]
-        }
-    },
-    "test no value": {
-        "tag0": {
-            "calls": [{
-                "0": "<input type=\"checkbox\" checked=\"\">",
-                "1": "tag0:<input type=\"checkbox\" checked>"
-            }, {
-                "0": "checked"
-            }, {
-                "0": "<input type=\"checkbox\" checked=\"\">",
-                "1": "tag0:Final InnerHtml"
-            }, {
-                "0": "<input type=\"checkbox\" checked=\"\">",
-                "1": "tag0:<script class=\"test_cb\">cb_1();//Rendering Complete</script>"
             }]
         }
     },

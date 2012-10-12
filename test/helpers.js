@@ -301,25 +301,17 @@ var execute = function(name, tags, options) {
 
       var renderImpl = self.render;
 
-      self.writer = new postscribe(self.div, {
-        name: tag.id,
-        run: renderImpl,
-        before: function() {
-          self.doc.write = function(str) {
-            ok(false, self.tag.id + ' - document.write outside: ' + str);
-          };
-        }
-      });
-
       self.render = function() {
-        var oldWrite = self.writer.write;
-        self.writer.write = function(str) {
-          oldWrite.apply(self.writer, arguments);
-          self.written += str;
-          self.compareInnerHtml(str);
-        };
-
-        self.writer.run();
+        self.writer = postscribe(self.div, function() {
+            self.doc.currentTag = tag;
+            renderImpl.call(this);
+          }, {
+          name: tag.id,
+          afterWrite: function(str) {
+            self.written += str;
+            self.compareInnerHtml(str);
+          }
+        });
       };
 
 
@@ -396,6 +388,10 @@ var execute = function(name, tags, options) {
 
       ifr = IFrame('[ACTUAL]'+name);
 
+      ifr.doc.write = function(str) {
+        ok(false, ifr.doc.currentTag.id + ' - document.write outside: ' + str);
+      };
+
       for(i = 0; tag = tags[i]; i++) {
         ifr.doc._write('<div class=tag id='+tag.id+'></div>');
       }
@@ -409,7 +405,7 @@ var execute = function(name, tags, options) {
       var shuffledTags = random.shuffle(tags);
 
       for(i = 0; tag = shuffledTags[i]; i++) {
-        renderTag(tag)
+        renderTag(tag);
       }
 
       pauseMonitor.checkDone();
@@ -459,10 +455,10 @@ var testWrite = function(name) {
   // TEST OPTIONS
   var options = testOptions;
 
-  test(name+(window.JSON?JSON.stringify(options):''), function() {
+  test(name+(window.JSON ? JSON.stringify(options):''), function() {
     execute(name, tags, options);
 
-    if(GENERATE_EXPECTED && JSON && JSON.stringify) {
+    if(GENERATE_EXPECTED && window.JSON && JSON.stringify) {
       clearTimeout(nativeTimeout);
       nativeTimeout = setTimeout(function() {
         console.log('Native behavior:');

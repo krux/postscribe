@@ -175,7 +175,9 @@
     };
 
     var clear = function() {
+      var rest = stream;
       stream = '';
+      return rest;
     };
 
     var rest = function() {
