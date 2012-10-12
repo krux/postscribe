@@ -76,15 +76,18 @@ We use jshint to do static analysis of the javascript and keep things smelling g
 
 `$ grunt lint`
 
-
 **Pro Tip**: You can use TDD and have jslint and the tests run on every commit with:
 
 `$ grunt watch`
 
 
 # History
+Postscribe uses [software versioning standards](http://semver.org) as follows: major.new.maintenance[.trivial]. There are git tags for each release if you would like to see older versions.
+
 ### 1.0.0 Initial open source release
-* Write tags asynchronously, yo.
+[Released on Oct 12 2012](https://github.com/krux/postscribe/tree/version/1.0)
+
+* Write tags asynchronously, yo. Initial release after 2+ years of development internally at [Krux](http://www.krux.com)
 
 # License
 We aim for you to use this inside your application, so we picked the leased restrictive license we could find. MIT License - see [LICENSE](https://github.com/krux/postscribe/blob/master/LICENSE)
