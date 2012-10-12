@@ -9,6 +9,10 @@
 
   var globals = this;
 
+  if(globals.postscribe) {
+    return;
+  }
+
   // Debug write tasks.
   var DEBUG = true;
 
