@@ -44,5 +44,7 @@
     "engines": {
         "node": ">=0.8"
     },
-    "scripts": {}
+    "scripts": {
+        "test": "grunt test"
+    }
 }
