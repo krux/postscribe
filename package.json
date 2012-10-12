@@ -35,12 +35,16 @@
         }
     ],
     "dependencies": {},
-    "devDependencies": {},
+    "devDependencies": {
+        "grunt": "~0.3.16"
+    },
     "homepage": "https://github.com/krux/postscribe",
     "os": [],
     "cpu": [],
     "engines": {
         "node": ">=0.8"
     },
-    "scripts": {}
+    "scripts": {
+        "test": "grunt test"
+    }
 }
