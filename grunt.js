@@ -43,6 +43,10 @@ module.exports = function(grunt) {
                 },
                 globals: {}
             }
+        },
+
+        qunit: {
+          files: ['test/test.html']
         }
 
     });
@@ -51,6 +55,6 @@ module.exports = function(grunt) {
     grunt.registerTask('test', 'qunit');
 
     // This is what gets run when you don't specify an argument for grunt.
-    grunt.registerTask('default', 'lint');
+    grunt.registerTask('default', 'lint test');
 
 };
