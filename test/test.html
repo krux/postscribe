@@ -28,4 +28,13 @@
     <ol id="qunit-tests"></ol>
     <div id="qunit-fixture">test markup, will be hidden</div>
   </body>
+  <script>
+      QUnit.done(function allDone(details){
+          if (details.failed === 0) {
+              jQuery("#qunit-header").append(" - Great Success!");
+          } else {
+              jQuery("#qunit-header").append(" - Fail!");
+          }
+      });
+  </script>
 </html>
