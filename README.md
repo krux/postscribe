@@ -1,10 +1,19 @@
 # Overview
 
-Derek.
+Talking points:
+
+* Describe the problem, and link to Nick's [async vs sync post](http://www.krux.com/pro/broadcasts/krux_blog/synchronous_vs_asynchronous_tags_whats_the_big_deal/)
+* Why it's hard to solve
+* Why postscribe is different than writeCapture, Ghostwriter, etc. (talk about dom proxies)
+* Link to interactive demo
+* Link to Derek's html5 devconf presentation
+* Link to Derek's html5 devconf presentation
+* Supertag Plug
 
 # Usage
 
-Derek.
+* Include the script.
+* Example call
 
 # FAQ
 ##### Does it work with jQuery, Prototype, Backbone, Underscore, jQuery UI, YUI, mooTools, dojo, etc.?
@@ -29,7 +38,7 @@ Postscribe was designed to behave as closely to the native `document.write`/`inn
 * Internet Explorer 7+ (as far as we know, it will work on IE 6, but we're trying to encourage [its death](http://ie6funeral.com), so we haven't tested it) 
 * iPhone/iPad and other webkit-based browsers
 
-Curious if a specific browser will work? Run the tests yourself (TODO link) and let us know if you see any failures.
+Curious if a specific browser will work? [Run the tests yourself](http://krux.github.com/postscribe/test/test.html) and let us know if you see any failures.
 
 # Alternatives
 We've stood on the shoulders of giants with our work, and there are other alternative approaches to solve this problem. Shout out to the best ones we found:
