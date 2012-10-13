@@ -15,12 +15,12 @@ Yep. It neither depends on nor conflicts with any of the existing popular javasc
 
 
 # Who is using it
-This project was originally developed at [Krux](http://www.krux.com) as part of it's [SuperTag](http://www.krux.com/pro/whatwedo/manage/supertag/) product. There it was battletested on high profile sites like [The New York Times](http://www.nytimes.com), [The Wall Street Journal](http://online.wsj.com), [NBCU](http://www.nbcuni.com), and hundreds of others. It is actively maintained by Krux.
+This project was originally developed at [Krux](http://www.krux.com) as part of its [SuperTag](http://www.krux.com/pro/whatwedo/manage/supertag/) product. There it was battle tested on high-profile sites like [The New York Times](http://www.nytimes.com), [The Wall Street Journal](http://online.wsj.com), [NBCU](http://www.nbcuni.com), and hundreds of others. It is actively maintained by Krux.
 
-Plug: Using this standalone library is fine, but if you want to go further and have your tags centrally managed instead of having them hard coded on the page, Check out [Krux's SuperTag](http://www.krux.com/pro/whatwedo/manage/supertag/).
+Plug: Using this standalone library is fine, but if you want to go further and have your tags centrally managed instead of having them hard-coded on the page, Check out [Krux's SuperTag](http://www.krux.com/pro/whatwedo/manage/supertag/).
 
 # Browser Compatibility
-Postscribe was designed to behave as closely to the native `document.write`/`innerHTML` does as feasible, and we've taken great care to make sure that it works on every browser we can get our hands on. We expect it to work on every browser built after 2005. There are over 400 [unit tests](https://github.com/krux/postscribe/tree/master/test) that run on every commit, and we add more all the time. Postscribe is thoroughly tested and known to work well in the following browsers:
+Postscribe was designed to behave as closely to the native `document.write`/`innerHTML` does as possible, and we've taken great care to make sure that it works on every browser we can get our hands on. We expect it to work on every browser built after 2005. There are over 400 [unit tests](https://github.com/krux/postscribe/tree/master/test) that run on every commit, and we add more all the time. Postscribe is thoroughly tested and known to work well in the following browsers:
 
 * Firefox - 3.6 and 4+
 * Chrome 10+
@@ -29,7 +29,7 @@ Postscribe was designed to behave as closely to the native `document.write`/`inn
 * Internet Explorer 7+ (as far as we know, it will work on IE 6, but we're trying to encourage [its death](http://ie6funeral.com), so we haven't tested it) 
 * iPhone/iPad and other webkit-based browsers
 
-Curious if a specific browser will work? Run the tests yourself (TODO link) and let us know if there are any failures.
+Curious if a specific browser will work? Run the tests yourself (TODO link) and let us know if you see any failures.
 
 # Alternatives
 We've stood on the shoulders of giants with our work, and there are other alternative approaches to solve this problem. Shout out to the best ones we found:
@@ -38,7 +38,7 @@ We've stood on the shoulders of giants with our work, and there are other altern
 * [Ghostwriter](http://digital-fulcrum.com/ghostwriter/docs/files/ghostwriter-js.html) by Digital Fulcrum (it looks like they have removed references to it on their site?)
 * [ControlJS](http://stevesouders.com/controljs/) by [Steve Souders](http://stevesouders.com)
 
-If you would like to be added to this list, file an issue and we'd be happy to.
+If you would like your project to be added to this list, file an issue and we'd be happy to.
 
 # More information
 * [Documentation](https://github.com/krux/postscribe/tree/master/doc)
@@ -92,7 +92,7 @@ Postscribe uses [software versioning standards](http://semver.org) as follows: m
 * Write tags asynchronously, yo. Initial release after 2+ years of development internally at [Krux](http://www.krux.com)
 
 # License
-We aim for you to use this inside your application, so we picked the leased restrictive license we could find. MIT License - see [LICENSE](https://github.com/krux/postscribe/blob/master/LICENSE)
+We aim for you to use this inside your application, so we picked the least restrictive license we could find. MIT License - see [LICENSE](https://github.com/krux/postscribe/blob/master/LICENSE)
 
 
 
