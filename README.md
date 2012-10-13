@@ -51,7 +51,8 @@ If you would like your project to be added to this list, file an issue and we'd 
 
 # More information
 * [Documentation](https://github.com/krux/postscribe/tree/master/doc)
-* Browse the [raw](https://github.com/krux/postscribe/blob/master/postscribe.js) source code. **TODO**: Link to annotated source code.
+* Browse the [raw](https://github.com/krux/postscribe/blob/master/postscribe.js) or
+  [annotated](http://krux.github.com/postscribe/doc/postscribe.html) source code.
 
 # Help/Bugs/Requests
 Have a problem? Need help? Would you like additional functionality added? We use github's ticket system for keeping track of these requests. Please check out the [existing issues](https://github.com/krux/postscribe/issues), and if you don't see that your problem is already being
