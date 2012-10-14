@@ -1,16 +1,27 @@
 # Overview
 
-Talking points:
+Remote scripts, especially ads, block the page from doing anything else while they load. They contribute a large % to load times which [affects your bottom line](http://devnet.kentico.com/Blogs/Thomas-Robbins/September-2012/How-loading-time-affects-your-bottom-line-Infograp.aspx). *Asynchronous* ads do not block the page and can be delivered after core content - [Async FTW](http://www.krux.com/pro/broadcasts/krux_blog/synchronous_vs_asynchronous_tags_whats_the_big_deal/).
 
-* Describe the problem, and link to Nick's [async vs sync post](http://www.krux.com/pro/broadcasts/krux_blog/synchronous_vs_asynchronous_tags_whats_the_big_deal/)
-* Why it's hard to solve
-* Why postscribe is different than writeCapture, Ghostwriter, etc. (talk about dom proxies)
-* Link to interactive demo
-* Link to Derek's html5 devconf presentation
-* Link to Derek's html5 devconf presentation
-* Supertag Plug
+Why is it so hard to deliver ads asynchronously? Because they may contain calls to `document.write`, which expects to be handled synchronously. **PostScribe lets you deliver a synchronous ad asynchronously without modifying the ad code**.
+
+Shameless Plug: Using this standalone library is a great start, but if you want to go further and have your tags centrally managed instead of having them hard-coded on the page, Check out [Krux's SuperTag](http://www.krux.com/pro/whatwedo/manage/supertag/), developed by the same authors as this library.
+
+
+### Approach
+
+Other tag writing libraries exist (see [alternatives](#alternatives)), but PostScribe is novel in it's use of what we call DOM Proxies, a way to ensure that the content is written as close to the way the browser would natively write the content with `document.write`/`innerHTML`. Read: it behaves just like the browser would, without convoluted parsing or hacks.
+
+For more information:
+
+* Derek Brans' html5devconf presentation TODO: Link to the talk
+* [Documentation](https://github.com/krux/postscribe/tree/master/doc)
+* Browse the [raw](https://github.com/krux/postscribe/blob/master/postscribe.js) or [annotated](http://krux.github.com/postscribe/doc/postscribe.html) source code.
+* TODO: Interactive Demo
+
 
 # Usage
+
+DEREK:
 
 * Include the script.
 * Example call
@@ -26,7 +37,7 @@ Yep. It neither depends on nor conflicts with any of the existing popular javasc
 # Who is using it
 This project was originally developed at [Krux](http://www.krux.com) as part of its [SuperTag](http://www.krux.com/pro/whatwedo/manage/supertag/) product. There it was battle tested on high-profile sites like [The New York Times](http://www.nytimes.com), [The Wall Street Journal](http://online.wsj.com), [NBCU](http://www.nbcuni.com), and hundreds of others. It is actively maintained by Krux.
 
-Plug: Using this standalone library is fine, but if you want to go further and have your tags centrally managed instead of having them hard-coded on the page, Check out [Krux's SuperTag](http://www.krux.com/pro/whatwedo/manage/supertag/).
+
 
 # Browser Compatibility
 Postscribe was designed to behave as closely to the native `document.write`/`innerHTML` does as possible, and we've taken great care to make sure that it works on every browser we can get our hands on. We expect it to work on every browser built after 2005. There are over 400 [unit tests](https://github.com/krux/postscribe/tree/master/test) that run on every commit, and we add more all the time. Postscribe is thoroughly tested and known to work well in the following browsers:
@@ -49,10 +60,6 @@ We've stood on the shoulders of giants with our work, and there are other altern
 
 If you would like your project to be added to this list, file an issue and we'd be happy to.
 
-# More information
-* [Documentation](https://github.com/krux/postscribe/tree/master/doc)
-* Browse the [raw](https://github.com/krux/postscribe/blob/master/postscribe.js) or
-  [annotated](http://krux.github.com/postscribe/doc/postscribe.html) source code.
 
 # Help/Bugs/Requests
 Have a problem? Need help? Would you like additional functionality added? We use github's ticket system for keeping track of these requests. Please check out the [existing issues](https://github.com/krux/postscribe/issues), and if you don't see that your problem is already being
