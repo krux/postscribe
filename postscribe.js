@@ -641,10 +641,11 @@
 
     function postscribe(el, html, options) {
 
-      // Allow id selector for element
-      if(/^#/.test(el)) {
-        el = globals.document.getElementById(el.substr(1));
-      }
+      el =
+        // id selector
+        (/^#/).test(el) ? globals.document.getElementById(el.substr(1)) :
+        // jquery object. TODO: loop over all elements.
+        el.jquery ? el[0] : el;
 
       options = options || {};
 
