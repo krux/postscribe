@@ -279,9 +279,8 @@
     }
 
     Worker.prototype.exec = function(task, done) {
-      task.run.call(task._this);
+      task.run.call(this.win, this.doc);
       delete task.run;
-      delete task._this;
       done();
     };
 
