@@ -27,7 +27,7 @@
   function doNothing() {}
 
 
-  // Is value a function?
+  // Is this a function?
   function isFunction(x) {
     return "function" == typeof x;
   }
@@ -641,6 +641,12 @@
     }).start();
 
     function postscribe(el, html, options) {
+
+      // Allow id selector for element
+      if(/^#/.test(el)) {
+        el = globals.document.getElementById(el.substr(1));
+      }
+
       options = options || {};
 
       var rootTask = isFunction(html) ?
