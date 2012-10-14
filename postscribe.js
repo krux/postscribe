@@ -641,6 +641,7 @@
     }).start();
 
     function postscribe(el, html, options) {
+      options = options || {};
 
       var rootTask = isFunction(html) ?
         { type: 'exec', run: html } :
