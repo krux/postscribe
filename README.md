@@ -19,12 +19,56 @@ For more information:
 * TODO: Interactive Demo
 
 
-# Usage
+# Getting Started
 
-DEREK:
+PostScribe overrides document.write. It is best and safest to use PostScribe after DOM is ready.
 
-* Include the script.
-* Example call
+Include `./htmlParser/htmlParser.js` and `./postscribe.js` on your page. TODO: cdn for postscribe.min.js
+
+To append html to #mydiv:
+
+    postscribe('#mydiv', '<h1>Hello PostScribe</h1>');
+
+In general:
+
+    postscribe(element, html, options);
+
+* *element:* a DOM Element, jQuery object, or id selector (e.g. "#mydiv")
+* *html:* an html string or a function that takes a DOM Document and writes to it.
+* *options:* a hash of options
+  * *done:* a callback that will be called when writing is finished.
+
+
+If you just want to mess around, include the js files at the top of an html page that contains the following:
+
+    <div id="mydiv"></div>
+    <script type="text/javascript">
+      postscribe('#mydiv', '<h1>Hello PostScribe</h1>');
+    </script>
+
+
+## How to use postscribe to render an ad after load
+
+Where normally you would have
+
+    <div id="ad"><h5>Advertisement</h5>
+      <script type="text/javascript">
+        // Build url params and make the ad call
+        document.write('<script src=doubleclick_url_with_params></script>');
+      </script>
+    </div>
+
+Instead, remove the ad call and close the div
+
+    <div id="ad"><h5>Advertisement</h5></div>
+
+    <script type="text/javascript">
+      // jQuery used as an example of delaying until load.
+      $(function() {
+        // Build url params and make the ad call
+        postscribe('#ad', '<script src=doubleclick_url_with_params></script>');
+      });
+    </script>
 
 # FAQ
 ##### Does it work with jQuery, Prototype, Backbone, Underscore, jQuery UI, YUI, mooTools, dojo, etc.?
