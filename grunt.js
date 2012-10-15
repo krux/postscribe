@@ -3,6 +3,11 @@ module.exports = function(grunt) {
     // Project configuration.
     grunt.initConfig({
         pkg: '<json:package.json>',
+        meta: {
+          banner: '/* <%= pkg.description %>, v<%= pkg.version %> <%= pkg.homepage %>\n' +
+                      'Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>, MIT license ' +
+                      '<%= pkg.licenses[0].url %> */'
+        },
 
         // run jshint on the files, with the options described below. Different globals defined based on file type
         // 'node' for files that are run by node.js (module, process, etc.)
@@ -42,6 +47,14 @@ module.exports = function(grunt) {
                     eqnull: true
                 },
                 globals: {}
+            }
+        },
+
+        // Minify postscribe src to postscribe.min.js, prepending a banner
+        min: {
+            dist: {
+                src: ['<banner:meta.banner>', 'postscribe.js'],
+                dest: 'postscribe.min.js'
             }
         },
 
