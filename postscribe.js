@@ -288,7 +288,7 @@
       try {
         this.win['eval'](task.expr);
       } catch(e) {
-        this.options.error(e);
+        // TODO: this.options.error(e);
       }
       done();
     };
