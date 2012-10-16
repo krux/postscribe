@@ -1,10 +1,10 @@
-module.exports = function(grunt) {
+module.exports = function (grunt) {
 
     // Project configuration.
     grunt.initConfig({
         pkg: '<json:package.json>',
         meta: {
-          banner: '/* <%= pkg.description %>, v<%= pkg.version %> <%= pkg.homepage %>\n' +
+            banner: '/* <%= pkg.description %>, v<%= pkg.version %> <%= pkg.homepage %>\n' +
                       'Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>, MIT license ' +
                       '<%= pkg.licenses[0].url %> */'
         },
@@ -23,7 +23,7 @@ module.exports = function(grunt) {
                 eqeqeq: true,
                 expr: true,
                 forin: true,
-                indent: 2,
+                indent: false,
                 latedef: false,
                 newcap: true,
                 noarg: true,
@@ -35,7 +35,7 @@ module.exports = function(grunt) {
             globals: {},
             // Just for the 'node' src files
             node: {
-                globals: {console: true, process: true, module:true, require: true, __dirname: true, exports: true}
+                globals: {console: true, process: true, module: true, require: true, __dirname: true, exports: true}
             },
             // Just for the 'browser' src files
             browser: {
