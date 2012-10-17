@@ -49,12 +49,17 @@ module.exports = function (grunt) {
                 globals: {}
             }
         },
-
+        concat: {
+            dist: {
+                src: ['<banner:meta.banner>', 'htmlParser/htmlParser.js', 'postscribe.js'],
+                dest: 'dist/postscribe.js'
+            }
+        },
         // Minify postscribe src to postscribe.min.js, prepending a banner
         min: {
             dist: {
-                src: ['<banner:meta.banner>', 'postscribe.js'],
-                dest: 'postscribe.min.js'
+                src: ['<banner:meta.banner>', 'dist/postscribe.js'],
+                dest: 'dist/postscribe.min.js'
             }
         },
 
