@@ -50,22 +50,19 @@
     }
   }
 
-  // Extend hash by rest of arguments
-  function extend(orig) {
-    var rest = slice.call(arguments, 1);
-    each(rest, function(arg) {
-      eachKey(arg, function(key, value) {
-        orig[key] = value;
-      });
+  // Set properties on an object.
+  function set(obj, props) {
+    eachKey(props, function(key, value) {
+      obj[key] = value;
     });
-    return orig;
+    return obj;
   }
 
   // Set default options where some option was not specified.
   function defaults(options, _defaults) {
     options = options || {};
     eachKey(_defaults, function(key, val) {
-      if(options.hasOwnProperty(key) && val !== undefined) {
+      if(options[key] == null) {
         options[key] = val;
       }
     });
@@ -240,7 +237,7 @@
             data(node, 'id', null);
           }
 
-          // Is node's parent just a proxy?
+          // Is node's parent a proxy?
           var parentIsProxyOf = node.parentNode && data(node.parentNode, 'proxyof');
           if(parentIsProxyOf) {
             // Move node under actual parent.
@@ -260,18 +257,25 @@
   // Perform tasks in the context of an element.
   var Worker = (function() {
 
-    function Worker(el) {
+    function Worker(el, options) {
+      // Default options
 
-      this.root = el;
+      var doc = el.ownerDocument;
 
-      this.stream = new WriteStream(this.root);
+      set(this, {
 
-      this.parser = globals.htmlParser('', { autoFix: true });
+        root: el,
 
-      // init document and window references
-      var doc = this.doc = this.root.ownerDocument;
+        options: defaults(options, { error: doNothing }),
 
-      var win = this.win = doc.defaultView || doc.parentWindow;
+        stream: new WriteStream(el),
+
+        parser: globals.htmlParser('', { autoFix: true }),
+
+        doc: doc,
+
+        win: doc.defaultView|| doc.parentWindow
+      });
     }
 
     Worker.prototype.exec = function(task, done) {
@@ -280,39 +284,40 @@
       done();
     };
 
+    // The method on the window object used for 'eval'
+    var EVAL = globals.execScript ? 'execScript' : 'eval';
+
     Worker.prototype.script_inline = function(task, done) {
       try {
-        if(this.win.execScript) {
-          this.win.execScript(task.expr);
-        } else {
-          this.win['eval'](task.expr);
-        }
+        this.win[EVAL](task.expr);
       } catch(e) {
-        // TODO: this.options.error(e);
+        this.options.error(e);
       }
       done();
     };
 
     Worker.prototype.script_remote = function(task, done) {
-      var s = this.doc.createElement('script');
-      var _done = function() {
+      var s, _this = this;
+
+      function _done() {
         s = s.onload = s.onreadystatechange = s.onerror = null;
         done();
-      };
+      }
 
-      s.onload = s.onreadystatechange = function() {
-        if ( !s.readyState || /^(loaded|complete)$/.test( s.readyState ) ) {
+      s = set(this.doc.createElement('script'), {
+        src: task.src,
+        onload: _done,
+        onreadystatechange: function() {
+          if(/^(loaded|complete)$/.test( s.readyState )) {
+            _done();
+          }
+        },
+        onerror: function() {
+          _this.options.error({ message: 'remote script failed ' + task.src });
           _done();
         }
-      };
+      });
 
-      var options = this.options;
-      s.onerror = function() {
-        options.error({ message: 'remote script failed ' + task.src });
-        _done();
-      };
-
-      s.src = task.src;
       this.root.parentNode.appendChild(s);
     };
 
@@ -390,34 +395,43 @@
     // param worker[task.type](task, done): an object with async callbacks to execute each task type.
     function Flow(worker, options) {
 
-      // The worker performs the tasks.
-      this.worker = worker;
+      var deferred = [];
 
-      this.options = options = options || {};
-      options.taskAdd = options.taskAdd || doNothing;
-      options.taskStart = options.taskStart || doNothing;
-      options.taskDone = options.taskDone || doNothing;
+      set(this, {
 
-      // Flow is initialized stopped by default.
-      this.stopRequested = true;
+        // The worker performs the tasks.
+        worker: worker,
 
-      // The active (currently executing) task.
-      this.active = null;
+        options: defaults(options, {
+          taskAdd: doNothing,
+          taskStart: doNothing,
+          taskDone: doNothing
+        }),
 
-      // The list of deferred tasks.
-      // Only done when idle.
-      this.deferred = [];
+        // Flow is initialized stopped by default.
+        stopRequested: true,
 
-      // The active task's deferred decendant subtasks.
-      this._deferred = this.deferred;
+        // The active (currently executing) task.
+        active: null,
 
+        // The list of deferred tasks.
+        // Only done when idle.
+        deferred: deferred,
+
+        // The active task's deferred decendant subtasks.
+        _deferred: deferred
+      });
     }
 
     // Add a "root" task.
     Flow.prototype.task = function(task, done) {
       this.options.taskAdd(task);
 
-      this.deferred.push(task, done || doNothing);
+      this.deferred.push(task);
+
+      if(done) {
+        this.deferred.push(done);
+      }
 
       this.nextIfIdle();
 
@@ -456,7 +470,7 @@
       var stash = { active: this.active, _deferred: this._deferred };
 
       // Collect deferred subtasks for this task.
-      extend(this, { active: task, _deferred: [] });
+      set(this, { active: task, _deferred: [] });
 
       this.options.taskStart(task);
 
@@ -476,7 +490,7 @@
       [].unshift.apply(stash._deferred, this._deferred);
 
       // Restore stashed state.
-      extend(this, stash);
+      set(this, stash);
 
       // Are we are waiting to stop?
       if( this.onStop && !this.active ) {
@@ -525,15 +539,19 @@
   }());
 
 
+  // ## Class Tracer (Debugging)
+  // Traces the relationships between tasks.
   var Tracer = (function() {
 
     function Tracer() {
 
-      this.tasks = [];
+      set(this, {
+        tasks: [],
 
-      this.roots = [];
+        roots: [],
 
-      this.active = null;
+        active: null
+      });
     }
 
     Tracer.prototype.taskAdd = function(task) {
@@ -615,14 +633,14 @@
 
       }
 
-      extend(doc, { write: write, writeln: function(str) { write(str + '\n'); } });
+      set(doc, { write: write, writeln: function(str) { write(str + '\n'); } });
 
       // Start the flow
 
       return flow.task(rootTask, function() {
 
         // restore document.write
-        extend(doc, stash);
+        set(doc, stash);
 
         if (options.done) { options.done(); }
 
@@ -653,7 +671,7 @@
         { type: 'exec', run: html } :
         { type: 'write', html: html };
 
-      var args = extend([el, rootTask, options], { type: 'rootTask' });
+      var args = set([el, rootTask, options], { type: 'rootTask' });
 
       queue.task(args);
 
@@ -669,7 +687,7 @@
       });
     }
 
-    return extend(postscribe, { writers: {}, queue: queue });
+    return set(postscribe, { writers: {}, queue: queue });
 
   }());
 
