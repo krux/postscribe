@@ -628,10 +628,6 @@ Copyright (c) 2012 Derek Brans, MIT license https://github.com/krux/postscribe/b
       var doc = this.doc = this.root.ownerDocument;
 
       var win = this.win = doc.defaultView || doc.parentWindow;
-      // Creates win.eval in IE. I can't remember where I saw this trick.
-      if( win.execScript && !win['eval'] ) {
-        win.execScript('0');
-      }
     }
 
     Worker.prototype.exec = function(task, done) {
@@ -642,7 +638,11 @@ Copyright (c) 2012 Derek Brans, MIT license https://github.com/krux/postscribe/b
 
     Worker.prototype.script_inline = function(task, done) {
       try {
-        this.win['eval'](task.expr);
+        if(this.win.execScript) {
+          this.win.execScript(task.expr);
+        } else {
+          this.win['eval'](task.expr);
+        }
       } catch(e) {
         // TODO: this.options.error(e);
       }
