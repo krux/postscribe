@@ -45,10 +45,6 @@ $(document).ready(function(){
 
   // document.write (script) tests
   module('document.write');
-  setOptions({
-    useExpected: true,
-    async: true
-  });
 
   testWrite('remainder', function(ctx) {
     ctx.writeRemote('remote/write-remote-and-inline-script.js');
@@ -80,7 +76,7 @@ $(document).ready(function(){
   });
 
   testWrite('globals', function(ctx) {
-    ctx.write('<script>var XQWER = "foo";</script><script>document.write(XQWER);</script>');
+    ctx.write('<script>var XQWER = "foo";</script><script>document.write(""+window.XQWER + (this === window) + (window === top));</script>');
   });
 
   // Native doesn't seem to support this!
@@ -117,12 +113,11 @@ $(document).ready(function(){
     ctx.write('<div id="local">Local</div>');
   });
 
-  // IE does this wrong. It uses the inline global instead of the remote one.
-  // TODO: add as a supports variable and feed in expected results.
+  // IE natively does this wrong. It uses the inline global instead of the remote one.
   testWrite('remote + global', function(ctx) {
     ctx.writeInline('var global1 = "inline global1"');
     ctx.writeRemote('remote/set-global1.js');
-    ctx.writeInline('document.write(global1)');
+    ctx.writeInline('document.write(this.global1);');
   });
 
   module('multiple');

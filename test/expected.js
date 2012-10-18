@@ -396,16 +396,16 @@ var expectedBehavior = {
     "test globals": {
         "tag0": {
             "calls": [{
-                "0": "foo",
+                "0": "footruefalse",
                 "1": "tag0:foo"
             }, {
-                "0": "foo",
+                "0": "footruefalse",
                 "1": "tag0:<script>var XQWER = \"foo\";</script><script>document.write(XQWER);</script>"
             }, {
-                "0": "foo",
+                "0": "footruefalse",
                 "1": "tag0:Final InnerHtml"
             }, {
-                "0": "foo",
+                "0": "footruefalse",
                 "1": "tag0:<script class=\"test_cb\">cb_1();//Rendering Complete</script>"
             }]
         }
