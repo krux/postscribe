@@ -408,9 +408,6 @@
           taskDone: doNothing
         }),
 
-        // Flow is initialized stopped by default.
-        stopRequested: true,
-
         // The active (currently executing) task.
         active: null,
 
@@ -544,12 +541,12 @@
   var Tracer = (function() {
 
     function Tracer() {
-
       set(this, {
+        // All tasks by id.
         tasks: [],
-
+        // Tasks with no parent.
         roots: [],
-
+        // The active task.
         active: null
       });
     }
@@ -609,9 +606,13 @@
 
     function start(el, rootTask, options, done) {
 
+      options = defaults(options, {
+        afterWrite: doNothing,
+        done: doNothing
+      });
       // Create the flow.
 
-      var worker = new Worker(el);
+      var worker = new Worker(el, options);
 
       var flow = new Flow(worker, DEBUG && new Tracer());
 
@@ -629,7 +630,7 @@
 
         flow.subtask({ type: 'write', html: str, inlinable: true });
 
-        if(options.afterWrite) { options.afterWrite(str); }
+        options.afterWrite(str);
 
       }
 
@@ -637,16 +638,18 @@
 
       // Start the flow
 
-      return flow.task(rootTask, function() {
+      flow.task(rootTask, function() {
 
         // restore document.write
         set(doc, stash);
 
-        if (options.done) { options.done(); }
+        options.done();
 
         done();
 
-      }).start();
+      });
+
+      return flow;
 
     }
 
@@ -655,7 +658,7 @@
         args.push(done);
         args.flow = start.apply(null, args);
       }
-    }).start();
+    });
 
     function postscribe(el, html, options) {
 
