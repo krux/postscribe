@@ -690,7 +690,26 @@
       });
     }
 
-    return set(postscribe, { writers: {}, queue: queue });
+    return set(postscribe, {
+
+      writers: {},
+
+      queue: queue,
+
+      // Expose internal classes.
+      Worker: Worker,
+      Flow: Flow,
+      Tracer: Tracer,
+      WriteStream: WriteStream,
+
+      json: function() {
+        var ret = {};
+        eachKey(this.writers, function(name, writer) {
+          ret[name] = writer.options.roots;
+        });
+        return ret;
+      }
+    });
 
   }());
 
