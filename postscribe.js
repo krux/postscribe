@@ -607,6 +607,7 @@
     function start(el, rootTask, options, done) {
 
       options = defaults(options, {
+        before: doNothing,
         afterWrite: doNothing,
         done: doNothing
       });
@@ -627,6 +628,8 @@
       var stash = { write: doc.write, writeln: doc.writeln };
 
       function write(str) {
+
+        options.before();
 
         flow.subtask({ type: 'write', html: str, inlinable: true });
 
