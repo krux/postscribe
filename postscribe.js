@@ -607,6 +607,7 @@
     function start(el, rootTask, options, done) {
 
       options = defaults(options, {
+        before: doNothing,
         afterWrite: doNothing,
         done: doNothing
       });
@@ -638,6 +639,7 @@
 
       // Start the flow
 
+      options.before();
       flow.task(rootTask, function() {
 
         // restore document.write
