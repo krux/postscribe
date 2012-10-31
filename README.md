@@ -90,7 +90,7 @@ Postscribe was designed to behave as closely to the native `document.write`/`inn
 * Chrome 10+
 * Safari - 5.0+
 * Opera - 10.0+
-* Internet Explorer 7+ (as far as we know, it will work on IE 6, but we're trying to encourage [its death](http://ie6funeral.com), so we haven't tested it) 
+* Internet Explorer 7+ (as far as we know, it will work on IE 6, but we're trying to encourage [its death](http://ie6funeral.com), so we haven't tested it)
 * iPhone/iPad and other webkit-based browsers
 
 Curious if a specific browser will work? [Run the tests yourself](http://krux.github.com/postscribe/test/test.html) and let us know if you see any failures.
@@ -121,12 +121,16 @@ To run the tests and static code analysis tools, you will need to have the follo
 * All other project dependencies are installed via npm with `npm install`
 	* [grunt](http://gruntjs.com) - a 'make' like tool for automating build, test, and other dev tasks
 
-## Guidelines
-Tabs, not spaces. 2 of them. [jQuery's style guide](http://docs.jquery.com/JQuery_Core_Style_Guidelines) covers just about everything else.
+## Pull Request Guidelines
+Spaces, not tabs. 2 of them. [jQuery's style guide](http://docs.jquery.com/JQuery_Core_Style_Guidelines) covers just about everything else.
+Please do not update 3rd-party libraries (qunit, jquery) or the dist directory. We have an internal process for doing this.
+
+## Issue Guidelines
+Please include a [jsfiddle](http://jsfiddle.net) or [plunker](http://plnkr.co) that distills and reproduces the issue.
 
 ## Testing
 Using [travis-ci](https://travis-ci.org) and [grunt](http://gruntjs.com), the [Qunit](http://qunitjs.com) unit tests are run on every commit using PhantomJS to run the tests with a real browser.
- 
+
 Current Build Status: [![Build Status](https://secure.travis-ci.org/krux/postscribe.png)](http://travis-ci.org/krux/postscribe)
 
 To run the tests:
