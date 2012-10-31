@@ -629,8 +629,6 @@
 
       function write(str) {
 
-        options.before();
-
         flow.subtask({ type: 'write', html: str, inlinable: true });
 
         options.afterWrite(str);
@@ -641,6 +639,7 @@
 
       // Start the flow
 
+      options.before();
       flow.task(rootTask, function() {
 
         // restore document.write

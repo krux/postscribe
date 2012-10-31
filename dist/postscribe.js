@@ -985,8 +985,6 @@ Copyright (c) 2012 Derek Brans, MIT license https://github.com/krux/postscribe/b
 
       function write(str) {
 
-        options.before();
-
         flow.subtask({ type: 'write', html: str, inlinable: true });
 
         options.afterWrite(str);
@@ -997,6 +995,7 @@ Copyright (c) 2012 Derek Brans, MIT license https://github.com/krux/postscribe/b
 
       // Start the flow
 
+      options.before();
       flow.task(rootTask, function() {
 
         // restore document.write
