@@ -36,6 +36,8 @@ In general:
 * *element:* a DOM Element, jQuery object, or id selector (e.g. "#mydiv")
 * *html:* an html string or a function that takes a DOM Document and writes to it.
 * *options:* a hash of options
+  * *before:* a callback that will be called, before the tag is written
+  * *afterWrite:* a callback that will be called after the tag was written
   * *done:* a callback that will be called when writing is finished.
 
 
@@ -54,7 +56,7 @@ Where normally you would have
     <div id="ad"><h5>Advertisement</h5>
       <script type="text/javascript">
         // Build url params and make the ad call
-        document.write('<script src=doubleclick_url_with_params></script>');
+        document.write('<script src=doubleclick_url_with_params><\/script>');
       </script>
     </div>
 
@@ -66,7 +68,7 @@ Instead, remove the ad call and close the div
       // jQuery used as an example of delaying until load.
       $(function() {
         // Build url params and make the ad call
-        postscribe('#ad', '<script src=doubleclick_url_with_params></script>');
+        postscribe('#ad', '<script src=doubleclick_url_with_params><\/script>');
       });
     </script>
 
@@ -90,7 +92,7 @@ Postscribe was designed to behave as closely to the native `document.write`/`inn
 * Chrome 10+
 * Safari - 5.0+
 * Opera - 10.0+
-* Internet Explorer 7+ (as far as we know, it will work on IE 6, but we're trying to encourage [its death](http://ie6funeral.com), so we haven't tested it) 
+* Internet Explorer 7+ (as far as we know, it will work on IE 6, but we're trying to encourage [its death](http://ie6funeral.com), so we haven't tested it)
 * iPhone/iPad and other webkit-based browsers
 
 Curious if a specific browser will work? [Run the tests yourself](http://krux.github.com/postscribe/test/test.html) and let us know if you see any failures.
@@ -126,7 +128,7 @@ Tabs, not spaces. 2 of them. [jQuery's style guide](http://docs.jquery.com/JQuer
 
 ## Testing
 Using [travis-ci](https://travis-ci.org) and [grunt](http://gruntjs.com), the [Qunit](http://qunitjs.com) unit tests are run on every commit using PhantomJS to run the tests with a real browser.
- 
+
 Current Build Status: [![Build Status](https://secure.travis-ci.org/krux/postscribe.png)](http://travis-ci.org/krux/postscribe)
 
 To run the tests:
