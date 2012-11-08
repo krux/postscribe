@@ -61,6 +61,10 @@ $(document).ready(function(){
     ctx.write('A<SCRIPT type="text/javascript">document.write("B");</SCRIPT>C');
   });
 
+  testWrite('different case script', function(ctx) {
+    ctx.write('A<SCRIPT type="text/javascript">document.write("B");</script>C');
+  });
+
   testWrite('capital script@SRC', function(ctx) {
     ctx.write('<SCRIPT TYPE="text/javascript" SRC="remote/write-div.js"></SCRIPT>');
   });

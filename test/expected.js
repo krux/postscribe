@@ -339,6 +339,23 @@ var expectedBehavior = {
             }]
         }
     },
+    "test different case script": {
+        "tag0": {
+            "calls": [{
+                "0": "AB",
+                "1": "tag0:B"
+            }, {
+                "0": "ABC",
+                "1": "tag0:A<SCRIPT type=\"text/javascript\">document.write(\"B\");</script>C"
+            }, {
+                "0": "ABC",
+                "1": "tag0:Final InnerHtml"
+            }, {
+                "0": "ABC",
+                "1": "tag0:<script class=\"test_cb\">cb_1();//Rendering Complete</script>"
+            }]
+        }
+    },
     "test capital script@SRC": {
         "tag0": {
             "calls": [{
