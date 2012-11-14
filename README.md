@@ -106,8 +106,10 @@ If you would like your project to be added to this list, file an issue and we'd 
 
 
 # Help/Bugs/Requests
-Have a problem? Need help? Would you like additional functionality added? We use github's ticket system for keeping track of these requests. Please check out the [existing issues](https://github.com/krux/postscribe/issues), and if you don't see that your problem is already being
-worked on, please [file a new issue](https://github.com/krux/postscribe/issues/new). The more information the better to describe your problem. We ♥ [Jing](http://www.techsmith.com/jing.html) bug reports.
+Have a problem? Need help? Would you like additional functionality added? We use github's ticket system for keeping track of these requests.
+Please check out the [existing issues](https://github.com/krux/postscribe/issues), and if you don't see that your problem is already being
+worked on, please [file a new issue](https://github.com/krux/postscribe/issues/new). The more information the better to describe your problem.
+We ♥ [Jing](http://www.techsmith.com/jing.html) bug reports.
 
 # Contributing
 We ♥  [forks and pull requests](https://help.github.com/articles/using-pull-requests).
@@ -127,6 +129,7 @@ Please do not update 3rd-party libraries (qunit, jquery) or the dist directory. 
 
 ## Issue Guidelines
 Please include a [jsfiddle](http://jsfiddle.net) or [plunker](http://plnkr.co) that distills and reproduces the issue.
+Try forking [this jsfiddle](http://jsfiddle.net/dbrans/Znpxv/). We've set everything up there for you so that you can reproduce your issue.
 
 ## Testing
 Using [travis-ci](https://travis-ci.org) and [grunt](http://gruntjs.com), the [Qunit](http://qunitjs.com) unit tests are run on every commit using PhantomJS to run the tests with a real browser.
