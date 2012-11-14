@@ -91,7 +91,7 @@
         var start = reader.startTag();
         if(start) {
           var rest = stream.slice(start.length);
-          var match = rest.match("([\\s\\S]*?)<\/" + start.tagName + "[^>]*>");
+          var match = rest.match(new RegExp("([\\s\\S]*?)<\/" + start.tagName + "[^>]*>", "i"));
           if(match) {
             // good to go
             return {

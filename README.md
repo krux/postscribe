@@ -13,10 +13,9 @@ Other tag writing libraries exist (see [alternatives](#alternatives)), but PostS
 
 For more information:
 
-* Derek Brans' html5devconf presentation TODO: Link to the talk
+* [Interactive Demo](http://raw.plnkr.co/e8MJAx/) with side by side comparisons of other tag writers
 * [Documentation](https://github.com/krux/postscribe/tree/master/doc)
 * Browse the [raw](https://github.com/krux/postscribe/blob/master/postscribe.js) or [annotated](http://krux.github.com/postscribe/doc/postscribe.html) source code.
-* TODO: Interactive Demo
 
 
 # Getting Started
@@ -160,6 +159,7 @@ Postscribe uses [software versioning standards](http://semver.org) as follows: m
 
 ### 1.0.0 Initial open source release
 [Released on Oct 12 2012](https://github.com/krux/postscribe/tree/version/1.0)
+
 * Write tags asynchronously, yo. Initial release after 2+ years of development internally at [Krux](http://www.krux.com)
 
 # License
