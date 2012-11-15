@@ -1,0 +1,29 @@
+framework: qunit,
+test_page: test/test.html
+launchers:
+  opera:
+    command: browserstack launch opera:12.11 http://webapp-dev005.krxd.net:8000 --attach
+    protocol: browser
+  firefox:
+    command: browserstack launch firefox:16.0 http://webapp-dev005.krxd.net:8000 --attach
+    protocol: browser
+  chrome_bs:
+    command: browserstack launch chrome:24.0 http://webapp-dev005.krxd.net:8000 --attach
+    protocol: browser
+  safari_5:
+    command: browserstack launch safari:5.0 http://webapp-dev005.krxd.net:8000 --attach
+    protocol: browser
+  safari_51:
+    command: browserstack launch safari:5.1 http://webapp-dev005.krxd.net:8000 --attach
+    protocol: browser
+  ie_7:
+    command: browserstack launch ie:7.0 http://webapp-dev005.krxd.net:8000 --attach
+    protocol: browser
+  ie_8:
+    command: browserstack launch ie:8.0 http://webapp-dev005.krxd.net:8000 --attach
+    protocol: browser
+  ie_9:
+    command: browserstack launch ie:9.0 http://webapp-dev005.krxd.net:8000 --attach
+    protocol: browser
+launch_in_ci: [opera, chrome_bs, firefox, safari_51, safari_5, ie_7, ie_8, ie_9]
+launch_in_dev: [opera, Chrome, firefox, safari_51, safari_5, ie_7, ie_8, ie_9]
