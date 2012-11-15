@@ -29,12 +29,18 @@
     <div id="qunit-fixture">test markup, will be hidden</div>
   </body>
   <script>
+
+
+    var isTestem = /all-test-results/.test(QUnit.done.toString());
+    if(!isTestem) {
       QUnit.done(function allDone(details){
-          if (details.failed === 0) {
-              jQuery("#qunit-header").append(" - Great Success!");
-          } else {
-              jQuery("#qunit-header").append(" - Fail!");
-          }
+        if (details.failed === 0) {
+          jQuery("#qunit-header").append(" - Great Success!");
+        } else {
+          jQuery("#qunit-header").append(" - Fail!");
+        }
       });
+    }
+
   </script>
 </html>
