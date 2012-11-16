@@ -90,4 +90,11 @@ module.exports = function(grunt) {
   // This is what gets run when you don't specify an argument for grunt.
   grunt.registerTask('default', 'lint test');
 
+  grunt.registerTask('generate_expected', function() {
+    var done = this.async();
+    grunt.utils.spawn({cmd: 'phantomjs', args: ["test/generate_expected.phantom.js"]}, function(error, result, code) {
+      done(!error);
+    });
+  });
+
 };
