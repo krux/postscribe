@@ -1,4 +1,4 @@
-/*global phantom:true*/
+/*global phantom:true window:true*/
 
 var fs = require('fs');
 
@@ -27,8 +27,11 @@ page.open(url, function(status) {
     }
     console.log('opened');
     page.evaluate(function() {
-      QUnit.done = function() {
-        callPhantom({type: 'expected', data: JSON.stringify(nativeBehavior)});
+      window.QUnit.done = function() {
+        window.callPhantom({
+          type: 'expected',
+          data: JSON.stringify(window.nativeBehavior)
+        });
       };
     });
   }

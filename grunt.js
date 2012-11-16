@@ -13,7 +13,7 @@ module.exports = function(grunt) {
     // 'node' for files that are run by node.js (module, process, etc.)
     // 'browser' for files that are run by a browser (window, document, etc.)
     lint: {
-      node: ['grunt.js'],
+      node: ['grunt.js', 'test/generate_expected.phantom.js'],
       browser: ['postscribe.js']
     },
     jshint: {
@@ -23,11 +23,12 @@ module.exports = function(grunt) {
         eqeqeq: true,
         expr: true,
         forin: true,
-        indent: false,
+        indent: 2,
         latedef: false,
         newcap: true,
         noarg: true,
         noempty: true,
+        white: false,
         // debatable
         sub: true,
         undef: true,
@@ -99,9 +100,9 @@ module.exports = function(grunt) {
       data.phantom,
       data.index,
       data.dest
-    ]}, function(error, result, code) {
+    ]}, function(error, result) {
       if(error) {
-        console.error(error.stderr);
+        console.error(result.stderr);
       }
       done(!error);
     });
