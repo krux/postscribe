@@ -322,8 +322,10 @@
       };
 
       // Set attributes
-      eachKey(task.tok.attrs, function(key, value) {
-        s.setAttribute(key, value);
+      eachKey(task.tok.attrs, function(name, value) {
+        if(!props.hasOwnProperty(name)) {
+          s.setAttribute(name, value);
+        }
       });
 
       set(s, props);
