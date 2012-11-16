@@ -80,21 +80,37 @@ module.exports = function(grunt) {
     watch: {
       files: ['postscribe.js', 'test/*'],
       tasks: 'lint qunit'
+    },
+
+    generate_expected: {
+      index: "<config:qunit.files>",
+      dest: "test/expected.js",
+      phantom: "test/generate_expected.phantom.js"
     }
 
   });
 
-  // Alias test
-  grunt.registerTask('test', 'qunit');
-
-  // This is what gets run when you don't specify an argument for grunt.
-  grunt.registerTask('default', 'lint test');
-
-  grunt.registerTask('generate_expected', function() {
+  grunt.registerTask('generate_expected', "Generate Files", function() {
     var done = this.async();
-    grunt.utils.spawn({cmd: 'phantomjs', args: ["test/generate_expected.phantom.js"]}, function(error, result, code) {
+
+    var data = grunt.config('generate_expected');
+
+    grunt.utils.spawn({cmd: 'phantomjs', args: [
+      data.phantom,
+      data.index,
+      data.dest
+    ]}, function(error, result, code) {
+      if(error) {
+        console.error(error.stderr);
+      }
       done(!error);
     });
   });
+
+  // Alias test
+  grunt.registerTask('test', 'generate_expected qunit');
+
+  // This is what gets run when you don't specify an argument for grunt.
+  grunt.registerTask('default', 'lint test');
 
 };
