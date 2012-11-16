@@ -2,3 +2,4 @@ node_modules
 .DS_Store
 .*.swp
 npm-debug.log
+test/expected.js

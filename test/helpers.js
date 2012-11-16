@@ -1,6 +1,16 @@
 
 // final innerHTML behaves like buffered innerHTML and not like streamed document.write
 // That is acceptable.
+
+if(/generate_expected=1/.test(location.href)) {
+  window.expectedBehavior = false;
+}
+
+if(/wait=1/.test(location.href)) {
+  // wait before running tests.
+  test('waiting', stop);
+}
+
 var GENERATE_EXPECTED = !window.expectedBehavior;
 
 var testOptions = {};
@@ -11,7 +21,7 @@ var defaultOptions = {
 var innerHtml = function(el) {
   return el.innerHTML.replace(/(\r\n)?<script[^>]*>[\s\S]*?<\/script>(\r\n)?/ig, '');
 }
-var nativeBehavior = {};
+window.nativeBehavior = {};
 
 if(!window.console) {
   window.console = {log: function(){}};
@@ -19,17 +29,13 @@ if(!window.console) {
 // reverse the first two arguments of equal
 var qunitEqual = equal;
 
-equal = function(expected, actual, message) {
-  return qunitEqual(actual, expected, message);
-};
-
 var getDoc = function(iframe) {
   return iframe.contentWindow.document;
 };
 
 var qunitEqual = window.equal;
-window.equal = function(x, y) {
-  return qunitEqual(y, x);
+window.equal = function(x, y, msg) {
+  return qunitEqual(y, x, msg);
 };
 
 var ifrId = 0;
@@ -196,11 +202,11 @@ var execute = function(name, tags, options) {
       self.calls = [];
 
       self.eq = function(val, msg) {
-        self.calls.push(arguments);
+        self.calls.push([].slice.call(arguments));
       };
 
       self.eqPrefix = function(val, msg) {
-        self.calls.push(arguments);
+        self.calls.push([].slice.call(arguments));
       };
 
       self.expect = function(){
@@ -324,6 +330,9 @@ var execute = function(name, tags, options) {
           afterWrite: function(str) {
             self.written += str;
             self.compareInnerHtml(str);
+          },
+          error: function(e) {
+            throw e;
           }
         });
       };
@@ -368,12 +377,7 @@ var execute = function(name, tags, options) {
         ifr.doc._write('<div class=tag id='+tag.id+'>');
 
         // render inline
-        if(options.async) {
-          ifr.doc._write('<script>renderTag('+i+')</script>');
-        } else {
-          renderTag(tag);
-        }
-
+        ifr.doc._write('<script>renderTag('+i+')</script>');
         ifr.doc._write('</div>');
       }
 
