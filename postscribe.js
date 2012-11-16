@@ -297,28 +297,40 @@
     };
 
     Worker.prototype.script_remote = function(task, done) {
-      var s, _this = this;
+      var _this = this;
+      var s = this.doc.createElement('script');
+      var props = {
 
-      function _done() {
-        s = s.onload = s.onreadystatechange = s.onerror = null;
-        done();
-      }
-
-      s = set(this.doc.createElement('script'), {
         src: task.src,
-        onload: _done,
+
+        async: true,
+
+        // Handlers
+        onload: function() {
+          s = s.onload = s.onreadystatechange = s.onerror = null;
+          done();
+        },
         onreadystatechange: function() {
           if(/^(loaded|complete)$/.test( s.readyState )) {
-            _done();
+            s.onload();
           }
         },
         onerror: function() {
           _this.options.error({ message: 'remote script failed ' + task.src });
-          _done();
+          s.onload();
+        }
+      };
+
+      // Set attributes
+      eachKey(task.tok.attrs, function(name, value) {
+        if(!props.hasOwnProperty(name)) {
+          s.setAttribute(name, value);
         }
       });
 
-      this.root.parentNode.appendChild(s);
+      set(s, props);
+
+      this.root.appendChild(s);
     };
 
 
@@ -359,10 +371,10 @@
       var src = tok.attrs.src || tok.attrs.SRC;
       flow.subtask( src ?
         // Remote script: cannot be inlined.
-        { type: 'script_remote', src: src } :
+        { type: 'script_remote', src: src, tok: tok } :
 
         // Inline script.
-        { type: 'script_inline', inlinable: true, expr: (tok.content)
+        { type: 'script_inline', inlinable: true, tok: tok, expr: (tok.content)
             // remove CDATA and HTML comments
             .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
             .replace(/<!--([\s\S]*?)-->/g, "$1")

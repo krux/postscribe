@@ -1,6 +1,16 @@
 
 // final innerHTML behaves like buffered innerHTML and not like streamed document.write
 // That is acceptable.
+
+if(/generate_expected=1/.test(location.href)) {
+  window.expectedBehavior = false;
+}
+
+if(/wait=1/.test(location.href)) {
+  // wait before running tests.
+  test('waiting', stop);
+}
+
 var GENERATE_EXPECTED = !window.expectedBehavior;
 
 var testOptions = {};
@@ -9,9 +19,9 @@ var defaultOptions = {
 };
 
 var innerHtml = function(el) {
-  return el.innerHTML.replace(/<script[^>]*>[\s\S]*?<\/script>/ig, '');
+  return el.innerHTML.replace(/(\r\n)?<script[^>]*>[\s\S]*?<\/script>(\r\n)?/ig, '');
 }
-var nativeBehavior = {};
+window.nativeBehavior = {};
 
 if(!window.console) {
   window.console = {log: function(){}};
@@ -19,18 +29,21 @@ if(!window.console) {
 // reverse the first two arguments of equal
 var qunitEqual = equal;
 
-equal = function(expected, actual, message) {
-  return qunitEqual(actual, expected, message);
-};
-
 var getDoc = function(iframe) {
   return iframe.contentWindow.document;
 };
 
+var qunitEqual = window.equal;
+window.equal = function(x, y, msg) {
+  return qunitEqual(y, x, msg);
+};
+
+var ifrId = 0;
+
 var IFrame = function(id) {
   var ifr = document.createElement('iframe');
 
-  ifr.setAttribute('id', id);
+  ifr.setAttribute('id', 'ifr' + (ifrId++));
 
   // append it to dom so we can get the document
   document.body.appendChild(ifr);
@@ -189,11 +202,11 @@ var execute = function(name, tags, options) {
       self.calls = [];
 
       self.eq = function(val, msg) {
-        self.calls.push(arguments);
+        self.calls.push([].slice.call(arguments));
       };
 
       self.eqPrefix = function(val, msg) {
-        self.calls.push(arguments);
+        self.calls.push([].slice.call(arguments));
       };
 
       self.expect = function(){
@@ -239,8 +252,9 @@ var execute = function(name, tags, options) {
 
       var expectCalls;
 
-      if(!GENERATE_EXPECTED && options.useExpected) {  //$.browser.msie || $.browser.mozilla && parseFloat($.browser.version) < 2 ) {
+      if(expectedBehavior) {  //$.browser.msie || $.browser.mozilla && parseFloat($.browser.version) < 2 ) {
         expectCalls = expectedBehavior['test '+name][tag.id].calls;
+
       } else {
         expectCalls = [].slice.call(tag.nativeCtx.calls);
       }
@@ -249,13 +263,18 @@ var execute = function(name, tags, options) {
 
       };
 
+      // Remove first \r\n from actual (needed for IE7-8)
+      function clipRN(str) {
+        return str.replace(/^\r\n/, "");
+      }
+
       self.eq = function(val, msg) {
         var args = expectCalls.shift();
 
-        if(args && options.useExpected) {
+        if(args && expectedBehavior) {
           // run it through innerHTML to get rid of browser inconsistencies
           work.innerHTML = args[0];
-          args[0] = work.innerHTML;
+          args[0] = work.innerHTML; //innerHtml(work);
         }
 
         if(!args) {
@@ -268,17 +287,17 @@ var execute = function(name, tags, options) {
           console.log('\nTest Fail', msg);
         }
 
-        equal(args[0], val, msg);
+        equal(args[0], clipRN(val), msg);
       };
 
       // writer should have at least what native has.
       self.eqPrefix = function(val, msg) {
         var args = expectCalls.shift();
 
-        if(args && options.useExpected) {
+        if(args && expectedBehavior) {
           // run it through innerHTML to get rid of browser inconsistencies
           work.innerHTML = args[0];
-          args[0] = work.innerHTML;
+          args[0] = work.innerHTML; //innerHtml(work);
         }
 
         if(!args) {
@@ -292,7 +311,8 @@ var execute = function(name, tags, options) {
         }
 
         if(val.indexOf(args[0]) !== 0) {
-          equal(args[0], val, msg);
+
+          equal(args[0], clipRN(val), msg);
         } else {
           ok(true, msg);
         }
@@ -310,6 +330,9 @@ var execute = function(name, tags, options) {
           afterWrite: function(str) {
             self.written += str;
             self.compareInnerHtml(str);
+          },
+          error: function(e) {
+            throw e;
           }
         });
       };
@@ -331,7 +354,7 @@ var execute = function(name, tags, options) {
   var queue = [
 
     function NATIVE_MODE(done) {
-      if(!GENERATE_EXPECTED && options.useExpected) {
+      if(window.expectedBehavior) {
         done();
         return;
       }
@@ -354,12 +377,7 @@ var execute = function(name, tags, options) {
         ifr.doc._write('<div class=tag id='+tag.id+'>');
 
         // render inline
-        if(options.async) {
-          ifr.doc._write('<script>renderTag('+i+')</script>');
-        } else {
-          renderTag(tag);
-        }
-
+        ifr.doc._write('<script>renderTag('+i+')</script>');
         ifr.doc._write('</div>');
       }
 
@@ -369,7 +387,7 @@ var execute = function(name, tags, options) {
     function intermission(done) {
       console.log('\nintermission');
 
-      if(GENERATE_EXPECTED || !options.useExpected) {
+      if(GENERATE_EXPECTED) {
         var testBehavior = nativeBehavior['test '+name] = {};
 
         // spit out native
