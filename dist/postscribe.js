@@ -1,4 +1,4 @@
-/* Asynchronously write javascript, even with document.write., v1.0.2 https://github.com/krux/postscribe
+/* Asynchronously write javascript, even with document.write., v1.0.3 https://github.com/krux/postscribe
 Copyright (c) 2012 Derek Brans, MIT license https://github.com/krux/postscribe/blob/master/LICENSE */
 
 // An html parser written in JavaScript

@@ -1,7 +1,7 @@
 {
   "name": "postscribe",
   "description": "Asynchronously write javascript, even with document.write.",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "keywords": ["document.write", "tag writer", "asynchronous", "javascript", "after load"],
   "author": {
     "name": "Derek Brans"
