@@ -4,7 +4,7 @@ launchers:
   opera:
     command: browserstack launch opera:12.11 http://webapp-dev005.krxd.net:8000 --attach
     protocol: browser
-  firefox:
+  firefox_bs:
     command: browserstack launch firefox:16.0 http://webapp-dev005.krxd.net:8000 --attach
     protocol: browser
   chrome_bs:
