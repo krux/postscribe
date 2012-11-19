@@ -26,4 +26,4 @@ launchers:
     command: browserstack launch ie:9.0 http://webapp-dev005.krxd.net:8000 --attach
     protocol: browser
 launch_in_ci: [opera, chrome_bs, firefox, safari_51, safari_5, ie_7, ie_8, ie_9]
-launch_in_dev: [opera, Chrome, firefox, safari_51, safari_5, ie_7, ie_8, ie_9]
+launch_in_dev: []

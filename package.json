@@ -33,7 +33,9 @@
   }],
   "dependencies": {},
   "devDependencies": {
-    "grunt": "~0.3.16"
+    "grunt": "~0.3.16",
+    "dbrans-testem": "0.2.x",
+    "dbrans-browserstack": "0.x.x"
   },
   "homepage": "https://github.com/krux/postscribe",
   "os": [],
