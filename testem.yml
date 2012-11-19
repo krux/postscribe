@@ -1,5 +1,6 @@
 framework: qunit,
 test_page: test/test.html
+on_start: ssh -NR "*:8000:localhost:7357" webapp-dev005.krxd.net
 launchers:
   opera:
     command: browserstack launch opera:12.11 http://webapp-dev005.krxd.net:8000 --attach
