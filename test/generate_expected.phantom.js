@@ -17,6 +17,10 @@ page.onError = function(e) {
   throw(e);
 };
 
+page.onConsoleMessage = function(msg) {
+  console.log(msg);
+};
+
 var loaded;
 page.open(url, function(status) {
   if(!loaded) {
@@ -25,14 +29,15 @@ page.open(url, function(status) {
     if(status !== "success") {
       throw "Bad status '" + status + "'";
     }
-    console.log('opened');
+    console.log('Page loaded.');
     page.evaluate(function() {
-      window.QUnit.done = function() {
+      window.QUnit.done(function() {
+        console.log('Tests done.');
         window.callPhantom({
           type: 'expected',
           data: JSON.stringify(window.nativeBehavior)
         });
-      };
+      });
     });
   }
 });
