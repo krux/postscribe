@@ -1,4 +1,4 @@
-//     postscribe.js 1.0.2
+//     postscribe.js 1.0.4
 //     (c) 2012 Krux
 //     postscribe is freely distributable under the MIT license.
 //     For all details and documentation:
