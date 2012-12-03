@@ -1,14 +1,17 @@
 {
   "name": "postscribe",
   "description": "Asynchronously write javascript, even with document.write.",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "keywords": ["document.write", "tag writer", "asynchronous", "javascript", "after load"],
   "author": {
-    "name": "Derek Brans"
+    "name": "Derek Brans",
+    "email": "dbrans@gmail.com",
+    "web": "http://github.com/dbrans"
   },
   "contributors": [{
     "name": "Derek Brans",
-    "email": "dbrans@gmail.com"
+    "email": "dbrans@gmail.com",
+    "web": "http://github.com/dbrans"
   }, {
     "name": "Nick Sullivan",
     "email": "nick@sullivanflock.com",
@@ -33,13 +36,11 @@
   }],
   "dependencies": {},
   "devDependencies": {
-    "grunt": "~0.3.16",
-    "dbrans-testem": "0.2.x",
-    "dbrans-browserstack": "0.x.x"
+    "grunt": "0.3.x",
+    "testem": "0.2.x",
+    "browserstack-cli": "0.x.x"
   },
   "homepage": "https://github.com/krux/postscribe",
-  "os": [],
-  "cpu": [],
   "engines": {
     "node": ">=0.8"
   },
