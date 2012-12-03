@@ -38,6 +38,6 @@ launchers:
     command: browserstack launch --attach ie:9.0 <url>
     protocol: browser
 
-launch_in_ci: [PhantomJS, bs_opera, bs_chrome, bs_firefox, bs_safari_51, bs_safari_5, bs_ie_8, bs_ie_9, bs_ie_7]
+launch_in_ci: [PhantomJS, Firefox, bs_opera, bs_chrome, bs_safari_51, bs_safari_5, bs_ie_8, bs_ie_9, bs_ie_7]
 
 launch_in_dev: []
