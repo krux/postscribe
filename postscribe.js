@@ -29,7 +29,7 @@
 
   // Is this a function?
   function isFunction(x) {
-    return "function" == typeof x;
+    return "function" === typeof x;
   }
 
   // Loop over each item in an array-like value.
