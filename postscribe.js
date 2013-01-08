@@ -1,5 +1,5 @@
-//     postscribe.js 1.0.4
-//     (c) 2012 Krux
+//     postscribe.js 1.0.5
+//     (c) Copyright 2012 to the present, Krux
 //     postscribe is freely distributable under the MIT license.
 //     For all details and documentation:
 //     http://krux.github.com/postscribe
@@ -615,6 +615,7 @@
 
   // Public-facing interface and queuing
   var postscribe = (function() {
+    var nextId = 0;
 
     function start(el, rootTask, options, done) {
 
@@ -628,9 +629,11 @@
 
       var flow = new Flow(worker, DEBUG && new Tracer());
 
-      flow.name = options.name;
+      flow.id = nextId++;
 
-      postscribe.writers[flow.name] = flow;
+      flow.name = options.name || flow.id;
+
+      postscribe.flows[flow.name] = flow;
 
       // Override document.write.
 
@@ -704,7 +707,7 @@
 
     return set(postscribe, {
 
-      writers: {},
+      flows: {},
 
       queue: queue,
 
@@ -716,8 +719,8 @@
 
       json: function() {
         var ret = {};
-        eachKey(this.writers, function(name, writer) {
-          ret[name] = writer.options.roots;
+        eachKey(this.flows, function(name, flow) {
+          ret[name] = flow.options.roots;
         });
         return ret;
       }

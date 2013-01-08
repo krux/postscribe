@@ -1,5 +1,5 @@
-/* Asynchronously write javascript, even with document.write., v1.0.3 https://github.com/krux/postscribe
-Copyright (c) 2012 Derek Brans, MIT license https://github.com/krux/postscribe/blob/master/LICENSE */
+/* Asynchronously write javascript, even with document.write., v1.0.4 https://github.com/krux/postscribe
+Copyright (c) 2013 Derek Brans, MIT license https://github.com/krux/postscribe/blob/master/LICENSE */
 
 // An html parser written in JavaScript
 // Based on http://ejohn.org/blog/pure-javascript-html-parser/
@@ -66,6 +66,11 @@ Copyright (c) 2012 Derek Brans, MIT license https://github.com/krux/postscribe/b
       chars: /^[^<]/
     };
 
+    function contentAndEndTagRgx(tagName) {
+      return contentAndEndTagRgx[tagName] ||
+        (contentAndEndTagRgx[tagName] = new RegExp("([\\s\\S]*?)<\/\\s*" + tagName + "\\s*>", "i"))
+    }
+
     // Detection has already happened when a reader is called.
     var reader = {
 
@@ -94,15 +99,18 @@ Copyright (c) 2012 Derek Brans, MIT license https://github.com/krux/postscribe/b
         var start = reader.startTag();
         if(start) {
           var rest = stream.slice(start.length);
-          var match = rest.match(new RegExp("([\\s\\S]*?)<\/" + start.tagName + "[^>]*>", "i"));
-          if(match) {
-            // good to go
-            return {
-              tagName: start.tagName,
-              attrs: start.attrs,
-              escapedAttrs: start.escapedAttrs,
-              content: match[1],
-              length: match[0].length + start.length
+          // for optimization, we check first just for the end tag
+          if(rest.match(new RegExp("<\/\\s*" + start.tagName + "\\s*>", "i"))) {
+            //var match = rest.match(contentAndEndTagRgx(start.tagName));
+            var match = rest.match(new RegExp("([\\s\\S]*?)<\/\\s*" + start.tagName + "\\s*>", "i"));
+            if(match) {
+              // good to go
+              return {
+                tagName: start.tagName,
+                attrs: start.attrs,
+                content: match[1],
+                length: match[0].length + start.length
+              }
             }
           }
         }
@@ -113,22 +121,18 @@ Copyright (c) 2012 Derek Brans, MIT license https://github.com/krux/postscribe/b
 
         if ( match ) {
           var attrs = {};
-          var escapedAttrs = {};
 
           match[2].replace(attr, function(match, name) {
             var value = arguments[2] || arguments[3] || arguments[4] ||
               fillAttr.test(name) && name || null;
 
             attrs[name] = value;
-            // escape double-quotes for writing html as a string
-            escapedAttrs[name] = value && value.replace(/(^|[^\\])"/g, '$1\\\"');
           });
 
           return {
             tagName: match[1],
             attrs: attrs,
-            escapedAttrs: escapedAttrs,
-            unary: match[3],
+            unary: !!match[3],
             length: match[0].length
           }
         }
@@ -348,13 +352,25 @@ Copyright (c) 2012 Derek Brans, MIT license https://github.com/krux/postscribe/b
     return handler[tok.type](tok);
   };
 
+  htmlParser.escapeAttributes = function(attrs) {
+    var escapedAttrs = {};
+    // escape double-quotes for writing html as a string
+
+    for(var name in attrs) {
+      var value = attrs[name];
+      escapedAttrs[name] = value && value.replace(/(^|[^\\])"/g, '$1\\\"');
+    }
+    return escapedAttrs;
+  };
+
   for(var key in supports) {
     htmlParser.browserHasFlaw = htmlParser.browserHasFlaw || (!supports[key]) && key;
   }
 
   this.htmlParser = htmlParser;
 })();
-//     postscribe.js 1.0.2
+
+//     postscribe.js 1.0.4
 //     (c) 2012 Krux
 //     postscribe is freely distributable under the MIT license.
 //     For all details and documentation:
@@ -971,6 +987,7 @@ Copyright (c) 2012 Derek Brans, MIT license https://github.com/krux/postscribe/b
 
   // Public-facing interface and queuing
   var postscribe = (function() {
+    var nextId = 0;
 
     function start(el, rootTask, options, done) {
 
@@ -984,9 +1001,11 @@ Copyright (c) 2012 Derek Brans, MIT license https://github.com/krux/postscribe/b
 
       var flow = new Flow(worker, DEBUG && new Tracer());
 
-      flow.name = options.name;
+      flow.id = nextId++;
 
-      postscribe.writers[flow.name] = flow;
+      flow.name = options.name || flow.id;
+
+      postscribe.flows[flow.name] = flow;
 
       // Override document.write.
 
@@ -1060,7 +1079,7 @@ Copyright (c) 2012 Derek Brans, MIT license https://github.com/krux/postscribe/b
 
     return set(postscribe, {
 
-      writers: {},
+      flows: {},
 
       queue: queue,
 
@@ -1072,8 +1091,8 @@ Copyright (c) 2012 Derek Brans, MIT license https://github.com/krux/postscribe/b
 
       json: function() {
         var ret = {};
-        eachKey(this.writers, function(name, writer) {
-          ret[name] = writer.options.roots;
+        eachKey(this.flows, function(name, flow) {
+          ret[name] = flow.options.roots;
         });
         return ret;
       }
