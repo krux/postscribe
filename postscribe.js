@@ -289,7 +289,7 @@
 
     Worker.prototype.script_inline = function(task, done) {
       try {
-        this.win[EVAL](task.expr);
+        this.win[EVAL](task.expr, task.lang);
       } catch(e) {
         this.options.error(e);
       }
@@ -366,7 +366,9 @@
 
       // Stash remainder of parser for during this script.
       var remainder = this.parser.clear();
-
+      
+      var language = tok.attrs.LANGUAGE || tok.attrs.language;
+      
       // Subtask: Run this script.
       var src = tok.attrs.src || tok.attrs.SRC;
       flow.subtask( src ?
@@ -374,7 +376,7 @@
         { type: 'script_remote', src: src, tok: tok } :
 
         // Inline script.
-        { type: 'script_inline', inlinable: true, tok: tok, expr: (tok.content)
+        { type: 'script_inline', lang: language, inlinable: true, tok: tok, expr: (tok.content)
             // remove CDATA and HTML comments
             .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
             .replace(/<!--([\s\S]*?)-->/g, "$1")
