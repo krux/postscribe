@@ -129,16 +129,60 @@
     }
 
     function WriteStream(root) {
-      // Actual elements by id.
-      this.actuals = [root];
+      var doc = root.ownerDocument;
 
-      // Embodies the "structure" of what's been written so far, devoid of attributes.
-      this.proxyHistory = '';
+      set(this, {
+        root: root,
+        doc: doc,
 
-      // Create a proxy of the root element.
-      this.proxyRoot = root.ownerDocument.createElement(root.nodeName);
+        // Actual elements by id.
+        actuals: [root],
+
+        // Embodies the "structure" of what's been written so far, devoid of attributes.
+        proxyHistory: '',
+
+        // Create a proxy of the root element.
+        proxyRoot: doc.createElement(root.nodeName)
+      });
+
       data(this.proxyRoot, 'proxyof', 0);
+
     }
+
+    // In IE7/8, div.innerHTML = "<script></script>" will not create a script tag.
+    // So we use a span instead.
+    var useSpanForCursor = false;
+
+    // Insert element into DOM where cursor is
+    WriteStream.prototype.insertElement = function(el) {
+
+      var id = "ps-cursor-" + Math.round(Math.random() * 1000000);
+
+      var nodeName = (useSpanForCursor && 'span') || el.nodeName;
+      this.write([{
+        type: 'cursor',
+        attrs: { id: id },
+        text: '<' + nodeName + ' id="' + id + '"></' + nodeName + '>'
+      }]);
+
+      var cursor = this.doc.getElementById(id);
+
+      if(!cursor && !useSpanForCursor) {
+        useSpanForCursor = true;
+        return this.insertElement(el);
+      }
+
+      var parent = cursor && cursor.parentNode;
+      if(parent) {
+        parent.removeChild(cursor);
+      }
+
+      try {
+        parent.appendChild(el);
+      } catch(e) {
+        this.options.error(e);
+      }
+    };
 
     WriteStream.prototype.buildChunk = function (tokens) {
       var nextId = this.actuals.length,
@@ -153,10 +197,10 @@
           proxy = [];
 
       each(tokens, function(tok) {
+
         raw.push(tok.text);
 
-        if(tok.attrs) {
-          // Visit a token with attributes (startTag or atomicTag).
+        if(tok.attrs) { // tok.attrs <==> startTag or atomicTag or cursor
           // Ignore noscript tags. They are atomic, so we don't have to worry about children.
           if(!(/^noscript$/i).test(tok.tagName)) {
             var id = nextId++;
@@ -166,12 +210,14 @@
               tok.text.replace(/(\/?>)/, ' '+BASEATTR+'id='+id+' $1')
             );
 
-            // Proxy: strip all attributes and inject proxyof attribute
-            proxy.push(
-              // ignore atomic tags (e.g., style): they have no "structural" effect
-              tok.type === 'atomicTag' ? '' :
-                '<'+tok.tagName+' '+BASEATTR+'proxyof='+id+(tok.unary ? '/>' : '>')
-            );
+            if(tok.type !== 'cursor') {
+              // Proxy: strip all attributes and inject proxyof attribute
+              proxy.push(
+                // ignore atomic tags (e.g., style): they have no "structural" effect
+                tok.type === 'atomicTag' ? '' :
+                  '<'+tok.tagName+' '+BASEATTR+'proxyof='+id+(tok.unary ? '/>' : '>')
+              );
+            }
           }
 
         } else {
@@ -211,7 +257,7 @@
       this.walkNodes();
 
       if(DEBUG_CHUNK) {
-        chunk.actualInnerHTML = this.actuals[0].innerHTML; //root
+        chunk.actualInnerHTML = this.root.innerHTML; //root
       }
 
       return chunk;
@@ -266,6 +312,8 @@
 
         root: el,
 
+        scriptParent: el,
+
         options: defaults(options, { error: doNothing }),
 
         stream: new WriteStream(el),
@@ -284,54 +332,58 @@
       done();
     };
 
-    // The method on the window object used for 'eval'
-    var EVAL = globals.execScript ? 'execScript' : 'eval';
+    Worker.prototype.buildElement = function(tok) {
+      var el = this.doc.createElement(tok.tagName);
+
+      // Set attributes
+      eachKey(tok.attrs, function(name, value) {
+        el.setAttribute(name, value);
+      });
+
+      // Set content
+      if(tok.content) {
+        el.text = tok.content;
+      }
+
+      return el;
+    };
+
 
     Worker.prototype.script_inline = function(task, done) {
-      try {
-        this.win[EVAL](task.expr);
-      } catch(e) {
-        this.options.error(e);
-      }
+      this.stream.insertElement(this.buildElement(task.tok));
       done();
     };
 
     Worker.prototype.script_remote = function(task, done) {
       var _this = this;
-      var s = this.doc.createElement('script');
-      var props = {
+      var s = this.buildElement(task.tok);
 
+      function cleanup() {
+        s = s.onload = s.onreadystatechange = s.onerror = null;
+        done();
+      }
+
+      // Set handlers
+      set(s, {
+        // Fix for attribute "SRC" (capitalized) in IE7:
         src: task.src,
 
-        async: true,
+        onload: cleanup,
 
-        // Handlers
-        onload: function() {
-          s = s.onload = s.onreadystatechange = s.onerror = null;
-          done();
-        },
         onreadystatechange: function() {
           if(/^(loaded|complete)$/.test( s.readyState )) {
-            s.onload();
+            cleanup();
           }
         },
         onerror: function() {
           _this.options.error({ message: 'remote script failed ' + task.src });
-          s.onload();
-        }
-      };
-
-      // Set attributes
-      eachKey(task.tok.attrs, function(name, value) {
-        if(!props.hasOwnProperty(name)) {
-          s.setAttribute(name, value);
+          cleanup();
         }
       });
 
-      set(s, props);
-
-      this.root.appendChild(s);
+      this.stream.insertElement(s);
     };
+
 
 
     // Write task
@@ -346,7 +398,6 @@
         tokens.push(tok);
       }
 
-      // Write out this chunk of tokens
       var chunk = this.stream.write(tokens);
 
       if(DEBUG_CHUNK) {
