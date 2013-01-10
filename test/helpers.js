@@ -18,9 +18,26 @@ var testOptions = {};
 var defaultOptions = {
 };
 
+var ignoreScripts = (function() {
+  var div = document.createElement('div');
+  var html = '<SCRIPT TYPE="text/javascript" SRC="remote/write-div.js"></SCRIPT>';
+  div.innerHTML = html;
+  return div.innerHTML.indexOf(html) === -1;
+}());
+
 var innerHtml = function(el) {
-  return el.innerHTML.replace(/(\r\n)?<script[^>]*>[\s\S]*?<\/script>(\r\n)?/ig, '');
-}
+  //return el.innerHTML.replace(/(\r\n)?<script[^>]*>[\s\S]*?<\/script>(\r\n)?/ig, '');
+  var html = el.innerHTML.replace(/\.js\?0\.\d+/g, '.js');
+  return ignoreScripts ?
+    // remove all scripts (IE7/8, FF)
+    // IE7/8 because we pass expected html through the innerHTML of a div, scripts don't appear
+    // FF reverses order of attributes in the case that SRC is capitalized.
+    html.replace(/(\r\n)?<script[^>]*>[\s\S]*?<\/script>(\r\n)?/ig, '') :
+    // only remove helper scripts
+    // Webkit, IE9
+    html.replace(/<script class="test_helper">.*?<\/script>/g, '');
+};
+
 window.nativeBehavior = {};
 
 if(!window.console) {
@@ -76,7 +93,7 @@ var IFrame = function(id) {
     ifr.doc.callbackId++;
     var cbName = 'cb_'+ifr.doc.callbackId;
     ifr.contentWindow[cbName] = fn;
-    ifr.doc.write('<script class="test_cb">'+cbName+'();//'+msg+'</script>');
+    ifr.doc.write('<script class="test_helper">'+cbName+'();//'+msg+'</script>');
   };
 
   return ifr;
@@ -274,7 +291,7 @@ var execute = function(name, tags, options) {
         if(args && expectedBehavior) {
           // run it through innerHTML to get rid of browser inconsistencies
           work.innerHTML = args[0];
-          args[0] = work.innerHTML; //innerHtml(work);
+          args[0] = innerHtml(work);
         }
 
         if(!args) {
@@ -297,7 +314,7 @@ var execute = function(name, tags, options) {
         if(args && expectedBehavior) {
           // run it through innerHTML to get rid of browser inconsistencies
           work.innerHTML = args[0];
-          args[0] = work.innerHTML; //innerHtml(work);
+          args[0] = innerHtml(work);
         }
 
         if(!args) {
@@ -327,6 +344,9 @@ var execute = function(name, tags, options) {
             renderImpl.call(this);
           }, {
           name: tag.id,
+          beforeWrite: function(str) {
+            return str.replace(/\.js/g, '.js?'+Math.random());
+          },
           afterWrite: function(str) {
             self.written += str;
             self.compareInnerHtml(str);
@@ -377,7 +397,7 @@ var execute = function(name, tags, options) {
         ifr.doc._write('<div class=tag id='+tag.id+'>');
 
         // render inline
-        ifr.doc._write('<script>renderTag('+i+')</script>');
+        ifr.doc._write('<script class="test_helper">renderTag('+i+')</script>');
         ifr.doc._write('</div>');
       }
 
@@ -501,3 +521,10 @@ var setOptions = function(options) {
   testOptions = options;
 };
 
+
+document.write([
+  '<script type="text/vbscript">',
+  'supportsVbscript = true',
+  //'document.write("before<script>window.supportsVbscript = true<\\/script>|after")',
+  '</script>'
+].join('\n'));
