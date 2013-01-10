@@ -355,12 +355,16 @@
     };
 
     Worker.prototype.script_remote = function(task, done) {
+      this.doneRemoteScript = done;
+    }
+
+    Worker.prototype.plantRemoteScript = function(task) {
       var _this = this;
       var s = this.buildElement(task.tok);
 
       function cleanup() {
         s = s.onload = s.onreadystatechange = s.onerror = null;
-        done();
+        _this.doneRemoteScript();
       }
 
       // Set handlers
@@ -420,7 +424,7 @@
 
       // Subtask: Run this script.
       var src = tok.attrs.src || tok.attrs.SRC;
-      flow.subtask( src ?
+      var task = src ?
         // Remote script: cannot be inlined.
         { type: 'script_remote', src: src, tok: tok } :
 
@@ -429,8 +433,13 @@
             // remove CDATA and HTML comments
             .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
             .replace(/<!--([\s\S]*?)-->/g, "$1")
-        }
-      );
+        };
+
+      flow.subtask(task);
+
+      if(src) {
+        this.plantRemoteScript(task);
+      }
 
       // Subtask: Write remainder behind script.
       if(remainder) {
@@ -671,6 +680,7 @@
     function start(el, rootTask, options, done) {
 
       options = defaults(options, {
+        beforeWrite: null,
         afterWrite: doNothing,
         done: doNothing
       });
@@ -693,6 +703,9 @@
       var stash = { write: doc.write, writeln: doc.writeln };
 
       function write(str) {
+        if(options.beforeWrite) {
+          str = options.beforeWrite(str);
+        }
 
         flow.subtask({ type: 'write', html: str, inlinable: true });
 
