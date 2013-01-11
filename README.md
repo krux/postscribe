@@ -54,7 +54,7 @@ Where normally you would have
     <div id="ad"><h5>Advertisement</h5>
       <script type="text/javascript">
         // Build url params and make the ad call
-        document.write('<script src=doubleclick_url_with_params></script>');
+        document.write('<script src=doubleclick_url_with_params><\/script>');
       </script>
     </div>
 
@@ -66,7 +66,7 @@ Instead, remove the ad call and close the div
       // jQuery used as an example of delaying until load.
       $(function() {
         // Build url params and make the ad call
-        postscribe('#ad', '<script src=doubleclick_url_with_params></script>');
+        postscribe('#ad', '<script src=doubleclick_url_with_params><\/script>');
       });
     </script>
 
