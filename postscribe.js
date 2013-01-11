@@ -360,6 +360,8 @@
 
     Worker.prototype.plantRemoteScript = function(task) {
       var _this = this;
+      //delete task.tok.attrs.SRC;
+
       var s = this.buildElement(task.tok);
 
       function cleanup() {
@@ -369,7 +371,7 @@
 
       // Set handlers
       set(s, {
-        // Fix for attribute "SRC" (capitalized) in IE7:
+        // Fix for attribute "SRC" (capitalized). IE does not recognize it.
         src: task.src,
 
         onload: cleanup,
