@@ -431,11 +431,7 @@
         { type: 'script_remote', src: src, tok: tok } :
 
         // Inline script.
-        { type: 'script_inline', inlinable: true, tok: tok, expr: (tok.content)
-            // remove CDATA and HTML comments
-            .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
-            .replace(/<!--([\s\S]*?)-->/g, "$1")
-        };
+        { type: 'script_inline', inlinable: true, tok: tok };
 
       flow.subtask(task);
 
