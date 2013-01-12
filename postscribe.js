@@ -133,7 +133,10 @@
 
       set(this, {
         root: root,
+
         doc: doc,
+
+        parser: globals.htmlParser('', { autoFix: true }),
 
         // Actual elements by id.
         actuals: [root],
@@ -149,40 +152,52 @@
 
     }
 
-    // In IE7/8, div.innerHTML = "<script></script>" will not create a script tag.
-    // So we use a span instead.
-    var useSpanForCursor = false;
 
-    // Insert element into DOM where cursor is
-    WriteStream.prototype.insertElement = function(el) {
+    WriteStream.prototype.write = function(html) {
+      this.parser.append(html);
 
-      var id = "ps-cursor-" + Math.round(Math.random() * 1000000);
+      var tok, tokens = [];
 
-      var nodeName = (useSpanForCursor && 'span') || el.nodeName;
-      this.write([{
-        type: 'cursor',
-        attrs: { id: id },
-        text: '<' + nodeName + ' id="' + id + '"></' + nodeName + '>'
-      }]);
-
-      var cursor = this.doc.getElementById(id);
-
-      if(!cursor && !useSpanForCursor) {
-        useSpanForCursor = true;
-        return this.insertElement(el);
+      // stop if we see a script token
+      while((tok = this.parser.readToken()) != null && !isScript(tok)) {
+        tokens.push(tok);
       }
 
-      var parent = cursor && cursor.parentNode;
-      if(parent) {
-        parent.removeChild(cursor);
-      }
-
-      try {
-        parent.appendChild(el);
-      } catch(e) {
-        this.options.error(e);
-      }
+      return {
+        chunk: this.writeStaticTokens(tokens),
+        script: tok,
+        htmlAfterScript: tok && this.parser.clear()
+      };
     };
+
+
+    // ## Contiguous non-script tokens (a chunk)
+    WriteStream.prototype.writeStaticTokens = function(tokens) {
+
+      var chunk = this.buildChunk(tokens);
+
+      if(!chunk.actual) {
+        // e.g., no tokens, or a noscript that got ignored
+        return;
+      }
+      chunk.html = this.proxyHistory + chunk.actual;
+      this.proxyHistory += chunk.proxy;
+
+      this.proxyRoot.innerHTML = chunk.html;
+
+      if(DEBUG_CHUNK) {
+        chunk.proxyInnerHTML = this.proxyRoot.innerHTML;
+      }
+
+      this.walkNodes();
+
+      if(DEBUG_CHUNK) {
+        chunk.actualInnerHTML = this.root.innerHTML; //root
+      }
+
+      return chunk;
+    };
+
 
     WriteStream.prototype.buildChunk = function (tokens) {
       var nextId = this.actuals.length,
@@ -210,7 +225,7 @@
               tok.text.replace(/(\/?>)/, ' '+BASEATTR+'id='+id+' $1')
             );
 
-            if(tok.type !== 'cursor') {
+            if(tok.type !== "cursor") {
               // Proxy: strip all attributes and inject proxyof attribute
               proxy.push(
                 // ignore atomic tags (e.g., style): they have no "structural" effect
@@ -236,33 +251,6 @@
         proxy: proxy.join('')
       };
     };
-
-    WriteStream.prototype.write = function(tokens) {
-
-      var chunk = this.buildChunk(tokens);
-
-      if(!chunk.actual) {
-        // e.g., no tokens, or a noscript that got ignored
-        return;
-      }
-      chunk.html = this.proxyHistory + chunk.actual;
-      this.proxyHistory += chunk.proxy;
-
-      this.proxyRoot.innerHTML = chunk.html;
-
-      if(DEBUG_CHUNK) {
-        chunk.proxyInnerHTML = this.proxyRoot.innerHTML;
-      }
-
-      this.walkNodes();
-
-      if(DEBUG_CHUNK) {
-        chunk.actualInnerHTML = this.root.innerHTML; //root
-      }
-
-      return chunk;
-    };
-
 
     WriteStream.prototype.walkNodes = function() {
       var node, stack = [this.proxyRoot];
@@ -295,44 +283,32 @@
       }
     };
 
-    return WriteStream;
+    // ### Script tokens
 
-  }());
+    WriteStream.prototype.writeScriptToken = function(tok, done) {
+      var el = this.buildScript(tok);
 
-  // # Class Worker
-  // Perform tasks in the context of an element.
-  var Worker = (function() {
+      var src = tok.attrs.src || tok.attrs.SRC;
 
-    function Worker(el, options) {
-      // Default options
+      if(src) {
+        // Fix for attribute "SRC" (capitalized). IE does not recognize it.
+        el.src = src;
+        this.setLoadHandlers(el, done);
+      }
 
-      var doc = el.ownerDocument;
+      try {
+        this.insertScript(el);
+        if(!src) {
+          done();
+        }
+      } catch(e) {
+        done(e);
+      }
 
-      set(this, {
-
-        root: el,
-
-        scriptParent: el,
-
-        options: defaults(options, { error: doNothing }),
-
-        stream: new WriteStream(el),
-
-        parser: globals.htmlParser('', { autoFix: true }),
-
-        doc: doc,
-
-        win: doc.defaultView|| doc.parentWindow
-      });
-    }
-
-    Worker.prototype.exec = function(task, done) {
-      task.run.call(this.win, this.doc);
-      delete task.run;
-      done();
     };
 
-    Worker.prototype.buildElement = function(tok) {
+
+    WriteStream.prototype.buildScript = function(tok) {
       var el = this.doc.createElement(tok.tagName);
 
       // Set attributes
@@ -349,32 +325,39 @@
     };
 
 
-    Worker.prototype.script_inline = function(task, done) {
-      this.stream.insertElement(this.buildElement(task.tok));
-      done();
+    // Insert element into DOM where cursor is
+    WriteStream.prototype.insertScript = function(el) {
+
+      var id = "ps-cursor-" + Math.round(Math.random() * 1000000);
+
+      // Don't use this.write since it affects parser remainder
+      this.writeStaticTokens([{
+        type: 'cursor',
+        attrs: { id: id },
+        text: '<span id="' + id + '"></span>'
+      }]);
+
+      var cursor = this.doc.getElementById(id);
+
+      var parent = cursor && cursor.parentNode;
+      if(parent) {
+        parent.removeChild(cursor);
+        parent.appendChild(el);
+      } else {
+        throw "Could not insert script";
+      }
     };
 
-    Worker.prototype.script_remote = function(task, done) {
-      this.doneRemoteScript = done;
-    }
-
-    Worker.prototype.plantRemoteScript = function(task) {
-      var _this = this;
-      //delete task.tok.attrs.SRC;
-
-      var s = this.buildElement(task.tok);
-
-      function cleanup() {
-        s = s.onload = s.onreadystatechange = s.onerror = null;
-        _this.doneRemoteScript();
+    WriteStream.prototype.setLoadHandlers = function(el, done) {
+      // Setup handlers
+      function cleanup(e) {
+        el = el.onload = el.onreadystatechange = el.onerror = null;
+        done(e);
       }
 
       // Set handlers
-      set(s, {
-        // Fix for attribute "SRC" (capitalized). IE does not recognize it.
-        src: task.src,
-
-        onload: cleanup,
+      set(el, {
+        onload: function() { cleanup(); },
 
         onreadystatechange: function() {
           if(/^(loaded|complete)$/.test( s.readyState )) {
@@ -382,36 +365,76 @@
           }
         },
         onerror: function() {
-          _this.options.error({ message: 'remote script failed ' + task.src });
-          cleanup();
+          done({ message: 'remote script failed ' + task.src });
         }
       });
-
-      this.stream.insertElement(s);
     };
 
+    return WriteStream;
+
+  }());
+
+  // # Class Worker
+  // Perform tasks in the context of an element.
+  var Worker = (function() {
+
+    function Worker(el, options) {
+      // Default options
+
+      set(this, {
+
+        options: defaults(options, { error: doNothing }),
+
+        stream: new WriteStream(el)
+
+      });
+    }
+
+    Worker.prototype.exec = function(task, done) {
+      task.run.call(this.win, this.doc);
+      delete task.run;
+      done();
+    };
+
+    Worker.prototype.script_remote = function(task, done) {
+      this.doneRemoteScript = done;
+    }
 
 
     // Write task
     Worker.prototype.write = function(task, done, flow) {
 
-      this.parser.append(task.html);
+      var result = this.stream.write(task.html);
 
-      var tok, tokens = [];
 
-      // stop if we see a script token
-      while((tok = this.parser.readToken()) != null && !isScript(tok)) {
-        tokens.push(tok);
+      if(DEBUG) {
+        task.result = result;
       }
 
-      var chunk = this.stream.write(tokens);
+      if(result.script) {
+        var tok = result.script;
+        // Subtask: Run this script.
+        var src = tok.attrs.src || tok.attrs.SRC;
 
-      if(DEBUG_CHUNK) {
-        task.chunk = chunk;
-      }
+        if(src) {
+          flow.subtask({ type: 'script_remote', src: src, tok: tok });
+        }
 
-      if(tok) {
-        this.onScriptToken(tok, flow);
+        var _this = this;
+        this.stream.writeScriptToken(tok, function(e) {
+          if(e) {
+            _this.options.error(e);
+          }
+          if(src) {
+            _this.doneRemoteScript();
+          }
+        });
+
+
+        // Subtask: Write remainder behind script.
+        if(result.htmlAfterScript) {
+          flow.subtask({ type: 'write', html: result.htmlAfterScript, inlinable: true });
+        }
       }
 
       done();
@@ -421,28 +444,8 @@
     // We encountered a script token while writing.
     Worker.prototype.onScriptToken = function(tok, flow) {
 
-      // Stash remainder of parser for during this script.
-      var remainder = this.parser.clear();
 
-      // Subtask: Run this script.
-      var src = tok.attrs.src || tok.attrs.SRC;
-      var task = src ?
-        // Remote script: cannot be inlined.
-        { type: 'script_remote', src: src, tok: tok } :
 
-        // Inline script.
-        { type: 'script_inline', inlinable: true, tok: tok };
-
-      flow.subtask(task);
-
-      if(src) {
-        this.plantRemoteScript(task);
-      }
-
-      // Subtask: Write remainder behind script.
-      if(remainder) {
-        flow.subtask({ type: 'write', html: remainder, inlinable: true });
-      }
     };
 
     return Worker;
