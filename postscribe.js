@@ -128,11 +128,13 @@
       }
     }
 
-    function WriteStream(root) {
+    function WriteStream(root, onScript) {
       var doc = root.ownerDocument;
 
       set(this, {
         root: root,
+
+        onScript: onScript,
 
         doc: doc,
 
@@ -163,10 +165,19 @@
         tokens.push(tok);
       }
 
+      var chunk = this.writeStaticTokens(tokens);
+
+      var htmlAfterScript;
+
+      if(tok) {
+        htmlAfterScript = this.parser.clear();
+        this.writeScriptToken(tok);
+      }
+
       return {
-        chunk: this.writeStaticTokens(tokens),
+        chunk: chunk,
         script: tok,
-        htmlAfterScript: tok && this.parser.clear()
+        htmlAfterScript: htmlAfterScript
       };
     };
 
@@ -285,20 +296,22 @@
 
     // ### Script tokens
 
-    WriteStream.prototype.writeScriptToken = function(tok, done) {
+    WriteStream.prototype.writeScriptToken = function(tok) {
+      tok.src = tok.attrs.src || tok.attrs.SRC;
+
       var el = this.buildScript(tok);
 
-      var src = tok.attrs.src || tok.attrs.SRC;
+      var done = this.onScript(tok);
 
-      if(src) {
+      if(tok.src) {
         // Fix for attribute "SRC" (capitalized). IE does not recognize it.
-        el.src = src;
+        el.src = tok.src;
         this.setLoadHandlers(el, done);
       }
 
       try {
         this.insertScript(el);
-        if(!src) {
+        if(!tok.src) {
           done();
         }
       } catch(e) {
@@ -360,7 +373,7 @@
         onload: function() { cleanup(); },
 
         onreadystatechange: function() {
-          if(/^(loaded|complete)$/.test( s.readyState )) {
+          if(/^(loaded|complete)$/.test( el.readyState )) {
             cleanup();
           }
         },
@@ -381,11 +394,15 @@
     function Worker(el, options) {
       // Default options
 
+      var _this = this;
       set(this, {
 
         options: defaults(options, { error: doNothing }),
 
-        stream: new WriteStream(el)
+
+        stream: new WriteStream(el, function(tok) {
+          return _this.onScriptStart(tok);
+        })
 
       });
     }
@@ -396,47 +413,44 @@
       done();
     };
 
-    Worker.prototype.script_remote = function(task, done) {
-      this.doneRemoteScript = done;
+    Worker.prototype.script = function(task, done) {
+      this.doneScript = done;
     }
 
+    Worker.prototype.onScriptStart = function(tok) {
+      if(tok.src) {
+        this.flow.subtask({ type: 'script', inlinable: !tok.src, tok: tok });
+      }
+      var _this = this;
+      return tok.src ? function(e) {
+        _this.onScriptDone(e);
+      } : doNothing;
+    };
+
+    Worker.prototype.onScriptDone = function(e) {
+      if(e) {
+        this.options.error(e);
+      }
+      this.doneScript();
+    };
 
     // Write task
     Worker.prototype.write = function(task, done, flow) {
+      this.flow = flow;
 
       var result = this.stream.write(task.html);
 
 
-      if(DEBUG) {
+      if(DEBUG_CHUNK) {
         task.result = result;
+      } else {
+        task.chunk = result.chunk && result.chunk.raw;
       }
 
-      if(result.script) {
-        var tok = result.script;
-        // Subtask: Run this script.
-        var src = tok.attrs.src || tok.attrs.SRC;
-
-        if(src) {
-          flow.subtask({ type: 'script_remote', src: src, tok: tok });
-        }
-
-        var _this = this;
-        this.stream.writeScriptToken(tok, function(e) {
-          if(e) {
-            _this.options.error(e);
-          }
-          if(src) {
-            _this.doneRemoteScript();
-          }
-        });
-
-
-        // Subtask: Write remainder behind script.
-        if(result.htmlAfterScript) {
-          flow.subtask({ type: 'write', html: result.htmlAfterScript, inlinable: true });
-        }
+      // Subtask: Write remainder behind script.
+      if(result.htmlAfterScript) {
+        flow.subtask({ type: 'write', html: result.htmlAfterScript, inlinable: true });
       }
-
       done();
 
     };
