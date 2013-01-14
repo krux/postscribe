@@ -167,16 +167,13 @@
 
       var chunk = this.writeStaticTokens(tokens);
 
-      var htmlAfterScript;
-
       if(tok) {
         this.handleScriptToken(tok);
       }
 
       return {
         chunk: chunk,
-        script: tok,
-        htmlAfterScript: htmlAfterScript
+        script: tok
       };
     };
 
@@ -235,7 +232,8 @@
               tok.text.replace(/(\/?>)/, ' '+BASEATTR+'id='+id+' $1')
             );
 
-            if(tok.type !== "cursor") {
+            //if(tok.type !== "cursor") {
+            if(!/^ps\-cursor\-/.test(tok.attrs.id)) {
               // Proxy: strip all attributes and inject proxyof attribute
               proxy.push(
                 // ignore atomic tags (e.g., style): they have no "structural" effect
@@ -294,9 +292,8 @@
     };
 
     WriteStream.prototype.handleScriptToken = function(tok) {
-      // handle script token
-      tok.src = tok.attrs.src || tok.attrs.SRC;
       var remainder = this.parser.clear();
+      tok.src = tok.attrs.src || tok.attrs.SRC;
       if(tok.src) {
         var done = this.options.onScript(tok);
         this.writeScriptToken(tok, done);
@@ -354,12 +351,7 @@
 
       var id = "ps-cursor-" + Math.round(Math.random() * 1000000);
 
-      // Don't use this.write since it affects parser remainder
-      this.writeStaticTokens([{
-        type: 'cursor',
-        attrs: { id: id },
-        text: '<span id="' + id + '"></span>'
-      }]);
+      this.write('<span id="' + id + '"></span>');
 
       var cursor = this.doc.getElementById(id);
 
