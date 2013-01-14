@@ -128,13 +128,13 @@
       }
     }
 
-    function WriteStream(root, onScript) {
+    function WriteStream(root, options) {
       var doc = root.ownerDocument;
 
       set(this, {
         root: root,
 
-        onScript: onScript,
+        options: options,
 
         doc: doc,
 
@@ -170,8 +170,13 @@
       var htmlAfterScript;
 
       if(tok) {
-        htmlAfterScript = this.parser.clear();
-        this.writeScriptToken(tok);
+        tok.src = tok.attrs.src || tok.attrs.SRC;
+        var remainder = this.parser.clear();
+        var done = this.options.onScript(tok);
+        this.writeScriptToken(tok, done);
+        if(remainder) {
+          this.options.onScriptRemainder(remainder);
+        }
       }
 
       return {
@@ -296,12 +301,8 @@
 
     // ### Script tokens
 
-    WriteStream.prototype.writeScriptToken = function(tok) {
-      tok.src = tok.attrs.src || tok.attrs.SRC;
-
+    WriteStream.prototype.writeScriptToken = function(tok, done) {
       var el = this.buildScript(tok);
-
-      var done = this.onScript(tok);
 
       if(tok.src) {
         // Fix for attribute "SRC" (capitalized). IE does not recognize it.
@@ -400,8 +401,13 @@
         options: defaults(options, { error: doNothing }),
 
 
-        stream: new WriteStream(el, function(tok) {
-          return _this.onScriptStart(tok);
+        stream: new WriteStream(el, {
+          onScript: function(tok) {
+           return _this.onScriptStart(tok);
+          },
+          onScriptRemainder: function(remainder) {
+            _this.onScriptRemainder(remainder);
+          }
         })
 
       });
@@ -427,6 +433,10 @@
       } : doNothing;
     };
 
+    Worker.prototype.onScriptRemainder = function(remainder) {
+      this.flow.subtask({ type: 'write', inlinable: true, html: remainder });
+    };
+
     Worker.prototype.onScriptDone = function(e) {
       if(e) {
         this.options.error(e);
@@ -447,10 +457,7 @@
         task.chunk = result.chunk && result.chunk.raw;
       }
 
-      // Subtask: Write remainder behind script.
-      if(result.htmlAfterScript) {
-        flow.subtask({ type: 'write', html: result.htmlAfterScript, inlinable: true });
-      }
+
       done();
 
     };
