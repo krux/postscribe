@@ -232,8 +232,8 @@
               tok.text.replace(/(\/?>)/, ' '+BASEATTR+'id='+id+' $1')
             );
 
-            //if(tok.type !== "cursor") {
-            if(!/^ps\-cursor\-/.test(tok.attrs.id)) {
+            // Don't proxy scripts: they have no bearing on DOM structure.
+            if(tok.attrs.id !== "ps-script") {
               // Proxy: strip all attributes and inject proxyof attribute
               proxy.push(
                 // ignore atomic tags (e.g., style): they have no "structural" effect
@@ -349,11 +349,9 @@
     // Insert element into DOM where cursor is
     WriteStream.prototype.insertScript = function(el) {
 
-      var id = "ps-cursor-" + Math.round(Math.random() * 1000000);
+      this.write('<span id="ps-script"/>');
 
-      this.write('<span id="' + id + '"></span>');
-
-      var cursor = this.doc.getElementById(id);
+      var cursor = this.doc.getElementById("ps-script");
 
       var parent = cursor && cursor.parentNode;
       if(parent) {
