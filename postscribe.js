@@ -323,7 +323,7 @@
           done();
         }
       } catch(e) {
-        done(e);
+        done({ message: "Could not insert script: " + e.message });
       }
 
     };
@@ -346,20 +346,17 @@
     };
 
 
-    // Insert element into DOM where cursor is
+    // Insert script into DOM where cursor is.
     WriteStream.prototype.insertScript = function(el) {
-
+      // Append a span to the stream. That span will act as a cursor
+      // (i.e. insertion point) for the script.
       this.write('<span id="ps-script"/>');
 
+      // Grab that span from the DOM.
       var cursor = this.doc.getElementById("ps-script");
 
-      var parent = cursor && cursor.parentNode;
-      if(parent) {
-        parent.removeChild(cursor);
-        parent.appendChild(el);
-      } else {
-        throw "Could not insert script";
-      }
+      // Replace cursor with script.
+      cursor.parentNode.replaceChild(el, cursor);
     };
 
     WriteStream.prototype.setLoadHandlers = function(el, done) {
