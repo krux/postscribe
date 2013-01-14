@@ -170,13 +170,7 @@
       var htmlAfterScript;
 
       if(tok) {
-        tok.src = tok.attrs.src || tok.attrs.SRC;
-        var remainder = this.parser.clear();
-        var done = this.options.onScript(tok);
-        this.writeScriptToken(tok, done);
-        if(remainder) {
-          this.options.onScriptRemainder(remainder);
-        }
+        this.handleScriptToken(tok);
       }
 
       return {
@@ -296,6 +290,22 @@
         }
         // prepend childNodes to stack
         stack.unshift.apply(stack, toArray(node.childNodes));
+      }
+    };
+
+    WriteStream.prototype.handleScriptToken = function(tok) {
+      // handle script token
+      tok.src = tok.attrs.src || tok.attrs.SRC;
+      var remainder = this.parser.clear();
+      if(tok.src) {
+        var done = this.options.onScript(tok);
+        this.writeScriptToken(tok, done);
+        if(remainder) {
+          this.options.onScriptRemainder(remainder);
+        }
+      } else {
+        this.writeScriptToken(tok, doNothing);
+        this.write(remainder);
       }
     };
 
@@ -421,7 +431,7 @@
 
     Worker.prototype.script = function(task, done) {
       this.doneScript = done;
-    }
+    };
 
     Worker.prototype.onScriptStart = function(tok) {
       if(tok.src) {
@@ -459,13 +469,6 @@
 
 
       done();
-
-    };
-
-    // We encountered a script token while writing.
-    Worker.prototype.onScriptToken = function(tok, flow) {
-
-
 
     };
 
