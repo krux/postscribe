@@ -138,8 +138,6 @@
 
         doc: doc,
 
-        win: doc.defaultView || doc.parentWindow,
-
         parser: globals.htmlParser('', { autoFix: true }),
 
         // Actual elements by id.
@@ -170,11 +168,12 @@
       // Check for pending writes
       // When new script gets pushed or pending this will stop
       // because new writeQueue gets pushed
-      while(!this.pendingRemote &&
+      while(!this.deferredRemote &&
             this.writeQueue[0].length) {
 
         this.writeImpl(this.writeQueue[0].shift());
       }
+
     };
 
     WriteStream.prototype.writeImpl = function(arg) {
@@ -192,7 +191,7 @@
         tokens.push(tok);
       }
 
-      var chunk = this.writeStaticTokens(tokens);
+      this.writeStaticTokens(tokens);
 
       if(tok) {
         this.handleScriptToken(tok);
@@ -325,22 +324,33 @@
 
       tok.src = tok.attrs.src || tok.attrs.SRC;
 
-      tok.doNow = !tok.src || !this.scriptStack.length;
-      if(tok.doNow) {
-        this.writeQueue.unshift([]);
-        this.scriptStack.unshift(tok);
+      if(tok.src && this.scriptStack.length) {
+        // Defer this script until scriptStack is empty.
+        // Assumption 1: This script will not start executing until
+        // scriptStack is empty.
+        this.deferredRemote = tok;
+      } else {
+        this.startScript();
       }
 
+      // Put the script node in the DOM.
       var _this = this;
       this.writeScriptToken(tok, function(e) {
         _this.onScriptDone(e, tok);
       });
 
+    };
 
-      if(!tok.doNow) {
-        this.pendingRemote = tok;
-      }
+    WriteStream.prototype.startScript = function(tok) {
+      this.writeQueue.unshift([]);
+      this.scriptStack.unshift(tok);
+    };
 
+    WriteStream.prototype.doneScript = function(tok) {
+      this.scriptStack.shift();
+      var innerWrites = this.writeQueue.shift();
+      // prepend inner writes to outer queue.
+      [].unshift.apply(this.writeQueue[0], innerWrites);
     };
 
     WriteStream.prototype.onScriptDone = function(e, tok) {
@@ -348,21 +358,17 @@
         throw e;
       }
       // TODO: handle error
-      this.scriptStack.shift();
-      //if(!tok.doNow) {
-      var old = this.writeQueue.shift();
-      [].unshift.apply(this.writeQueue[0], old);
-      //}
+      this.doneScript(tok);
 
       // Check for pending remote
 
-      // Assumption: if remote_script1 writes remote_script2 then
+      // Assumption 2: if remote_script1 writes remote_script2 then
       // the we notice remote_script1 finishes before remote_script2 starts.
+      // I think this is equivalent to assumption 1
       if(!this.scriptStack.length) {
-        if(this.pendingRemote) {
-          this.writeQueue.unshift([]);
-          this.scriptStack.unshift(this.pendingRemote);
-          this.pendingRemote = null;
+        if(this.deferredRemote) {
+          this.startScript(this.deferredRemote);
+          this.deferredRemote = null;
         } else {
           this.processWriteQueue();
         }
@@ -413,13 +419,7 @@
     WriteStream.prototype.insertScript = function(el) {
       // Append a span to the stream. That span will act as a cursor
       // (i.e. insertion point) for the script.
-      //this.writeImpl('<span id="ps-script"/>');
-      this.writeStaticTokens([{
-        type: "startTag",
-        attrs: { id: "ps-script" },
-        unary: true,
-        text: '<span id="ps-script"/>'
-      }])
+      this.writeImpl('<span id="ps-script"/>');
 
       // Grab that span from the DOM.
       var cursor = this.doc.getElementById("ps-script");
@@ -451,81 +451,6 @@
     };
 
     return WriteStream;
-
-  }());
-
-  // # Class Worker
-  // Perform tasks in the context of an element.
-  var Worker = (function() {
-
-    function Worker(el, options) {
-      // Default options
-
-      var _this = this;
-      set(this, {
-
-        options: defaults(options, { error: doNothing }),
-
-
-        stream: new WriteStream(el, {
-          onScript: function(tok) {
-           return _this.onScriptStart(tok);
-          },
-          onScriptRemainder: function(remainder) {
-            _this.onScriptRemainder(remainder);
-          }
-        })
-
-      });
-    }
-
-    Worker.prototype.exec = function(task, done) {
-      task.run.call(this.win, this.doc);
-      delete task.run;
-      done();
-    };
-
-    Worker.prototype.script = function(task, done) {
-      this.doneScript = done;
-    };
-
-    Worker.prototype.onScriptStart = function(tok) {
-      if(tok.src) {
-        this.flow.subtask({ type: 'script', inlinable: !tok.src, tok: tok });
-      }
-      var _this = this;
-      return tok.src ? function(e) {
-        _this.onScriptDone(e);
-      } : doNothing;
-    };
-
-    Worker.prototype.onScriptRemainder = function(remainder) {
-      this.flow.subtask({ type: 'write', inlinable: true, html: remainder });
-    };
-
-    Worker.prototype.onScriptDone = function(e) {
-      if(e) {
-        this.options.error(e);
-      }
-      this.doneScript();
-    };
-
-    // Write task
-    Worker.prototype.write = function(task, done, flow) {
-      this.flow = flow;
-
-      var result = this.stream.write(task.html);
-      this.stream.write(done);
-
-      if(DEBUG_CHUNK) {
-        task.result = result;
-      } else {
-        task.chunk = result.chunk && result.chunk.raw;
-      }
-
-    };
-
-    return Worker;
 
   }());
 
@@ -765,17 +690,13 @@
       });
       // Create the flow.
 
-      var worker = new Worker(el, options);
-
-      var flow = new Flow(worker, DEBUG && new Tracer());
-
       var stream = new WriteStream(el, options);
 
-      flow.id = nextId++;
+      stream.id = nextId++;
 
-      flow.name = options.name || flow.id;
+      stream.name = options.name || stream.id;
 
-      postscribe.flows[flow.name] = flow;
+      postscribe.streams[stream.name] = stream;
 
       // Override document.write.
 
@@ -788,7 +709,6 @@
           str = options.beforeWrite(str);
         }
 
-        //flow.subtask({ type: 'write', html: str, inlinable: true });
         stream.write(str);
         options.afterWrite(str);
 
@@ -809,7 +729,7 @@
 
       });
 
-      return flow;
+      return stream;
 
     }
 
@@ -850,12 +770,11 @@
 
     return set(postscribe, {
 
-      flows: {},
+      streams: {},
 
       queue: queue,
 
       // Expose internal classes.
-      Worker: Worker,
       Flow: Flow,
       Tracer: Tracer,
       WriteStream: WriteStream,
