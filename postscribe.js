@@ -454,223 +454,6 @@
 
   }());
 
-  // ## Class Flow
-  // Controls the flow of a tree of tasks with subtasks
-  // Subtasks of a task are those tasks that are added while that task is the active task.
-  // 1. task _A_ and all its "subtasks" are done before any tasks following _A_ (in tree order)
-  // 2. A task is inlined if it is inlinable and there are no deferred tasks (because of point #1). Else it is defered.
-
-  // Special task properties:
-
-  // * type
-  // * start
-  // * complete
-  var Flow = (function() {
-
-    // param worker[task.type](task, done): an object with async callbacks to execute each task type.
-    function Flow(worker, options) {
-
-      var deferred = [];
-
-      set(this, {
-
-        // The worker performs the tasks.
-        worker: worker,
-
-        options: defaults(options, {
-          taskAdd: doNothing,
-          taskStart: doNothing,
-          taskDone: doNothing
-        }),
-
-        // The active (currently executing) task.
-        active: null,
-
-        // The list of deferred tasks.
-        // Only done when idle.
-        deferred: deferred,
-
-        // The active task's deferred decendant subtasks.
-        _deferred: deferred
-      });
-    }
-
-    // Add a "root" task.
-    Flow.prototype.task = function(task, done) {
-      this.options.taskAdd(task);
-
-      this.deferred.push(task);
-
-      if(done) {
-        this.deferred.push(done);
-      }
-
-      this.nextIfIdle();
-
-      return this;
-    };
-
-    // Add a subtask of active task.
-    Flow.prototype.subtask = function(child) {
-
-      this.options.taskAdd(child);
-
-      if(child.inlinable && !this._deferred.length) {
-        // Inline this child.
-        this.startTask(child);
-      } else {
-        // Defer this child.
-        this._deferred.push(child);
-      }
-    };
-
-    // Start a task.
-    Flow.prototype.startTask = function(task) {
-      var _this = this;
-
-      if(this.stopRequested) {
-        return this._deferred.unshift(task);
-      }
-
-      // Functions are light-weight tasks.
-      if(isFunction(task)) {
-        task.call(this);
-        return this.nextIfIdle();
-      }
-
-      // Stash the active task and queue
-      var stash = { active: this.active, _deferred: this._deferred };
-
-      // Collect deferred subtasks for this task.
-      set(this, { active: task, _deferred: [] });
-
-      this.options.taskStart(task);
-
-      // Worker's method is passed the task, done callback, and this flow.
-      this.worker[task.type](task, function() {
-        _this.doneTask(stash);
-      }, this);
-    };
-
-    // Called when active task is done.
-    Flow.prototype.doneTask = function(stash) {
-
-      this.options.taskDone(this.active);
-
-      // Prepend deferred to stashed deferred in-place.
-      // When idle, this.deferred will hold all _deferred in the right order.
-      [].unshift.apply(stash._deferred, this._deferred);
-
-      // Restore stashed state.
-      set(this, stash);
-
-      // Are we are waiting to stop?
-      if( this.onStop && !this.active ) {
-        this.onStop(); delete this.onStop;
-      }
-
-      this.nextIfIdle();
-    };
-
-    // Run the next deferred task if no other task is running.
-    Flow.prototype.nextIfIdle = function() {
-      // !this.active <==> (this._deferred === this.deferred)
-      var task = !this.active && this.deferred.shift();
-
-      if(task) {
-        this.startTask(task);
-      }
-    };
-
-    // Stop this flow
-    Flow.prototype.stop = function(onStop) {
-      // Callback when flow has actually stopped.
-      onStop = onStop || doNothing;
-      this.stopRequested = true;
-
-      if(!this.active) {
-        // We are ready to stop now.
-        onStop();
-      } else {
-        // We will stop when next we are idle.
-        this.onStop = onStop;
-      }
-    };
-
-    // Start this flow.
-    Flow.prototype.start = function() {
-      this.stopRequested = false;
-      delete this.onStop;
-
-      this.nextIfIdle();
-      return this;
-    };
-
-    return Flow;
-
-  }());
-
-
-  // ## Class Tracer (Debugging)
-  // Traces the relationships between tasks.
-  var Tracer = (function() {
-
-    function Tracer() {
-      set(this, {
-        // All tasks by id.
-        tasks: [],
-        // Tasks with no parent.
-        roots: [],
-        // The active task.
-        active: null
-      });
-    }
-
-    Tracer.prototype.taskAdd = function(task) {
-      task.id = this.tasks.length;
-      this.tasks.push(task);
-
-      task.state = 'waiting';
-
-      if(this.active) {
-        task.cause = this.active.id;
-        (this.active.effects = this.active.effects || []).push(task.id);
-      }
-
-      return task;
-    };
-
-    Tracer.prototype.taskStart = function(task) {
-
-      var parent = this.active;
-
-      if(parent) {
-
-        task.parent = parent.id;
-        (parent.childIds = parent.childIds || []).push(task.id);
-        (parent.children = parent.children || []).push(task);
-
-      } else {
-
-        this.roots.push(task);
-      }
-
-      task.state = 'started';
-
-      this.active = task;
-
-    };
-
-    Tracer.prototype.taskDone = function(task) {
-
-      task.state = 'done';
-
-      this.active = task.parent != null ? this.tasks[task.parent] : null;
-
-    };
-
-    return Tracer;
-  }());
 
 
 
@@ -680,7 +463,19 @@
   var postscribe = (function() {
     var nextId = 0;
 
-    function start(el, rootTask, options, done) {
+    var queue = [];
+
+    var active = null;
+
+    function nextStream() {
+      var args;
+      if(args = queue.shift()) {
+        args.stream = start.apply(null, args);
+      }
+    }
+
+
+    function start(el, html, options) {
 
       options = defaults(options, {
         beforeWrite: null,
@@ -691,6 +486,7 @@
       // Create the flow.
 
       var stream = new WriteStream(el, options);
+      active = stream;
 
       stream.id = nextId++;
 
@@ -718,14 +514,15 @@
 
       // Start the flow
 
-      stream.write(rootTask, function streamDone() {
+      stream.write(html, function streamDone() {
 
         // restore document.write
         set(doc, stash);
 
         options.done();
 
-        done();
+        active = null;
+        nextStream();
 
       });
 
@@ -733,12 +530,6 @@
 
     }
 
-    var queue = new Flow({
-      rootTask: function(args, done) {
-        args.push(done);
-        args.flow = start.apply(null, args);
-      }
-    });
 
     function postscribe(el, html, options) {
 
@@ -750,11 +541,12 @@
 
       options = options || {};
 
-      var rootTask = html;
+      var args = [el, html, options];
 
-      var args = set([el, rootTask, options], { type: 'rootTask' });
-
-      queue.task(args);
+      queue.push(args);
+      if(!active) {
+        nextStream();
+      }
 
       return (el.postscribe = {
         stop: function() {
@@ -775,8 +567,6 @@
       queue: queue,
 
       // Expose internal classes.
-      Flow: Flow,
-      Tracer: Tracer,
       WriteStream: WriteStream,
 
       json: function() {
