@@ -317,7 +317,9 @@
 
     WriteStream.prototype.handleScriptToken = function(tok) {
       var remainder = this.parser.clear();
+
       if(remainder) {
+        // Write remainder immediately behind this script.
         this.writeQueue[0].unshift(remainder);
       }
 

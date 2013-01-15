@@ -426,23 +426,24 @@ var execute = function(name, tags, options) {
       };
 
       for(var i = 0; i < shuffledTags.length; i++) {
-        var tag = shuffledTags[i];
-        var ctx = Context[mode](tag, ifr.doc);
-        pauseMonitor.add(ctx);
-        tag.ctx = ctx;
-        ctx.writer = postscribe(ctx.div, '<script class="test_helper">renderTag('+i+')</script>', {
-          name: tag.id,
-          beforeWrite: function(str) {
-            return str;//.replace(/\.js/g, '.js?'+Math.random());
-          },
-          afterWrite: function(str) {
-            ctx.written += str;
-            ctx.compareInnerHtml(str);
-          },
-          error: function(e) {
-            throw e;
-          }
-        });
+        (function(tag, i) {
+          var ctx = Context[mode](tag, ifr.doc);
+          pauseMonitor.add(ctx);
+          tag.ctx = ctx;
+          ctx.writer = postscribe(ctx.div, '<script class="test_helper">renderTag('+i+')</script>', {
+            name: tag.id,
+            beforeWrite: function(str) {
+              return str;//.replace(/\.js/g, '.js?'+Math.random());
+            },
+            afterWrite: function(str) {
+              ctx.written += str;
+              ctx.compareInnerHtml(str);
+            },
+            error: function(e) {
+              throw e;
+            }
+          });
+        }(shuffledTags[i], i));
       }
 
       pauseMonitor.checkDone();
