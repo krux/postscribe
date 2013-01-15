@@ -246,7 +246,7 @@ var execute = function(name, tags, options) {
         }
 
 
-        str = str.replace(/\.js/g, '.js?'+Math.random());
+        //str = str.replace(/\.js/g, '.js?'+Math.random());
 
         self.written = self.written + str;
 
@@ -323,38 +323,15 @@ var execute = function(name, tags, options) {
           msg = 'mismatch: 1:' + args[1] + ' 2:'+msg;
         }
 
-        if(args[0] !== val) {
-          console.log('\nTest Fail', msg);
-        }
 
         if(val.indexOf(args[0]) !== 0) {
-
+          if(args[0] !== clipRN(val)) {
+            console.log('\nTest Fail', msg);
+          }
           equal(args[0], clipRN(val), msg);
         } else {
           ok(true, msg);
         }
-      };
-
-
-      var renderImpl = self.render;
-
-      self.render = function() {
-        self.writer = postscribe(self.div, function() {
-            self.doc.currentTag = tag;
-            renderImpl.call(this);
-          }, {
-          name: tag.id,
-          beforeWrite: function(str) {
-            return str.replace(/\.js/g, '.js?'+Math.random());
-          },
-          afterWrite: function(str) {
-            self.written += str;
-            self.compareInnerHtml(str);
-          },
-          error: function(e) {
-            throw e;
-          }
-        });
       };
 
 
@@ -442,8 +419,30 @@ var execute = function(name, tags, options) {
 
       var shuffledTags = random.shuffle(tags);
 
-      for(i = 0; tag = shuffledTags[i]; i++) {
-        renderTag(tag);
+      ifr.contentWindow.renderTag = function(i) {
+        ctx = shuffledTags[i].ctx;
+        ctx.doc.currentTag = tag;
+        ctx.render();
+      };
+
+      for(var i = 0; i < shuffledTags.length; i++) {
+        var tag = shuffledTags[i];
+        var ctx = Context[mode](tag, ifr.doc);
+        pauseMonitor.add(ctx);
+        tag.ctx = ctx;
+        ctx.writer = postscribe(ctx.div, '<script class="test_helper">renderTag('+i+')</script>', {
+          name: tag.id,
+          beforeWrite: function(str) {
+            return str;//.replace(/\.js/g, '.js?'+Math.random());
+          },
+          afterWrite: function(str) {
+            ctx.written += str;
+            ctx.compareInnerHtml(str);
+          },
+          error: function(e) {
+            throw e;
+          }
+        });
       }
 
       pauseMonitor.checkDone();

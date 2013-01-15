@@ -138,6 +138,8 @@
 
         doc: doc,
 
+        win: doc.defaultView || doc.parentWindow,
+
         parser: globals.htmlParser('', { autoFix: true }),
 
         // Actual elements by id.
@@ -147,7 +149,11 @@
         proxyHistory: '',
 
         // Create a proxy of the root element.
-        proxyRoot: doc.createElement(root.nodeName)
+        proxyRoot: doc.createElement(root.nodeName),
+
+        scriptStack: [],
+
+        writeQueue: [[]]
       });
 
       data(this.proxyRoot, 'proxyof', 0);
@@ -155,13 +161,34 @@
     }
 
 
-    WriteStream.prototype.write = function(html) {
-      this.parser.append(html);
+    WriteStream.prototype.write = function() {
+      [].push.apply(this.writeQueue[0], arguments);
+      this.processWriteQueue();
+    };
+
+    WriteStream.prototype.processWriteQueue = function() {
+      // Check for pending writes
+      // When new script gets pushed or pending this will stop
+      // because new writeQueue gets pushed
+      while(!this.pendingRemote &&
+            this.writeQueue[0].length) {
+
+        this.writeImpl(this.writeQueue[0].shift());
+      }
+    };
+
+    WriteStream.prototype.writeImpl = function(arg) {
+      if(isFunction(arg)) {
+        // Callback
+        return arg();
+      }
+
+      this.parser.append(arg);
 
       var tok, tokens = [];
 
       // stop if we see a script token
-      while((tok = this.parser.readToken()) != null && !isScript(tok)) {
+      while((tok = this.parser.readToken()) && !isScript(tok)) {
         tokens.push(tok);
       }
 
@@ -170,11 +197,6 @@
       if(tok) {
         this.handleScriptToken(tok);
       }
-
-      return {
-        chunk: chunk,
-        script: tok
-      };
     };
 
 
@@ -291,30 +313,69 @@
       }
     };
 
+    // ### Script tokens
+
     WriteStream.prototype.handleScriptToken = function(tok) {
       var remainder = this.parser.clear();
+      if(remainder) {
+        this.writeQueue[0].unshift(remainder);
+      }
+
       tok.src = tok.attrs.src || tok.attrs.SRC;
-      if(tok.src) {
-        var done = this.options.onScript(tok);
-        this.writeScriptToken(tok, done);
-        if(remainder) {
-          this.options.onScriptRemainder(remainder);
+
+      tok.doNow = !tok.src || !this.scriptStack.length;
+      if(tok.doNow) {
+        this.writeQueue.unshift([]);
+        this.scriptStack.unshift(tok);
+      }
+
+      var _this = this;
+      this.writeScriptToken(tok, function(e) {
+        _this.onScriptDone(e, tok);
+      });
+
+
+      if(!tok.doNow) {
+        this.pendingRemote = tok;
+      }
+
+    };
+
+    WriteStream.prototype.onScriptDone = function(e, tok) {
+      if(e) {
+        throw e;
+      }
+      // TODO: handle error
+      this.scriptStack.shift();
+      //if(!tok.doNow) {
+      var old = this.writeQueue.shift();
+      [].unshift.apply(this.writeQueue[0], old);
+      //}
+
+      // Check for pending remote
+
+      // Assumption: if remote_script1 writes remote_script2 then
+      // the we notice remote_script1 finishes before remote_script2 starts.
+      if(!this.scriptStack.length) {
+        if(this.pendingRemote) {
+          this.writeQueue.unshift([]);
+          this.scriptStack.unshift(this.pendingRemote);
+          this.pendingRemote = null;
+        } else {
+          this.processWriteQueue();
         }
-      } else {
-        this.writeScriptToken(tok, doNothing);
-        this.write(remainder);
       }
     };
 
-    // ### Script tokens
-
+    // Build a script and insert it into the DOM.
+    // Done is called once script has executed.
     WriteStream.prototype.writeScriptToken = function(tok, done) {
       var el = this.buildScript(tok);
 
       if(tok.src) {
         // Fix for attribute "SRC" (capitalized). IE does not recognize it.
         el.src = tok.src;
-        this.setLoadHandlers(el, done);
+        this.scriptLoadHandler(el, done);
       }
 
       try {
@@ -328,7 +389,7 @@
 
     };
 
-
+    // Build a script element from an atomic script token.
     WriteStream.prototype.buildScript = function(tok) {
       var el = this.doc.createElement(tok.tagName);
 
@@ -346,11 +407,17 @@
     };
 
 
-    // Insert script into DOM where cursor is.
+    // Insert script into DOM where it would naturally be written.
     WriteStream.prototype.insertScript = function(el) {
       // Append a span to the stream. That span will act as a cursor
       // (i.e. insertion point) for the script.
-      this.write('<span id="ps-script"/>');
+      //this.writeImpl('<span id="ps-script"/>');
+      this.writeStaticTokens([{
+        type: "startTag",
+        attrs: { id: "ps-script" },
+        unary: true,
+        text: '<span id="ps-script"/>'
+      }])
 
       // Grab that span from the DOM.
       var cursor = this.doc.getElementById("ps-script");
@@ -359,8 +426,8 @@
       cursor.parentNode.replaceChild(el, cursor);
     };
 
-    WriteStream.prototype.setLoadHandlers = function(el, done) {
-      // Setup handlers
+
+    WriteStream.prototype.scriptLoadHandler = function(el, done) {
       function cleanup(e) {
         el = el.onload = el.onreadystatechange = el.onerror = null;
         done(e);
@@ -446,16 +513,13 @@
       this.flow = flow;
 
       var result = this.stream.write(task.html);
-
+      this.stream.write(done);
 
       if(DEBUG_CHUNK) {
         task.result = result;
       } else {
         task.chunk = result.chunk && result.chunk.raw;
       }
-
-
-      done();
 
     };
 
@@ -694,13 +758,16 @@
       options = defaults(options, {
         beforeWrite: null,
         afterWrite: doNothing,
-        done: doNothing
+        done: doNothing,
+        error: doNothing
       });
       // Create the flow.
 
       var worker = new Worker(el, options);
 
       var flow = new Flow(worker, DEBUG && new Tracer());
+
+      var stream = new WriteStream(el, options);
 
       flow.id = nextId++;
 
@@ -719,8 +786,8 @@
           str = options.beforeWrite(str);
         }
 
-        flow.subtask({ type: 'write', html: str, inlinable: true });
-
+        //flow.subtask({ type: 'write', html: str, inlinable: true });
+        stream.write(str);
         options.afterWrite(str);
 
       }
@@ -729,7 +796,7 @@
 
       // Start the flow
 
-      flow.task(rootTask, function() {
+      stream.write(rootTask, function streamDone() {
 
         // restore document.write
         set(doc, stash);
@@ -761,9 +828,7 @@
 
       options = options || {};
 
-      var rootTask = isFunction(html) ?
-        { type: 'exec', run: html } :
-        { type: 'write', html: html };
+      var rootTask = html;
 
       var args = set([el, rootTask, options], { type: 'rootTask' });
 
