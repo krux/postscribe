@@ -151,7 +151,7 @@
 
         scriptStack: [],
 
-        writeQueue: [[]]
+        writeQueue: []
       });
 
       data(this.proxyRoot, 'proxyof', 0);
@@ -160,7 +160,7 @@
 
 
     WriteStream.prototype.write = function() {
-      [].push.apply(this.writeQueue[0], arguments);
+      [].push.apply(this.writeQueue, arguments);
       this.processWriteQueue();
     };
 
@@ -169,9 +169,9 @@
       // When new script gets pushed or pending this will stop
       // because new writeQueue gets pushed
       while(!this.deferredRemote &&
-            this.writeQueue[0].length) {
+            this.writeQueue.length) {
 
-        this.writeImpl(this.writeQueue[0].shift());
+        this.writeImpl(this.writeQueue.shift());
       }
 
     };
@@ -319,7 +319,7 @@
 
       if(remainder) {
         // Write remainder immediately behind this script.
-        this.writeQueue[0].unshift(remainder);
+        this.writeQueue.unshift(remainder);
       }
 
       tok.src = tok.attrs.src || tok.attrs.SRC;
@@ -330,7 +330,7 @@
         // scriptStack is empty.
         this.deferredRemote = tok;
       } else {
-        this.startScript();
+        this.onScriptStart(tok);
       }
 
       // Put the script node in the DOM.
@@ -341,24 +341,24 @@
 
     };
 
-    WriteStream.prototype.startScript = function(tok) {
-      this.writeQueue.unshift([]);
+    WriteStream.prototype.onScriptStart = function(tok) {
+      tok.outerWrites = this.writeQueue;
+      this.writeQueue = [];
       this.scriptStack.unshift(tok);
-    };
-
-    WriteStream.prototype.doneScript = function(tok) {
-      this.scriptStack.shift();
-      var innerWrites = this.writeQueue.shift();
-      // prepend inner writes to outer queue.
-      [].unshift.apply(this.writeQueue[0], innerWrites);
     };
 
     WriteStream.prototype.onScriptDone = function(e, tok) {
       if(e) {
-        throw e;
+        // TODO: handle error
+        throw this.options.error(e);
       }
-      // TODO: handle error
-      this.doneScript(tok);
+      // Pop script and check nesting.
+      if(tok !== this.scriptStack.shift()) {
+        this.options.error({ message: "Improperly nested script execution" });
+      };
+      // Append outer writes to queue.
+      [].push.apply(this.writeQueue, tok.outerWrites);
+      delete tok.writeQueue;
 
       // Check for pending remote
 
@@ -367,7 +367,7 @@
       // I think this is equivalent to assumption 1
       if(!this.scriptStack.length) {
         if(this.deferredRemote) {
-          this.startScript(this.deferredRemote);
+          this.onScriptStart(this.deferredRemote);
           this.deferredRemote = null;
         } else {
           this.processWriteQueue();
@@ -470,32 +470,20 @@
     function nextStream() {
       var args;
       if(args = queue.shift()) {
-        args.stream = start.apply(null, args);
+        args.stream = runStream.apply(null, args);
       }
     }
 
 
-    function start(el, html, options) {
+    function runStream(el, html, options) {
+      active = new WriteStream(el, options);
 
-      options = defaults(options, {
-        beforeWrite: null,
-        afterWrite: doNothing,
-        done: doNothing,
-        error: doNothing
-      });
-      // Create the flow.
-
-      var stream = new WriteStream(el, options);
-      active = stream;
-
-      stream.id = nextId++;
-
-      stream.name = options.name || stream.id;
-
-      postscribe.streams[stream.name] = stream;
+      // Identify this stream.
+      active.id = nextId++;
+      active.name = options.name || active.id;
+      postscribe.streams[active.name] = active;
 
       // Override document.write.
-
       var doc = el.ownerDocument;
 
       var stash = { write: doc.write, writeln: doc.writeln };
@@ -504,34 +492,33 @@
         if(options.beforeWrite) {
           str = options.beforeWrite(str);
         }
-
-        stream.write(str);
+        active.write(str);
         options.afterWrite(str);
-
       }
 
       set(doc, { write: write, writeln: function(str) { write(str + '\n'); } });
 
-      // Start the flow
-
-      stream.write(html, function streamDone() {
-
+      // Write to the stream
+      active.write(html, function streamDone() {
         // restore document.write
         set(doc, stash);
 
         options.done();
-
         active = null;
         nextStream();
-
       });
 
-      return stream;
-
+      return active;
     }
 
 
     function postscribe(el, html, options) {
+      options = defaults(options, {
+        beforeWrite: null,
+        afterWrite: doNothing,
+        done: doNothing,
+        error: doNothing
+      });
 
       el =
         // id selector
@@ -539,43 +526,34 @@
         // jquery object. TODO: loop over all elements.
         el.jquery ? el[0] : el;
 
-      options = options || {};
 
       var args = [el, html, options];
+
+      el.postscribe = {
+        cancel: function() {
+          if(args.stream) {
+            args.stream.abort();
+          } else {
+            args[1] = doNothing;
+          }
+        }
+      };
 
       queue.push(args);
       if(!active) {
         nextStream();
       }
 
-      return (el.postscribe = {
-        stop: function() {
-          if(args.flow) {
-            args.flow.stop();
-          } else {
-            // Set a root task that does nothing.
-            args[1] = { type: "exec", run: doNothing };
-          }
-        }
-      });
+      return el.postscribe;
     }
 
     return set(postscribe, {
-
+      // Streams by name.
       streams: {},
-
+      // Queue of streams.
       queue: queue,
-
       // Expose internal classes.
-      WriteStream: WriteStream,
-
-      json: function() {
-        var ret = {};
-        eachKey(this.flows, function(name, flow) {
-          ret[name] = flow.options.roots;
-        });
-        return ret;
-      }
+      WriteStream: WriteStream
     });
 
   }());
