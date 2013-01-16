@@ -161,11 +161,7 @@
 
     WriteStream.prototype.write = function() {
       [].push.apply(this.writeQueue, arguments);
-      this.processWriteQueue();
-    };
-
-    WriteStream.prototype.processWriteQueue = function() {
-      // Check for pending writes
+      // Process writes
       // When new script gets pushed or pending this will stop
       // because new writeQueue gets pushed
       while(!this.deferredRemote &&
@@ -173,8 +169,8 @@
 
         this.writeImpl(this.writeQueue.shift());
       }
-
     };
+
 
     WriteStream.prototype.writeImpl = function(arg) {
       if(isFunction(arg)) {
@@ -324,6 +320,7 @@
 
       tok.src = tok.attrs.src || tok.attrs.SRC;
 
+      // TODO: test where remote script is in root
       if(tok.src && this.scriptStack.length) {
         // Defer this script until scriptStack is empty.
         // Assumption 1: This script will not start executing until
@@ -349,29 +346,23 @@
 
     WriteStream.prototype.onScriptDone = function(e, tok) {
       if(e) {
-        // TODO: handle error
-        throw this.options.error(e);
+        this.options.error(e);
       }
       // Pop script and check nesting.
       if(tok !== this.scriptStack.shift()) {
         this.options.error({ message: "Improperly nested script execution" });
       };
-      // Append outer writes to queue.
-      [].push.apply(this.writeQueue, tok.outerWrites);
-      delete tok.writeQueue;
+      // Append outer writes to queue and process them.
+      this.write.apply(this, tok.outerWrites);
 
       // Check for pending remote
 
       // Assumption 2: if remote_script1 writes remote_script2 then
       // the we notice remote_script1 finishes before remote_script2 starts.
       // I think this is equivalent to assumption 1
-      if(!this.scriptStack.length) {
-        if(this.deferredRemote) {
-          this.onScriptStart(this.deferredRemote);
-          this.deferredRemote = null;
-        } else {
-          this.processWriteQueue();
-        }
+      if(!this.scriptStack.length && this.deferredRemote) {
+        this.onScriptStart(this.deferredRemote);
+        this.deferredRemote = null;
       }
     };
 
@@ -557,7 +548,6 @@
     });
 
   }());
-
 
   // export postscribe
   globals.postscribe = postscribe;
