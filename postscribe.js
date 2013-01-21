@@ -136,6 +136,8 @@
 
         options: options,
 
+        win: doc.defaultView || doc.parentWindow,
+
         doc: doc,
 
         parser: global.htmlParser('', { autoFix: true }),
