@@ -183,7 +183,7 @@
       var tok = { type: "function", value: fn.name || fn.toString() };
       this.onScriptStart(tok);
       fn.call(this.win, this.doc);
-      this.onScriptDone(tok);
+      this.onScriptDone(null, tok);
     };
 
     WriteStream.prototype.writeImpl = function(html) {
@@ -329,7 +329,6 @@
 
       tok.src = tok.attrs.src || tok.attrs.SRC;
 
-      // TODO: test where remote script is in root
       if(tok.src && this.scriptStack.length) {
         // Defer this script until scriptStack is empty.
         // Assumption 1: This script will not start executing until
@@ -489,9 +488,7 @@
       var stash = { write: doc.write, writeln: doc.writeln };
 
       function write(str) {
-        if(options.beforeWrite) {
-          str = options.beforeWrite(str);
-        }
+        str = options.beforeWrite(str);
         active.write(str);
         options.afterWrite(str);
       }
@@ -513,11 +510,14 @@
 
 
     function postscribe(el, html, options) {
+      if(isFunction(options)) {
+        options = { done: options };
+      }
       options = defaults(options, {
-        beforeWrite: null,
-        afterWrite: doNothing,
         done: doNothing,
-        error: doNothing
+        error: function(e) { throw e; },
+        beforeWrite: function(str) { return str; },
+        afterWrite: doNothing
       });
 
       el =
@@ -527,7 +527,7 @@
         el.jquery ? el[0] : el;
 
 
-      var args = [el, html, options];
+      var args = toArray(arguments);
 
       el.postscribe = {
         cancel: function() {
