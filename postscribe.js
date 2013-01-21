@@ -7,9 +7,9 @@
 
 (function() {
 
-  var globals = this;
+  var global = this;
 
-  if(globals.postscribe) {
+  if(global.postscribe) {
     return;
   }
 
@@ -138,7 +138,7 @@
 
         doc: doc,
 
-        parser: globals.htmlParser('', { autoFix: true }),
+        parser: global.htmlParser('', { autoFix: true }),
 
         // Actual elements by id.
         actuals: [root],
@@ -513,7 +513,7 @@
 
       el =
         // id selector
-        (/^#/).test(el) ? globals.document.getElementById(el.substr(1)) :
+        (/^#/).test(el) ? global.document.getElementById(el.substr(1)) :
         // jquery object. TODO: loop over all elements.
         el.jquery ? el[0] : el;
 
@@ -550,6 +550,6 @@
   }());
 
   // export postscribe
-  globals.postscribe = postscribe;
+  global.postscribe = postscribe;
 
 }());
