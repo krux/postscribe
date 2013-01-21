@@ -164,21 +164,28 @@
       // Process writes
       // When new script gets pushed or pending this will stop
       // because new writeQueue gets pushed
+      var arg;
       while(!this.deferredRemote &&
             this.writeQueue.length) {
+        arg = this.writeQueue.shift();
 
-        this.writeImpl(this.writeQueue.shift());
+        if(isFunction(arg)) {
+          this.callFunction(arg);
+        } else {
+          this.writeImpl(arg);
+        }
       }
     };
 
+    WriteStream.prototype.callFunction = function(fn) {
+      var tok = { type: "function", value: fn.name || fn.toString() };
+      this.onScriptStart(tok);
+      fn.call(this.win, this.doc);
+      this.onScriptDone(tok);
+    };
 
-    WriteStream.prototype.writeImpl = function(arg) {
-      if(isFunction(arg)) {
-        // Callback
-        return arg();
-      }
-
-      this.parser.append(arg);
+    WriteStream.prototype.writeImpl = function(html) {
+      this.parser.append(html);
 
       var tok, tokens = [];
 
