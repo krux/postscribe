@@ -723,7 +723,7 @@ Copyright (c) 2013 Derek Brans, MIT license https://github.com/krux/postscribe/b
       // Pop script and check nesting.
       if(tok !== this.scriptStack.shift()) {
         this.options.error({ message: "Improperly nested script execution" });
-      };
+      }
       // Append outer writes to queue and process them.
       this.write.apply(this, tok.outerWrites);
 
@@ -833,8 +833,8 @@ Copyright (c) 2013 Derek Brans, MIT license https://github.com/krux/postscribe/b
     var active = null;
 
     function nextStream() {
-      var args;
-      if(args = queue.shift()) {
+      var args = queue.shift();
+      if(args) {
         args.stream = runStream.apply(null, args);
       }
     }
