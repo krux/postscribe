@@ -418,9 +418,13 @@ $(document).ready(function(){
       });
     });
   }
-  testError('syntax-error', "<script>va x</script>");
 
-  testError('js exception', "<script>throw 1;</script>");
+  if(!$.browser.msie || $.browser.version > 8) {
+    // Doesn't work in IE7/8
+    testError('syntax-error', "<script>va x</script>");
+
+    testError('js exception', "<script>throw 1;</script>");
+  }
 
   if(!$.browser.msie) {
     // IE cannot report remote script errors
