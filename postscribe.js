@@ -183,7 +183,7 @@
       var tok = { type: "function", value: fn.name || fn.toString() };
       this.onScriptStart(tok);
       fn.call(this.win, this.doc);
-      this.onScriptDone(null, tok);
+      this.onScriptDone(tok);
     };
 
     WriteStream.prototype.writeImpl = function(html) {
@@ -340,8 +340,8 @@
 
       // Put the script node in the DOM.
       var _this = this;
-      this.writeScriptToken(tok, function(e) {
-        _this.onScriptDone(e, tok);
+      this.writeScriptToken(tok, function() {
+        _this.onScriptDone(tok);
       });
 
     };
@@ -352,10 +352,7 @@
       this.scriptStack.unshift(tok);
     };
 
-    WriteStream.prototype.onScriptDone = function(e, tok) {
-      if(e) {
-        this.options.error(e);
-      }
+    WriteStream.prototype.onScriptDone = function(tok) {
       // Pop script and check nesting.
       if(tok !== this.scriptStack.shift()) {
         this.options.error({ message: "Improperly nested script execution" });
@@ -385,15 +382,10 @@
         this.scriptLoadHandler(el, done);
       }
 
-      try {
-        this.insertScript(el);
-        if(!tok.src) {
-          done();
-        }
-      } catch(e) {
-        done({ message: "Could not insert script: " + e.message });
+      this.insertScript(el);
+      if(!tok.src) {
+        done();
       }
-
     };
 
     // Build a script element from an atomic script token.
@@ -423,16 +415,21 @@
       // Grab that span from the DOM.
       var cursor = this.doc.getElementById("ps-script");
 
-      // Replace cursor with script.
-      cursor.parentNode.replaceChild(el, cursor);
+      if(cursor) { // <== just in case
+        // Replace cursor with script.
+        cursor.parentNode.replaceChild(el, cursor);
+      }
     };
 
 
     WriteStream.prototype.scriptLoadHandler = function(el, done) {
-      function cleanup(e) {
+      function cleanup() {
         el = el.onload = el.onreadystatechange = el.onerror = null;
-        done(e);
+        done();
       }
+
+      // Error handler
+      var error = this.options.error;
 
       // Set handlers
       set(el, {
@@ -443,8 +440,10 @@
             cleanup();
           }
         },
+
         onerror: function() {
-          done({ message: 'remote script failed ' + task.src });
+          error({ message: 'remote script failed ' + el.src });
+          cleanup();
         }
       });
     };
@@ -495,10 +494,20 @@
 
       set(doc, { write: write, writeln: function(str) { write(str + '\n'); } });
 
+      // Override window.onerror
+      var oldOnError = active.win.onerror || doNothing;
+      active.win.onerror = function(msg, url, line) {
+        options.error({ msg: msg + ' - ' + url + ':' + line });
+        oldOnError.apply(active.win, arguments);
+      };
+
       // Write to the stream
       active.write(html, function streamDone() {
         // restore document.write
         set(doc, stash);
+
+        // restore window.onerror
+        active.win.onerror = oldOnError;
 
         options.done();
         active = null;
@@ -527,11 +536,12 @@
         el.jquery ? el[0] : el;
 
 
-      var args = toArray(arguments);
+      var args = [el, html, options];
 
       el.postscribe = {
         cancel: function() {
           if(args.stream) {
+            // TODO: implement this
             args.stream.abort();
           } else {
             args[1] = doNothing;
