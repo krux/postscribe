@@ -8,8 +8,8 @@ Copyright (c) 2013 Derek Brans, MIT license https://github.com/krux/postscribe/b
   var supports = (function() {
     var supports = {};
 
-    var html, expected;
-    var work = document.createElement('div');
+    var html;
+    var work = this.document.createElement('div');
 
     html = "<P><I></P></I>";
     work.innerHTML = html;
@@ -24,7 +24,7 @@ Copyright (c) 2013 Derek Brans, MIT license https://github.com/krux/postscribe/b
 
 
   // Regular Expressions for parsing tags and attributes
-  var startTag = /^<([\-A-Za-z0-9_]+)((?:\s+[\w-]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)>/;
+  var startTag = /^<([\-A-Za-z0-9_]+)((?:\s+[\w\-]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)>/;
   var endTag = /^<\/([\-A-Za-z0-9_]+)[^>]*>/;
   var attr = /([\-A-Za-z0-9_]+)(?:\s*=\s*(?:(?:"((?:\\.|[^"])*)")|(?:'((?:\\.|[^'])*)')|([^>\s]+)))?/g;
   var fillAttr = /^(checked|compact|declare|defer|disabled|ismap|multiple|nohref|noresize|noshade|nowrap|readonly|selected)$/i;
@@ -129,7 +129,7 @@ Copyright (c) 2013 Derek Brans, MIT license https://github.com/krux/postscribe/b
             attrs: attrs,
             unary: !!match[3],
             length: match[0].length
-          }
+          };
         }
       },
 
@@ -147,11 +147,11 @@ Copyright (c) 2013 Derek Brans, MIT license https://github.com/krux/postscribe/b
       for (var type in detect) {
 
         if(detect[type].test(stream)) {
-          DEBUG && console.log('suspected ' + type);
+          if(DEBUG) { console.log('suspected ' + type); }
 
           var token = reader[type]();
           if(token) {
-            DEBUG && console.log('parsed ' + type, token);
+            if(DEBUG) { console.log('parsed ' + type, token); }
             // Type
             token.type = token.type || type;
             // Entire text
@@ -191,15 +191,9 @@ Copyright (c) 2013 Derek Brans, MIT license https://github.com/krux/postscribe/b
         // Empty Elements - HTML 4.01
         var EMPTY = /^(AREA|BASE|BASEFONT|BR|COL|FRAME|HR|IMG|INPUT|ISINDEX|LINK|META|PARAM|EMBED)$/i;
 
-      	// Block Elements - HTML 4.01
-      	var BLOCK = /^(ADDRESS|APPLET|BLOCKQUOTE|BUTTON|CENTER|DD|DEL|DIR|DIV|DL|DT|FIELDSET|FORM|FRAMESET|HR|IFRAME|INS|ISINDEX|LI|MAP|MENU|NOFRAMES|NOSCRIPT|OBJECT|OL|P|PRE|SCRIPT|TABLE|TBODY|TD|TFOOT|TH|THEAD|TR|UL)$/i;
-
-      	// Inline Elements - HTML 4.01
-      	var INLINE = /^(A|ABBR|ACRONYM|APPLET|B|BASEFONT|BDO|BIG|BR|BUTTON|CITE|CODE|DEL|DFN|EM|FONT|I|IFRAME|IMG|INPUT|INS|KBD|LABEL|MAP|OBJECT|Q|S|SAMP|SCRIPT|SELECT|SMALL|SPAN|STRIKE|STRONG|SUB|SUP|TEXTAREA|TT|U|VAR)$/i;
-
-      	// Elements that you can| intentionally| leave open
-      	// (and which close themselves)
-      	var CLOSESELF = /^(COLGROUP|DD|DT|LI|OPTIONS|P|TD|TFOOT|TH|THEAD|TR)$/i;
+        // Elements that you can| intentionally| leave open
+        // (and which close themselves)
+        var CLOSESELF = /^(COLGROUP|DD|DT|LI|OPTIONS|P|TD|TFOOT|TH|THEAD|TR)$/i;
 
 
         var stack = [];
@@ -313,7 +307,7 @@ Copyright (c) 2013 Derek Brans, MIT license https://github.com/krux/postscribe/b
       stack: stack
     };
 
-  };
+  }
 
   htmlParser.supports = supports;
 
@@ -396,7 +390,7 @@ Copyright (c) 2013 Derek Brans, MIT license https://github.com/krux/postscribe/b
 
   // Is this a function?
   function isFunction(x) {
-    return "function" == typeof x;
+    return "function" === typeof x;
   }
 
   // Loop over each item in an array-like value.
