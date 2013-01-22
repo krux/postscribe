@@ -10,7 +10,7 @@
     <script src="vendor/jquery.js"></script>
     <link rel="stylesheet" href="vendor/qunit.css" type="text/css" media="screen" />
     <script type="text/javascript" src="vendor/qunit.js"></script>
-
+    <script src="/testem.js"></script>
 
     <!-- test files -->
     <script src="random.js"></script>
@@ -29,12 +29,18 @@
     <div id="qunit-fixture">test markup, will be hidden</div>
   </body>
   <script>
+
+
+    var isTestem = /all-test-results/.test(QUnit.done.toString());
+    if(!isTestem) {
       QUnit.done(function allDone(details){
-          if (details.failed === 0) {
-              jQuery("#qunit-header").append(" - Great Success!");
-          } else {
-              jQuery("#qunit-header").append(" - Fail!");
-          }
+        if (details.failed === 0) {
+          jQuery("#qunit-header").append(" - Great Success!");
+        } else {
+          jQuery("#qunit-header").append(" - Fail!");
+        }
       });
+    }
+
   </script>
 </html>

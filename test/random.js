@@ -31,7 +31,8 @@
   var gen = new RandomNumberGenerator(defaultSeed);
 
   function random() {
-    return gen.next();
+    //return gen.next();
+    return random.native();
   };
 
   random.seed = function(seed) {
@@ -61,6 +62,7 @@
   };
 
   this.random = random;
+  random.native = Math.random;
   Math.random = random;
 
 })();

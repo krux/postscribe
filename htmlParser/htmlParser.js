@@ -91,16 +91,19 @@
         var start = reader.startTag();
         if(start) {
           var rest = stream.slice(start.length);
-          var match = rest.match("([\\s\\S]*?)<\/" + start.tagName + "[^>]*>");
-          if(match) {
-            // good to go
-            return {
-              tagName: start.tagName,
-              attrs: start.attrs,
-              escapedAttrs: start.escapedAttrs,
-              content: match[1],
-              length: match[0].length + start.length
-            };
+          // for optimization, we check first just for the end tag
+          if(rest.match(new RegExp("<\/\\s*" + start.tagName + "\\s*>", "i"))) {
+            // capturing the content is inefficient, so we do it inside the if
+            var match = rest.match(new RegExp("([\\s\\S]*?)<\/\\s*" + start.tagName + "\\s*>", "i"));
+            if(match) {
+              // good to go
+              return {
+                tagName: start.tagName,
+                attrs: start.attrs,
+                content: match[1],
+                length: match[0].length + start.length
+              }
+            }
           }
         }
       },
@@ -110,22 +113,18 @@
 
         if ( match ) {
           var attrs = {};
-          var escapedAttrs = {};
 
           match[2].replace(attr, function(match, name) {
             var value = arguments[2] || arguments[3] || arguments[4] ||
               fillAttr.test(name) && name || null;
 
             attrs[name] = value;
-            // escape double-quotes for writing html as a string
-            escapedAttrs[name] = value && value.replace(/(^|[^\\])"/g, '$1\\\"');
           });
 
           return {
             tagName: match[1],
             attrs: attrs,
-            escapedAttrs: escapedAttrs,
-            unary: match[3],
+            unary: !!match[3],
             length: match[0].length
           };
         }
@@ -337,6 +336,17 @@
       }
     };
     return handler[tok.type](tok);
+  };
+
+  htmlParser.escapeAttributes = function(attrs) {
+    var escapedAttrs = {};
+    // escape double-quotes for writing html as a string
+
+    for(var name in attrs) {
+      var value = attrs[name];
+      escapedAttrs[name] = value && value.replace(/(^|[^\\])"/g, '$1\\\"');
+    }
+    return escapedAttrs;
   };
 
   for(var key in supports) {

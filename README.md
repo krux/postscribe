@@ -13,10 +13,10 @@ Other tag writing libraries exist (see [alternatives](#alternatives)), but PostS
 
 For more information:
 
-* Derek Brans' html5devconf presentation TODO: Link to the talk
+* [Presentation at HTML5devconf](http://youtu.be/ClzeilKwX10) by the author, Derek Brans
+* [Interactive Demo](http://raw.plnkr.co/e8MJAx/) with side by side comparisons of other tag writers
 * [Documentation](https://github.com/krux/postscribe/tree/master/doc)
 * Browse the [raw](https://github.com/krux/postscribe/blob/master/postscribe.js) or [annotated](http://krux.github.com/postscribe/doc/postscribe.html) source code.
-* TODO: Interactive Demo
 
 
 # Getting Started
@@ -54,7 +54,7 @@ Where normally you would have
     <div id="ad"><h5>Advertisement</h5>
       <script type="text/javascript">
         // Build url params and make the ad call
-        document.write('<script src=doubleclick_url_with_params></script>');
+        document.write('<script src=doubleclick_url_with_params><\/script>');
       </script>
     </div>
 
@@ -66,7 +66,7 @@ Instead, remove the ad call and close the div
       // jQuery used as an example of delaying until load.
       $(function() {
         // Build url params and make the ad call
-        postscribe('#ad', '<script src=doubleclick_url_with_params></script>');
+        postscribe('#ad', '<script src=doubleclick_url_with_params><\/script>');
       });
     </script>
 
@@ -90,7 +90,7 @@ Postscribe was designed to behave as closely to the native `document.write`/`inn
 * Chrome 10+
 * Safari - 5.0+
 * Opera - 10.0+
-* Internet Explorer 7+ (as far as we know, it will work on IE 6, but we're trying to encourage [its death](http://ie6funeral.com), so we haven't tested it) 
+* Internet Explorer 7+ (as far as we know, it will work on IE 6, but we're trying to encourage [its death](http://ie6funeral.com), so we haven't tested it)
 * iPhone/iPad and other webkit-based browsers
 
 Curious if a specific browser will work? [Run the tests yourself](http://krux.github.com/postscribe/test/test.html) and let us know if you see any failures.
@@ -106,8 +106,10 @@ If you would like your project to be added to this list, file an issue and we'd 
 
 
 # Help/Bugs/Requests
-Have a problem? Need help? Would you like additional functionality added? We use github's ticket system for keeping track of these requests. Please check out the [existing issues](https://github.com/krux/postscribe/issues), and if you don't see that your problem is already being
-worked on, please [file a new issue](https://github.com/krux/postscribe/issues/new). The more information the better to describe your problem. We ♥ [Jing](http://www.techsmith.com/jing.html) bug reports.
+Have a problem? Need help? Would you like additional functionality added? We use github's ticket system for keeping track of these requests.
+Please check out the [existing issues](https://github.com/krux/postscribe/issues), and if you don't see that your problem is already being
+worked on, please [file a new issue](https://github.com/krux/postscribe/issues/new). The more information the better to describe your problem.
+We ♥ [Jing](http://www.techsmith.com/jing.html) bug reports.
 
 # Contributing
 We ♥  [forks and pull requests](https://help.github.com/articles/using-pull-requests).
@@ -121,12 +123,17 @@ To run the tests and static code analysis tools, you will need to have the follo
 * All other project dependencies are installed via npm with `npm install`
 	* [grunt](http://gruntjs.com) - a 'make' like tool for automating build, test, and other dev tasks
 
-## Guidelines
-Tabs, not spaces. 2 of them. [jQuery's style guide](http://docs.jquery.com/JQuery_Core_Style_Guidelines) covers just about everything else.
+## Pull Request Guidelines
+Spaces, not tabs. 2 of them. [jQuery's style guide](http://docs.jquery.com/JQuery_Core_Style_Guidelines) covers just about everything else.
+Please do not update 3rd-party libraries (qunit, jquery) or the dist directory. We have an internal process for doing this.
+
+## Issue Guidelines
+Please include a [jsfiddle](http://jsfiddle.net) or [plunker](http://plnkr.co) that distills and reproduces the issue.
+Try forking [this jsfiddle](http://jsfiddle.net/dbrans/Znpxv/). We've set everything up there for you so that you can reproduce your issue.
 
 ## Testing
 Using [travis-ci](https://travis-ci.org) and [grunt](http://gruntjs.com), the [Qunit](http://qunitjs.com) unit tests are run on every commit using PhantomJS to run the tests with a real browser.
- 
+
 Current Build Status: [![Build Status](https://secure.travis-ci.org/krux/postscribe.png)](http://travis-ci.org/krux/postscribe)
 
 To run the tests:
@@ -145,6 +152,17 @@ We use jshint to do static analysis of the javascript and keep things smelling g
 # History
 Postscribe uses [software versioning standards](http://semver.org) as follows: major.new.maintenance[.trivial]. There are git tags for each release if you would like to see older versions.
 
+##### 1.1.0
+* major refactoring to simplify code and fix rare bugs related to script tag handling
+* scripts are now written inline
+
+##### 1.0.5
+* htmlParser performance fix
+
+##### 1.0.3
+* Test framework improvements
+* Bug fixes
+
 ##### 1.0.2
 * Documentation release
 
@@ -153,6 +171,7 @@ Postscribe uses [software versioning standards](http://semver.org) as follows: m
 
 ### 1.0.0 Initial open source release
 [Released on Oct 12 2012](https://github.com/krux/postscribe/tree/version/1.0)
+
 * Write tags asynchronously, yo. Initial release after 2+ years of development internally at [Krux](http://www.krux.com)
 
 # License

@@ -61,6 +61,10 @@ $(document).ready(function(){
     ctx.write('A<SCRIPT type="text/javascript">document.write("B");</SCRIPT>C');
   });
 
+  testWrite('different case script', function(ctx) {
+    ctx.write('A<SCRIPT type="text/javascript">document.write("B");</script>C');
+  });
+
   testWrite('capital script@SRC', function(ctx) {
     ctx.write('<SCRIPT TYPE="text/javascript" SRC="remote/write-div.js"></SCRIPT>');
   });
@@ -356,4 +360,83 @@ $(document).ready(function(){
     ctx.write('>there</div>Continue </i>outside<b>please</b>');
   });
 
+  test('naked remote write', function() {
+    var div = document.createElement('div');
+    div.id = "naked-remote-write";
+    document.body.appendChild(div);
+    stop();
+    postscribe('#naked-remote-write', "<script src='remote/write-div.js'></script>", function() {
+      ok(true);
+      start();
+    });
+
+  });
+
+
+  module('vbscript');
+
+  // VBScript
+  if(window.supportsVbscript) {
+    test('vbscript', function() {
+      var div = document.createElement('div');
+      div.id = "vbscript-test";
+      document.body.appendChild(div);
+      postscribe('#vbscript-test', "<script type='text/vbscript'>canWriteVbscriptTags = true</script>");
+      ok(window.canWriteVbscriptTags, "wrote vbscript tag");
+
+      stop();
+      postscribe('#vbscript-test', "<script type='text/vbscript' src='remote/set-global.vb'></script>", {
+        done: function() {
+          ok(window.remoteVbscriptGlobal, "wrote remote vbscript tag");
+          start();
+        }
+      });
+
+    });
+  }
+
+  module("errors");
+
+  function testError(name, html) {
+    test(name, function() {
+      var oldOnError = window.onerror;
+      window.onerror = null;
+      var div = document.createElement('div');
+      div.id = name.replace(/\s/g, '-');
+      document.body.appendChild(div);
+      var error;
+      stop();
+      postscribe(div, html, {
+        error: function(e) {
+          error = e;
+        },
+        done: function() {
+          ok(error);
+          window.onerror = oldOnError;
+          start();
+        }
+      });
+    });
+  }
+
+  if(!$.browser.msie || $.browser.version > 8) {
+    // Doesn't work in IE7/8
+    testError('syntax-error', "<script>va x</script>");
+
+    testError('js exception', "<script>throw 1;</script>");
+  }
+
+  if(!$.browser.msie) {
+    // IE cannot report remote script errors
+
+    testError('remote script malformed url', "<script src='404'></script>");
+
+    testError('remote script 404', "<script src='http://cdn.krxd.net/not_found'></script>");
+
+    testError('remote script exception', "<script src='remote/error.js'></script>");
+
+  }
+
+
 });
+

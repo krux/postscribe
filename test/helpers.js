@@ -1,6 +1,16 @@
 
 // final innerHTML behaves like buffered innerHTML and not like streamed document.write
 // That is acceptable.
+
+if(/generate_expected=1/.test(location.href)) {
+  window.expectedBehavior = false;
+}
+
+if(/wait=1/.test(location.href)) {
+  // wait before running tests.
+  test('waiting', stop);
+}
+
 var GENERATE_EXPECTED = !window.expectedBehavior;
 
 var testOptions = {};
@@ -8,10 +18,27 @@ var testOptions = {};
 var defaultOptions = {
 };
 
+var ignoreScripts = (function() {
+  var div = document.createElement('div');
+  var html = '<SCRIPT TYPE="text/javascript" SRC="remote/write-div.js"></SCRIPT>';
+  div.innerHTML = html;
+  return div.innerHTML.indexOf(html) === -1;
+}());
+
 var innerHtml = function(el) {
-  return el.innerHTML.replace(/<script[^>]*>[\s\S]*?<\/script>/ig, '');
-}
-var nativeBehavior = {};
+  //return el.innerHTML.replace(/(\r\n)?<script[^>]*>[\s\S]*?<\/script>(\r\n)?/ig, '');
+  var html = el.innerHTML.replace(/\.js\?0\.\d+/g, '.js');
+  return ignoreScripts ?
+    // remove all scripts (IE7/8, FF)
+    // IE7/8 because we pass expected html through the innerHTML of a div, scripts don't appear
+    // FF reverses order of attributes in the case that SRC is capitalized.
+    html.replace(/(\r\n)?<script[^>]*>[\s\S]*?<\/script>(\r\n)?/ig, '') :
+    // only remove helper scripts
+    // Webkit, IE9
+    html.replace(/<script class="test_helper">.*?<\/script>/g, '');
+};
+
+window.nativeBehavior = {};
 
 if(!window.console) {
   window.console = {log: function(){}};
@@ -19,18 +46,21 @@ if(!window.console) {
 // reverse the first two arguments of equal
 var qunitEqual = equal;
 
-equal = function(expected, actual, message) {
-  return qunitEqual(actual, expected, message);
-};
-
 var getDoc = function(iframe) {
   return iframe.contentWindow.document;
 };
 
+var qunitEqual = window.equal;
+window.equal = function(x, y, msg) {
+  return qunitEqual(y, x, msg);
+};
+
+var ifrId = 0;
+
 var IFrame = function(id) {
   var ifr = document.createElement('iframe');
 
-  ifr.setAttribute('id', id);
+  ifr.setAttribute('id', 'ifr' + (ifrId++));
 
   // append it to dom so we can get the document
   document.body.appendChild(ifr);
@@ -63,7 +93,7 @@ var IFrame = function(id) {
     ifr.doc.callbackId++;
     var cbName = 'cb_'+ifr.doc.callbackId;
     ifr.contentWindow[cbName] = fn;
-    ifr.doc.write('<script class="test_cb">'+cbName+'();//'+msg+'</script>');
+    ifr.doc.write('<script class="test_helper">'+cbName+'();//'+msg+'</script>');
   };
 
   return ifr;
@@ -189,11 +219,11 @@ var execute = function(name, tags, options) {
       self.calls = [];
 
       self.eq = function(val, msg) {
-        self.calls.push(arguments);
+        self.calls.push([].slice.call(arguments));
       };
 
       self.eqPrefix = function(val, msg) {
-        self.calls.push(arguments);
+        self.calls.push([].slice.call(arguments));
       };
 
       self.expect = function(){
@@ -216,7 +246,7 @@ var execute = function(name, tags, options) {
         }
 
 
-        str = str.replace(/\.js/g, '.js?'+Math.random());
+        //str = str.replace(/\.js/g, '.js?'+Math.random());
 
         self.written = self.written + str;
 
@@ -239,8 +269,9 @@ var execute = function(name, tags, options) {
 
       var expectCalls;
 
-      if(!GENERATE_EXPECTED && options.useExpected) {  //$.browser.msie || $.browser.mozilla && parseFloat($.browser.version) < 2 ) {
+      if(expectedBehavior) {  //$.browser.msie || $.browser.mozilla && parseFloat($.browser.version) < 2 ) {
         expectCalls = expectedBehavior['test '+name][tag.id].calls;
+
       } else {
         expectCalls = [].slice.call(tag.nativeCtx.calls);
       }
@@ -249,13 +280,18 @@ var execute = function(name, tags, options) {
 
       };
 
+      // Remove first \r\n from actual (needed for IE7-8)
+      function clipRN(str) {
+        return str.replace(/^\r\n/, "");
+      }
+
       self.eq = function(val, msg) {
         var args = expectCalls.shift();
 
-        if(args && options.useExpected) {
+        if(args && expectedBehavior) {
           // run it through innerHTML to get rid of browser inconsistencies
           work.innerHTML = args[0];
-          args[0] = work.innerHTML;
+          args[0] = innerHtml(work);
         }
 
         if(!args) {
@@ -268,17 +304,17 @@ var execute = function(name, tags, options) {
           console.log('\nTest Fail', msg);
         }
 
-        equal(args[0], val, msg);
+        equal(args[0], clipRN(val), msg);
       };
 
       // writer should have at least what native has.
       self.eqPrefix = function(val, msg) {
         var args = expectCalls.shift();
 
-        if(args && options.useExpected) {
+        if(args && expectedBehavior) {
           // run it through innerHTML to get rid of browser inconsistencies
           work.innerHTML = args[0];
-          args[0] = work.innerHTML;
+          args[0] = innerHtml(work);
         }
 
         if(!args) {
@@ -287,31 +323,15 @@ var execute = function(name, tags, options) {
           msg = 'mismatch: 1:' + args[1] + ' 2:'+msg;
         }
 
-        if(args[0] !== val) {
-          console.log('\nTest Fail', msg);
-        }
 
         if(val.indexOf(args[0]) !== 0) {
-          equal(args[0], val, msg);
+          if(args[0] !== clipRN(val)) {
+            console.log('\nTest Fail', msg);
+          }
+          equal(args[0], clipRN(val), msg);
         } else {
           ok(true, msg);
         }
-      };
-
-
-      var renderImpl = self.render;
-
-      self.render = function() {
-        self.writer = postscribe(self.div, function() {
-            self.doc.currentTag = tag;
-            renderImpl.call(this);
-          }, {
-          name: tag.id,
-          afterWrite: function(str) {
-            self.written += str;
-            self.compareInnerHtml(str);
-          }
-        });
       };
 
 
@@ -331,7 +351,7 @@ var execute = function(name, tags, options) {
   var queue = [
 
     function NATIVE_MODE(done) {
-      if(!GENERATE_EXPECTED && options.useExpected) {
+      if(window.expectedBehavior) {
         done();
         return;
       }
@@ -354,12 +374,7 @@ var execute = function(name, tags, options) {
         ifr.doc._write('<div class=tag id='+tag.id+'>');
 
         // render inline
-        if(options.async) {
-          ifr.doc._write('<script>renderTag('+i+')</script>');
-        } else {
-          renderTag(tag);
-        }
-
+        ifr.doc._write('<script class="test_helper">renderTag('+i+')</script>');
         ifr.doc._write('</div>');
       }
 
@@ -369,7 +384,7 @@ var execute = function(name, tags, options) {
     function intermission(done) {
       console.log('\nintermission');
 
-      if(GENERATE_EXPECTED || !options.useExpected) {
+      if(GENERATE_EXPECTED) {
         var testBehavior = nativeBehavior['test '+name] = {};
 
         // spit out native
@@ -404,8 +419,31 @@ var execute = function(name, tags, options) {
 
       var shuffledTags = random.shuffle(tags);
 
-      for(i = 0; tag = shuffledTags[i]; i++) {
-        renderTag(tag);
+      ifr.contentWindow.renderTag = function(i) {
+        ctx = shuffledTags[i].ctx;
+        ctx.doc.currentTag = tag;
+        ctx.render();
+      };
+
+      for(var i = 0; i < shuffledTags.length; i++) {
+        (function(tag, i) {
+          var ctx = Context[mode](tag, ifr.doc);
+          pauseMonitor.add(ctx);
+          tag.ctx = ctx;
+          ctx.writer = postscribe(ctx.div, '<script class="test_helper">renderTag('+i+')</script>', {
+            name: tag.id,
+            beforeWrite: function(str) {
+              return str;//.replace(/\.js/g, '.js?'+Math.random());
+            },
+            afterWrite: function(str) {
+              ctx.written += str;
+              ctx.compareInnerHtml(str);
+            },
+            error: function(e) {
+              throw e;
+            }
+          });
+        }(shuffledTags[i], i));
       }
 
       pauseMonitor.checkDone();
@@ -483,3 +521,10 @@ var setOptions = function(options) {
   testOptions = options;
 };
 
+
+document.write([
+  '<script type="text/vbscript">',
+  'supportsVbscript = true',
+  //'document.write("before<script>window.supportsVbscript = true<\\/script>|after")',
+  '</script>'
+].join('\n'));
