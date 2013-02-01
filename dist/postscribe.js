@@ -1,4 +1,4 @@
-/* Asynchronously write javascript, even with document.write., v1.1.0 https://github.com/krux/postscribe
+/* Asynchronously write javascript, even with document.write., v1.1.1 https://github.com/krux/postscribe
 Copyright (c) 2013 Derek Brans, MIT license https://github.com/krux/postscribe/blob/master/LICENSE */
 
 // An html parser written in JavaScript
@@ -105,7 +105,7 @@ Copyright (c) 2013 Derek Brans, MIT license https://github.com/krux/postscribe/b
                 attrs: start.attrs,
                 content: match[1],
                 length: match[0].length + start.length
-              }
+              };
             }
           }
         }
@@ -359,7 +359,7 @@ Copyright (c) 2013 Derek Brans, MIT license https://github.com/krux/postscribe/b
   this.htmlParser = htmlParser;
 })();
 
-//     postscribe.js 1.1.0
+//     postscribe.js 1.1.1
 //     (c) Copyright 2012 to the present, Krux
 //     postscribe is freely distributable under the MIT license.
 //     For all details and documentation:
@@ -583,7 +583,7 @@ Copyright (c) 2013 Derek Brans, MIT license https://github.com/krux/postscribe/b
         chunk.proxyInnerHTML = this.proxyRoot.innerHTML;
       }
 
-      this.walkNodes();
+      this.walkChunk();
 
       if(DEBUG_CHUNK) {
         chunk.actualInnerHTML = this.root.innerHTML; //root
@@ -647,7 +647,7 @@ Copyright (c) 2013 Derek Brans, MIT license https://github.com/krux/postscribe/b
       };
     };
 
-    WriteStream.prototype.walkNodes = function() {
+    WriteStream.prototype.walkChunk = function() {
       var node, stack = [this.proxyRoot];
 
       // use shift/unshift so that children are walked in document order
@@ -715,9 +715,12 @@ Copyright (c) 2013 Derek Brans, MIT license https://github.com/krux/postscribe/b
 
     WriteStream.prototype.onScriptDone = function(tok) {
       // Pop script and check nesting.
-      if(tok !== this.scriptStack.shift()) {
-        this.options.error({ message: "Improperly nested script execution" });
+      if(tok !== this.scriptStack[0]) {
+        this.options.error({ message: "Bad script nesting or script finished twice" });
+        return;
       }
+      this.scriptStack.shift();
+
       // Append outer writes to queue and process them.
       this.write.apply(this, tok.outerWrites);
 
@@ -743,8 +746,13 @@ Copyright (c) 2013 Derek Brans, MIT license https://github.com/krux/postscribe/b
         this.scriptLoadHandler(el, done);
       }
 
-      this.insertScript(el);
-      if(!tok.src) {
+      try {
+        this.insertScript(el);
+        if(!tok.src) {
+          done();
+        }
+      } catch(e) {
+        this.options.error(e);
         done();
       }
     };
@@ -776,10 +784,8 @@ Copyright (c) 2013 Derek Brans, MIT license https://github.com/krux/postscribe/b
       // Grab that span from the DOM.
       var cursor = this.doc.getElementById("ps-script");
 
-      if(cursor) { // <== just in case
-        // Replace cursor with script.
-        cursor.parentNode.replaceChild(el, cursor);
-      }
+      // Replace cursor with script.
+      cursor.parentNode.replaceChild(el, cursor);
     };
 
 
@@ -857,6 +863,9 @@ Copyright (c) 2013 Derek Brans, MIT license https://github.com/krux/postscribe/b
 
       // Override window.onerror
       var oldOnError = active.win.onerror || doNothing;
+
+      // This works together with the try/catch around WriteStream::insertScript
+      // In modern browsers, exceptions in tag scripts go directly to top level
       active.win.onerror = function(msg, url, line) {
         options.error({ msg: msg + ' - ' + url + ':' + line });
         oldOnError.apply(active.win, arguments);
