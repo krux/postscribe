@@ -222,7 +222,7 @@
         chunk.proxyInnerHTML = this.proxyRoot.innerHTML;
       }
 
-      this.walkNodes();
+      this.walkChunk();
 
       if(DEBUG_CHUNK) {
         chunk.actualInnerHTML = this.root.innerHTML; //root
@@ -286,7 +286,7 @@
       };
     };
 
-    WriteStream.prototype.walkNodes = function() {
+    WriteStream.prototype.walkChunk = function() {
       var node, stack = [this.proxyRoot];
 
       // use shift/unshift so that children are walked in document order
@@ -354,9 +354,12 @@
 
     WriteStream.prototype.onScriptDone = function(tok) {
       // Pop script and check nesting.
-      if(tok !== this.scriptStack.shift()) {
-        this.options.error({ message: "Improperly nested script execution" });
+      if(tok !== this.scriptStack[0]) {
+        this.options.error({ message: "Bad script nesting or script finished twice" });
+        return;
       }
+      this.scriptStack.shift();
+
       // Append outer writes to queue and process them.
       this.write.apply(this, tok.outerWrites);
 
@@ -382,8 +385,13 @@
         this.scriptLoadHandler(el, done);
       }
 
-      this.insertScript(el);
-      if(!tok.src) {
+      try {
+        this.insertScript(el);
+        if(!tok.src) {
+          done();
+        }
+      } catch(e) {
+        this.options.error(e);
         done();
       }
     };
@@ -415,10 +423,8 @@
       // Grab that span from the DOM.
       var cursor = this.doc.getElementById("ps-script");
 
-      if(cursor) { // <== just in case
-        // Replace cursor with script.
-        cursor.parentNode.replaceChild(el, cursor);
-      }
+      // Replace cursor with script.
+      cursor.parentNode.replaceChild(el, cursor);
     };
 
 
@@ -496,6 +502,9 @@
 
       // Override window.onerror
       var oldOnError = active.win.onerror || doNothing;
+
+      // This works together with the try/catch around WriteStream::insertScript
+      // In modern browsers, exceptions in tag scripts go directly to top level
       active.win.onerror = function(msg, url, line) {
         options.error({ msg: msg + ' - ' + url + ':' + line });
         oldOnError.apply(active.win, arguments);
