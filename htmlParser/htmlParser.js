@@ -102,7 +102,7 @@
                 attrs: start.attrs,
                 content: match[1],
                 length: match[0].length + start.length
-              }
+              };
             }
           }
         }
