@@ -17,7 +17,7 @@
   var DEBUG = true;
 
   // Turn on to debug how each chunk affected the DOM.
-  var DEBUG_CHUNK = false;
+  var DEBUG_CHUNK = true;
 
   // # Helper Functions
 
@@ -423,8 +423,10 @@
       // Grab that span from the DOM.
       var cursor = this.doc.getElementById("ps-script");
 
-      // Replace cursor with script.
-      cursor.parentNode.replaceChild(el, cursor);
+      if(cursor) {
+        // Replace cursor with script.
+        cursor.parentNode.replaceChild(el, cursor);
+      }
     };
 
 
