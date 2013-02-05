@@ -17,7 +17,7 @@
   var DEBUG = true;
 
   // Turn on to debug how each chunk affected the DOM.
-  var DEBUG_CHUNK = true;
+  var DEBUG_CHUNK = false;
 
   // # Helper Functions
 
