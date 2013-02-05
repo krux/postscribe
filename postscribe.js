@@ -423,8 +423,10 @@
       // Grab that span from the DOM.
       var cursor = this.doc.getElementById("ps-script");
 
-      // Replace cursor with script.
-      cursor.parentNode.replaceChild(el, cursor);
+      if(cursor) {
+        // Replace cursor with script.
+        cursor.parentNode.replaceChild(el, cursor);
+      }
     };
 
 
