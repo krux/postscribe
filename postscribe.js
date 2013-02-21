@@ -498,7 +498,14 @@
         options.afterWrite(str);
       }
 
-      set(doc, { write: write, writeln: function(str) { write(str + '\n'); } });
+      set(doc, { 
+        write: function(){
+          return write(toArray(arguments).join(''));
+        }, 
+        writeln: function(str) { 
+          return write(toArray(arguments).join('\n')); 
+        } 
+      });
 
       // Override window.onerror
       var oldOnError = active.win.onerror || doNothing;
