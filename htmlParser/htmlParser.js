@@ -58,7 +58,7 @@
     var detect = {
       comment: /^<!--/,
       endTag: /^<\//,
-      atomicTag: /^<\s*(script|style|noscript)[\s>]/i,
+      atomicTag: /^<\s*(script|style|noscript|iframe|textarea)[\s>]/i,
       startTag: /^</,
       chars: /^[^<]/
     };
