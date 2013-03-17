@@ -1,4 +1,4 @@
-/* Asynchronously write javascript, even with document.write., v1.1.1 https://github.com/krux/postscribe
+/* Asynchronously write javascript, even with document.write., v1.1.2 https://github.com/krux/postscribe
 Copyright (c) 2013 Derek Brans, MIT license https://github.com/krux/postscribe/blob/master/LICENSE */
 
 // An html parser written in JavaScript
@@ -61,7 +61,7 @@ Copyright (c) 2013 Derek Brans, MIT license https://github.com/krux/postscribe/b
     var detect = {
       comment: /^<!--/,
       endTag: /^<\//,
-      atomicTag: /^<\s*(script|style|noscript)[\s>]/i,
+      atomicTag: /^<\s*(script|style|noscript|iframe|textarea)[\s>]/i,
       startTag: /^</,
       chars: /^[^<]/
     };
@@ -359,7 +359,7 @@ Copyright (c) 2013 Derek Brans, MIT license https://github.com/krux/postscribe/b
   this.htmlParser = htmlParser;
 })();
 
-//     postscribe.js 1.1.1
+//     postscribe.js 1.1.2
 //     (c) Copyright 2012 to the present, Krux
 //     postscribe is freely distributable under the MIT license.
 //     For all details and documentation:
