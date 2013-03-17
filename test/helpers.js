@@ -29,6 +29,8 @@ var innerHtml = function(el) {
   //return el.innerHTML.replace(/(\r\n)?<script[^>]*>[\s\S]*?<\/script>(\r\n)?/ig, '');
   var html = el.innerHTML
     .replace(/\.js\?0\.\d+/g, '.js')
+    // The contents of iframes gets doubly-escaped because we pass the expected value through innerHTML.
+    // So we ignore it.
     .replace(/(<iframe[^>]*>)[\s\S]*?(<\/iframe>)/ig, '$1$2');
   return ignoreScripts ?
     // remove all scripts (IE7/8, FF)
