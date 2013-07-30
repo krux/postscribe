@@ -14,7 +14,7 @@ Other tag writing libraries exist (see [alternatives](#alternatives)), but PostS
 For more information:
 
 * [Presentation at HTML5devconf](http://youtu.be/ClzeilKwX10) by the author, Derek Brans
-* [Interactive Demo](http://plnkr.co/e8MJAx/) with side by side comparisons of other tag writers
+* [Interactive Demo](http://run.plnkr.co/e8MJAx/) with side by side comparisons of other tag writers
 * [Documentation](https://github.com/krux/postscribe/tree/master/doc)
 * Browse the [raw](https://github.com/krux/postscribe/blob/master/postscribe.js) or [annotated](http://krux.github.com/postscribe/doc/postscribe.html) source code.
 
