@@ -76,12 +76,14 @@ var IFrame = function(id) {
   ifr.doc._write = ifr.doc.write;
   ifr.doc._writeln = ifr.doc.writeln;
 
-  ifr.doc.write = function(str) {
-    ifr.doc._write(str);
+  ifr.doc.write = function() {
+    ifr.doc._write.apply(ifr.doc, [].slice.call(arguments));
   }
 
-  ifr.doc.writeln = function(str) {
-    ifr.doc.write(str+'\n');
+  ifr.doc.writeln = function() {
+    var args = [].slice.call(arguments);
+    args.push('\n');
+    ifr.doc.write.apply(ifr.doc, args);
   }
 
   ifr.doc.writeInline = function(js) {
@@ -197,8 +199,8 @@ var execute = function(name, tags, options) {
           }, 'Rendering Complete');
         },
 
-        compareInnerHtml: function(str) {
-          self.eqPrefix(innerHtml(self.div), tag.id+':'+str);
+        compareInnerHtml: function() {
+          self.eqPrefix(innerHtml(self.div), tag.id+':'+[].slice.call(arguments).join(''));
         }
 
       };
@@ -238,28 +240,36 @@ var execute = function(name, tags, options) {
         autoFix: true
       });
 
-      self.doc.write = function(str) {
-        console.log('native docwrite', str);
+      self.doc.write = function() {
+        var args = [].slice.call(arguments);
+        console.log('native docwrite', args);
 
         if(parser) {
-          parser.append(str);
-          str = '';
-          for(var tok; tok = parser.readToken();) {
-            str += tok.text;
-          }
+          $.each(args, function(index, value) {
+            parser.append(value);
+          });
+          args = (function() {
+            var str = '';
+            for(var tok; tok = parser.readToken();) {
+              str += tok.text;
+            }
+            return [str];
+          })();
         }
 
-
+        //TODO(dbrans): Add comment explaining why this is commented out.
         //str = str.replace(/\.js/g, '.js?'+Math.random());
 
-        self.written = self.written + str;
+        $.each(args, function(index, value) {
+          self.written = self.written + value;
+        });
 
         if(options.useInnerHtml) {
           self.div.innerHTML = self.written;
         } else {
-          self.doc._write(str);
+          self.doc._write.apply(self.doc, args);
         }
-        self.compareInnerHtml(str);
+        self.compareInnerHtml.apply(self, args);
       };
 
       return self;
@@ -407,8 +417,8 @@ var execute = function(name, tags, options) {
 
       ifr = IFrame('[ACTUAL]'+name);
 
-      ifr.doc.write = function(str) {
-        ok(false, ifr.doc.currentTag.id + ' - document.write outside: ' + str);
+      ifr.doc.write = function() {
+        ok(false, ifr.doc.currentTag.id + ' - document.write outside: ' + [].slice.call(arguments).join(''));
       };
 
       for(i = 0; tag = tags[i]; i++) {
