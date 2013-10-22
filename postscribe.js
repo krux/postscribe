@@ -320,7 +320,11 @@
     // ### Script tokens
 
     WriteStream.prototype.handleScriptToken = function(tok) {
-      var remainder = this.parser.clear();
+
+      // stash the remainder of the html
+      var remainder = this.parser.rest();
+      // clear the current stream
+      this.parser.clear();
 
       if(remainder) {
         // Write remainder immediately behind this script.
