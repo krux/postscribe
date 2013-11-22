@@ -20,7 +20,7 @@ $(document).ready(function(){
 
   testWrite('string double quote', function(ctx) {
     ctx.write('<img alt="foo">');
-    ctx.eq($('img', ctx.doc).attr('alxt'));
+    ctx.eq($('img', ctx.doc).attr('alt'));
   });
 
   testWrite('string single quote', function(ctx) {
