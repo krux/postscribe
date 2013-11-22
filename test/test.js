@@ -20,7 +20,7 @@ $(document).ready(function(){
 
   testWrite('string double quote', function(ctx) {
     ctx.write('<img alt="foo">');
-    ctx.eq($('img', ctx.doc).attr('alt'));
+    ctx.eq($('img', ctx.doc).attr('alxt'));
   });
 
   testWrite('string single quote', function(ctx) {
@@ -42,6 +42,11 @@ $(document).ready(function(){
     ctx.write('<input type="checkbox" checked>');
     ctx.eq($('input', ctx.doc).attr('checked'));
   });
+  
+  testWrite('self closing', function(ctx) {
+    ctx.write('<div class="foo"/>');
+  });
+  
 
   // document.write (script) tests
   module('document.write');
@@ -72,6 +77,7 @@ $(document).ready(function(){
   testWrite('inline', function(ctx) {
     ctx.write('A<script type="text/javascript">document.write("B");</script>C');
   });
+
 
   testWrite('nested document.write', function(ctx) {
     // document.write calls document.write!
