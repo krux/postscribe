@@ -30,15 +30,16 @@
     "type": "MIT",
     "url": "https://github.com/krux/postscribe/blob/master/LICENSE"
   }],
-  "repositories": [{
+  "repository": {
     "type": "git",
     "url": "git@github.com:krux/postscribe.git"
-  }],
+  },
   "dependencies": {},
   "devDependencies": {
+    "browserstack-cli": "0.x.x",
     "grunt": "0.3.x",
-    "testem": "0.2.x",
-    "browserstack-cli": "0.x.x"
+    "phantomjs": "~1.9",
+    "testem": "0.2.x"
   },
   "homepage": "https://github.com/krux/postscribe",
   "engines": {
