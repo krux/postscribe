@@ -1,5 +1,14 @@
-node_modules
+# Mac artifacts
 .DS_Store
+
+# Editor artifacts
+.idea/
 .*.swp
+.*.un~
+
+# NPM artifacts
+node_modules/
 npm-debug.log
+
+# Generated files
 test/expected.js
