@@ -119,9 +119,9 @@ We ♥  [forks and pull requests](https://help.github.com/articles/using-pull-re
 To run the tests and static code analysis tools, you will need to have the following installed:
 
 * nodejs (>=0.8) & npm - [Install Instructions](https://github.com/joyent/node/wiki/Installation)
-* PhantomJS - A headless browser based on Webkit. [Install Instructions](http://phantomjs.org/download.html)
 * All other project dependencies are installed via npm with `npm install`
 	* [grunt](http://gruntjs.com) - a 'make' like tool for automating build, test, and other dev tasks
+	* [PhantomJS](http://phantomjs.org/) - A headless browser based on Webkit.
 
 ## Pull Request Guidelines
 Spaces, not tabs. 2 of them. [jQuery's style guide](http://docs.jquery.com/JQuery_Core_Style_Guidelines) covers just about everything else.
