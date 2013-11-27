@@ -13,9 +13,6 @@
     return;
   }
 
-  // Debug write tasks.
-  var DEBUG = true;
-
   // Turn on to debug how each chunk affected the DOM.
   var DEBUG_CHUNK = false;
 
@@ -502,7 +499,7 @@
         write: function(){
           return write(toArray(arguments).join(''));
         },
-        writeln: function(str) {
+        writeln: function() {
           return write(toArray(arguments).join('') + '\n');
         }
       });
