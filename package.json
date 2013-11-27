@@ -45,8 +45,10 @@
     "grunt": ">=0.4",
     "phantomjs": "~1.9",
     "grunt-cli": "~0.1",
+    "grunt-contrib-concat": "~0.3",
     "grunt-contrib-jshint": "~0.7",
     "grunt-contrib-qunit": "~0.3",
+    "grunt-contrib-uglify": "~0.2",
     "lodash": "~2.4",
     "testem": "~0.5"
   },

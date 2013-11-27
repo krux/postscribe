@@ -65,16 +65,23 @@ module.exports = function(grunt) {
       }
     },
     concat: {
+      options: {
+        banner: '<%= meta.banner %>'
+      },
       dist: {
         src: ['<%= meta.banner %>', 'htmlParser/htmlParser.js', 'postscribe.js'],
         dest: 'dist/postscribe.js'
       }
     },
     // Minify postscribe src to postscribe.min.js, prepending a banner
-    min: {
+    uglify: {
+      options: {
+        banner: '<%= meta.banner %>'
+      },
       dist: {
-        src: ['<%= meta.banner %>', 'dist/postscribe.js'],
-        dest: 'dist/postscribe.min.js'
+        files: {
+          'dist/postscribe.min.js': ['dist/postscribe.js']
+        }
       }
     },
 
@@ -112,7 +119,7 @@ module.exports = function(grunt) {
 
   // Alias test
   grunt.registerTask('test', ['generate_expected', 'qunit']);
-
+  grunt.registerTask('min', ['concat', 'uglify']);
   // This is what gets run when you don't specify an argument for grunt.
   grunt.registerTask('default', ['jshint', 'test']);
 
