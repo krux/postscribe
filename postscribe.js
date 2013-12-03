@@ -460,15 +460,13 @@
     };
 
     WriteStream.prototype.shouldRelease = function(el) {
-      return !!(this.options.releaseAsync && el.src && el.hasAttribute('async'));
+      var isScript = /^script$/i.test(el.nodeName);
+      return !isScript || !!(this.options.releaseAsync && el.src && el.hasAttribute('async'));
     };
 
     return WriteStream;
 
   }());
-
-
-
 
 
 
