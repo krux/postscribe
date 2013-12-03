@@ -378,16 +378,21 @@
     // Done is called once script has executed.
     WriteStream.prototype.writeScriptToken = function(tok, done) {
       var el = this.buildScript(tok);
+      var asyncRelease = this.shouldRelease(el);
+      var afterAsync = this.options.afterAsync;
 
       if(tok.src) {
         // Fix for attribute "SRC" (capitalized). IE does not recognize it.
         el.src = tok.src;
-        this.scriptLoadHandler(el, done);
+        this.scriptLoadHandler(el, !asyncRelease ? function() {
+          done();
+          afterAsync();
+        } : afterAsync);
       }
 
       try {
         this.insertScript(el);
-        if(!tok.src) {
+        if(!tok.src || asyncRelease) {
           done();
         }
       } catch(e) {
@@ -452,6 +457,10 @@
           cleanup();
         }
       });
+    };
+
+    WriteStream.prototype.shouldRelease = function(el) {
+      return !!(this.options.releaseAsync && el.src && el.hasAttribute('async'));
     };
 
     return WriteStream;
@@ -539,6 +548,8 @@
         options = { done: options };
       }
       options = defaults(options, {
+        releaseAsync: false,
+        afterAsync: doNothing,
         done: doNothing,
         error: function(e) { throw e; },
         beforeWrite: function(str) { return str; },
