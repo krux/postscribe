@@ -141,24 +141,21 @@ $(document).ready(function(){
     return String(document.write) === readNativeDocumentWriteString();
   }
 
+  // Must be async to avoid polluting doc.write for the next tests.
   asyncTest('overrides document.write for normal scripts.', 2, function() {
     ok(isDocumentWriteNative());
     postscribe(document.body, '<script src="remote/describe-write.js"></script>', {
       releaseAsync: true,
-      done: function() {
-        notEqual(readNativeDocumentWriteString(), top.writeImpl);
-        start();
-      }
+      done: start
     });
+    ok(!isDocumentWriteNative());
   });
 
   asyncTest('does not override document.write for async scripts.', 2, function() {
     ok(isDocumentWriteNative());
     postscribe(document.body, '<script async src="remote/describe-write.js"></script>', {
       releaseAsync: true,
-      afterAsync: function() {
-        start();
-      }
+      done: start
     });
     ok(isDocumentWriteNative());
   });
