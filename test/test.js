@@ -157,10 +157,10 @@ $(document).ready(function(){
     postscribe(document.body, '<script async src="remote/describe-write.js"></script>', {
       releaseAsync: true,
       afterAsync: function() {
-        equal(readNativeDocumentWriteString(), top.writeImpl);
         start();
       }
     });
+    ok(isDocumentWriteNative());
   });
 
   asyncTest('afterAsync fires when async ignored.', 1, function() {
