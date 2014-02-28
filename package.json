@@ -51,6 +51,6 @@
   },
   "scripts": {
     "lint": "grunt lint",
-    "test": "grunt"
+    "test": "grunt test"
   }
 }
