@@ -264,7 +264,7 @@
               proxy.push(
                 // ignore atomic tags (e.g., style): they have no "structural" effect
                 tok.type === 'atomicTag' ? '' :
-                  '<'+tok.tagName+' '+BASEATTR+'proxyof='+id+(tok.unary ? '/>' : '>')
+                  '<'+tok.tagName+' '+BASEATTR+'proxyof='+id+(tok.unary ? ' />' : '>')
               );
             }
           }

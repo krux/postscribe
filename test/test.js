@@ -42,6 +42,11 @@ $(document).ready(function(){
     ctx.write('<input type="checkbox" checked>');
     ctx.eq($('input', ctx.doc).attr('checked'));
   });
+  
+  testWrite('self closing', function(ctx) {
+    ctx.write('<div class="foo"/>');
+  });
+  
 
   // document.write (script) tests
   module('document.write');
@@ -72,6 +77,7 @@ $(document).ready(function(){
   testWrite('inline', function(ctx) {
     ctx.write('A<script type="text/javascript">document.write("B");</script>C');
   });
+
 
   testWrite('nested document.write', function(ctx) {
     // document.write calls document.write!
