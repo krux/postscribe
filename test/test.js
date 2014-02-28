@@ -130,6 +130,62 @@ $(document).ready(function(){
     ctx.writeInline('document.write(this.global1);');
   });
 
+  module('document.write overwriting.');
+  function readNativeDocumentWriteString() {
+    var result = readNativeDocumentWriteString.cache;
+    if (result) {
+      return result;
+    }
+    var iframe = document.createElement('iframe');
+    document.body.appendChild(iframe);
+    result = readNativeDocumentWriteString.cache = String(iframe.contentDocument.write);
+    iframe.parentNode.removeChild(iframe);
+    return result;
+  }
+
+  function isDocumentWriteNative() {
+    return String(document.write) === readNativeDocumentWriteString();
+  }
+
+  // Must be async to avoid polluting doc.write for the next tests.
+  asyncTest('overrides document.write for normal scripts.', 2, function() {
+    ok(isDocumentWriteNative());
+    postscribe(document.body, '<script src="remote/describe-write.js"></script>', {
+      releaseAsync: true,
+      done: start
+    });
+    ok(!isDocumentWriteNative());
+  });
+
+  asyncTest('does not override document.write for async scripts.', 2, function() {
+    ok(isDocumentWriteNative());
+    postscribe(document.body, '<script async src="remote/describe-write.js"></script>', {
+      releaseAsync: true,
+      done: start
+    });
+    ok(isDocumentWriteNative());
+  });
+
+  asyncTest('afterAsync fires when async ignored.', 1, function() {
+    postscribe(document.body, '<script async src="remote/describe-write.js"></script>', {
+      releaseAsync: false,
+      afterAsync: function() {
+        ok(1);
+        start();
+      }
+    });
+  });
+
+  asyncTest('afterAsync fires when no async attr ignored.', 1, function() {
+    postscribe(document.body, '<script src="remote/describe-write.js"></script>', {
+      releaseAsync: true,
+      afterAsync: function() {
+        ok(1);
+        start();
+      }
+    });
+  });
+
   module('multiple');
   testWrite('MULT1',
 
