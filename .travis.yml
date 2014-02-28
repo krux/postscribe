@@ -6,12 +6,11 @@ node_js:
 
 before_script:
   # Run lint on every commit
-  - grunt lint
+  - npm lint
 
 notifications:
   email:
     recipients:
-      - dbrans@gmail.com
-      - nick@sullivanflock.com
+      - joshua.newman@krux.com
     on_success: [change]
     on_failure: [always]
