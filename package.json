@@ -35,17 +35,22 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "browserstack-cli": "0.x.x",
-    "grunt": "0.3.x",
+    "grunt": ">=0.4",
     "phantomjs": "~1.9",
-    "testem": "0.2.x"
+    "grunt-cli": "~0.1",
+    "grunt-contrib-concat": "~0.3",
+    "grunt-contrib-jshint": "~0.7",
+    "grunt-contrib-qunit": "~0.3",
+    "grunt-contrib-uglify": "~0.2",
+    "lodash": "~2.4",
+    "testem": "~0.5"
   },
-  "homepage": "https://github.com/krux/postscribe",
+  "homepage": "https://krux.github.com/postscribe",
   "engines": {
     "node": ">=0.8"
   },
   "scripts": {
     "lint": "grunt lint",
-    "test": "grunt test"
+    "test": "grunt"
   }
 }
