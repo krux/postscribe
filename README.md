@@ -70,6 +70,7 @@ Instead, remove the ad call and close the div
       });
     </script>
 
+
 # FAQ
 ##### Does it work with jQuery, Prototype, Backbone, Underscore, jQuery UI, YUI, mooTools, dojo, etc.?
 Yep. It neither depends on nor conflicts with any of the existing popular javascript frameworks.
@@ -80,7 +81,6 @@ Yep. It neither depends on nor conflicts with any of the existing popular javasc
 
 # Who is using it
 This project was originally developed at [Krux](http://www.krux.com) as part of its [SuperTag](http://www.krux.com/pro/whatwedo/manage/supertag/) product. There it was battle tested on high-profile sites like [The New York Times](http://www.nytimes.com), [The Wall Street Journal](http://online.wsj.com), [NBCU](http://www.nbcuni.com), and hundreds of others. It is actively maintained by Krux.
-
 
 
 # Browser Compatibility
@@ -111,8 +111,9 @@ Please check out the [existing issues](https://github.com/krux/postscribe/issues
 worked on, please [file a new issue](https://github.com/krux/postscribe/issues/new). The more information the better to describe your problem.
 We ♥ [Jing](http://www.techsmith.com/jing.html) bug reports.
 
+
 # Contributing
-We ♥  [forks and pull requests](https://help.github.com/articles/using-pull-requests).
+We ♥ [forks and pull requests](https://help.github.com/articles/using-pull-requests).
 
 
 ## Environment
@@ -120,16 +121,19 @@ To run the tests and static code analysis tools, you will need to have the follo
 
 * nodejs (>=0.8) & npm - [Install Instructions](https://github.com/joyent/node/wiki/Installation)
 * All other project dependencies are installed via npm with `npm install`
-	* [grunt](http://gruntjs.com) - a 'make' like tool for automating build, test, and other dev tasks
-	* [PhantomJS](http://phantomjs.org/) - A headless browser based on Webkit.
+  * [grunt](http://gruntjs.com) - a 'make' like tool for automating build, test, and other dev tasks
+  * [PhantomJS](http://phantomjs.org/) - A headless browser based on Webkit.
+
 
 ## Pull Request Guidelines
 Spaces, not tabs. 2 of them. [jQuery's style guide](http://docs.jquery.com/JQuery_Core_Style_Guidelines) covers just about everything else.
 Please do not update 3rd-party libraries (qunit, jquery) or the dist directory. We have an internal process for doing this.
 
+
 ## Issue Guidelines
 Please include a [jsfiddle](http://jsfiddle.net) or [plunker](http://plnkr.co) that distills and reproduces the issue.
 Try forking [this jsfiddle](http://jsfiddle.net/dbrans/Znpxv/). We've set everything up there for you so that you can reproduce your issue.
+
 
 ## Testing
 Using [travis-ci](https://travis-ci.org) and [grunt](http://gruntjs.com), the [Qunit](http://qunitjs.com) unit tests are run on every commit using PhantomJS to run the tests with a real browser.
@@ -138,15 +142,15 @@ Current Build Status: [![Build Status](https://secure.travis-ci.org/krux/postscr
 
 To run the tests:
 
-`$ grunt test`
+`$ npm test`
 
 We use jshint to do static analysis of the javascript and keep things smelling good. To run jslint:
 
-`$ grunt lint`
+`$ npm run lint`
 
 **Pro Tip**: You can use TDD and have jslint and the tests run on every commit with:
 
-`$ grunt watch`
+`$ npm run tdd`
 
 
 # History

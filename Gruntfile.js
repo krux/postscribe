@@ -91,7 +91,7 @@ module.exports = function(grunt) {
 
     watch: {
       files: ['postscribe.js', 'test/*'],
-      tasks: 'lint qunit'
+      tasks: 'jshint qunit'
     },
 
     generate_expected: {
