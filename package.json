@@ -57,6 +57,7 @@
     "node": ">=0.8"
   },
   "scripts": {
+    "lint": "grunt lint",
     "test": "grunt"
   }
 }
