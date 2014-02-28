@@ -6,7 +6,7 @@ node_js:
 
 before_script:
   # Run lint on every commit
-  - npm lint
+  - npm run lint
 
 notifications:
   email:
