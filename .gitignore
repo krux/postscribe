@@ -3,3 +3,4 @@ node_modules
 .*.swp
 npm-debug.log
 test/expected.js
+.idea/
