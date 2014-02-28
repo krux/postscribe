@@ -16,14 +16,13 @@
     "name": "Nick Sullivan",
     "email": "nick@sullivanflock.com",
     "web": "http://creationeer.me"
+  },{
+    "name": "Joshua Newman",
+    "email": "joshua.newman@krux.com"
   }],
   "maintainers": [{
-    "name": "Derek Brans",
-    "email": "dbrans@gmail.com"
-  }, {
-    "name": "Nick Sullivan",
-    "email": "nick@sullivanflock.com",
-    "web": "http://creationeer.me"
+    "name": "Joshua Newman",
+    "email": "joshua.newman@krux.com"
   }],
   "bugs": "https://github.com/krux/postscribe/issues",
   "licenses": [{
