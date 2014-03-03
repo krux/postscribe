@@ -44,6 +44,8 @@
   "engines": {
     "node": ">=0.8"
   },
+  "main": "postscribe.js",
+  "filename": "postscribe.min.js",
   "scripts": {
     "test": "grunt test"
   }
