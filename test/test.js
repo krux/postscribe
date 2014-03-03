@@ -13,8 +13,6 @@ $(document).ready(function(){
   });
 
 
-
-
   module('attributes');
   setOptions({});
 
@@ -78,7 +76,6 @@ $(document).ready(function(){
     ctx.write('A<script type="text/javascript">document.write("B");</script>C');
   });
 
-
   testWrite('nested document.write', function(ctx) {
     // document.write calls document.write!
     var inner = "B<script type='text/javascript'>document.write('C');<\\/script>D";
@@ -90,7 +87,7 @@ $(document).ready(function(){
   });
 
   // Native doesn't seem to support this!
-  false && testWrite('partial script', function(ctx) {
+  skip(testWrite)('partial script', function(ctx) {
     ctx.write('<script>var QWVES=1');
     ctx.write('7;</script>');
     ctx.write('<script>document.write(QWVES);</script>');
@@ -128,6 +125,10 @@ $(document).ready(function(){
     ctx.writeInline('var global1 = "inline global1"');
     ctx.writeRemote('remote/set-global1.js');
     ctx.writeInline('document.write(this.global1);');
+  });
+
+  testWrite('corrupt src', function(ctx) {
+    ctx.write('<img src"abc.jpg"><div>WORKS</div>');
   });
 
   module('document.write overwriting.');

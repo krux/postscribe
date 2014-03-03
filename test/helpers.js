@@ -535,6 +535,7 @@ var setOptions = function(options) {
   testOptions = options;
 };
 
+var skip = function() {return function() {};};
 
 document.write([
   '<script type="text/vbscript">',

@@ -106,7 +106,7 @@ module.exports = function(grunt) {
     var done = this.async();
 
     var data = grunt.config('generate_expected');
-    var args = [data.phantom, data.index, data.dest];
+    var args = [data.phantom, _.first(data.index), data.dest];
     console.info(args);
     grunt.util.spawn({cmd: './node_modules/.bin/phantomjs', args: args}, function(error, result) {
       console.info('Done.');
