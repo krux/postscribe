@@ -156,6 +156,9 @@ We use jshint to do static analysis of the javascript and keep things smelling g
 # History
 Postscribe uses [software versioning standards](http://semver.org) as follows: major.new.maintenance[.trivial]. There are git tags for each release if you would like to see older versions.
 
+##### 1.2.0
+* Adds option to not overwrite doc.write while script[async] is loading.
+
 ##### 1.1.2
 * iframe and textarea fix
 

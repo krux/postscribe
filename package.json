@@ -1,7 +1,7 @@
 {
   "name": "postscribe",
   "description": "Asynchronously write javascript, even with document.write.",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "keywords": ["document.write", "tag writer", "asynchronous", "javascript", "after load"],
   "author": {
     "name": "Derek Brans",
@@ -46,7 +46,7 @@
     "lodash": "~2.4",
     "testem": "~0.5"
   },
-  "homepage": "https://krux.github.com/postscribe",
+  "homepage": "https://krux.github.io/postscribe",
   "engines": {
     "node": ">=0.8"
   },
