@@ -1,0 +1,14 @@
+{
+    "name":"postscribe",
+    "description": "Asynchronously write javascript, even with document.write.",
+    "keywords": ["document.write", "tag writer", "asynchronous", "javascript", "after load"],
+    "version":"1.2.0,
+    "main": "./dist/postscribe.min.js",
+    "repository":{
+        "type":"git",
+        "url":"git://github.com/krux/postscribe.git"
+    },
+    "dependencies":{
+    },
+    "homepage": "https://github.com/krux/postscribe"
+}
