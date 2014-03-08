@@ -494,7 +494,12 @@
       // Override document.write.
       var doc = el.ownerDocument;
 
-      var stash = { write: doc.write, writeln: doc.writeln };
+      var stash = {
+        close: doc.close,
+        open: doc.open,
+        write: doc.write,
+        writeln: doc.writeln
+      };
 
       function write(str) {
         str = options.beforeWrite(str);
@@ -503,6 +508,8 @@
       }
 
       set(doc, {
+        close: doNothing,
+        open: doNothing,
         write: function(){
           return write(toArray(arguments).join(''));
         },
