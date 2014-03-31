@@ -45,6 +45,13 @@
 
     var stack = [];
 
+    var unescapeHTMLEntities = function(html) {
+      return html.replace(/(&#\d{1,4};)/gm, function(match){
+        var code = match.substring(2,match.length-1);
+        return String.fromCharCode(code);
+      });
+    };
+
     var append = function(str) {
       stream += str;
     };
