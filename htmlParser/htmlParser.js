@@ -125,7 +125,7 @@
             var value = arguments[2] || arguments[3] || arguments[4] ||
               fillAttr.test(name) && name || null;
 
-            attrs[name] = value;
+            attrs[name] = unescapeHTMLEntities(value);
           });
 
           return {
