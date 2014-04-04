@@ -374,6 +374,14 @@
       var el = this.buildStyle(tok);
 
       this.insertStyle(el);
+
+      // Set content
+      if(tok.content) {
+        if(el.styleSheet && !el.sheet)
+          el.styleSheet.cssText=tok.content;
+        else
+          el.appendChild(document.createTextNode(tok.content));
+      }
     };
 
     // Build a style element from an atomic style token.
@@ -385,14 +393,6 @@
       eachKey(tok.attrs, function(name, value) {
         el.setAttribute(name, value);
       });
-
-      // Set content
-      if(tok.content) {
-        if(el.styleSheet && !el.sheet)
-          el.styleSheet.cssText=tok.content;
-        else
-          el.appendChild(document.createTextNode(tok.content));
-      }
 
       return el;
     };
