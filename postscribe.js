@@ -262,7 +262,7 @@
             );
 
             // Don't proxy scripts: they have no bearing on DOM structure.
-            if(tok.attrs.id !== "ps-script") {
+            if(tok.attrs.id !== "ps-script" && tok.attrs.id !== "ps-style") {
               // Proxy: strip all attributes and inject proxyof attribute
               proxy.push(
                 // ignore atomic tags (e.g., style): they have no "structural" effect
@@ -365,18 +365,15 @@
       var _this = this;
       this.writeStyleToken(tok);
 
-      this.write();
+      if(remainder)
+        this.write();
     };
 
     // Build a style and insert it into the DOM.
     WriteStream.prototype.writeStyleToken = function(tok) {
       var el = this.buildStyle(tok);
 
-      try {
-        this.insertStyle(el);
-      } catch(e) {
-        this.options.error(e);
-      }
+      this.insertStyle(el);
     };
 
     // Build a style element from an atomic style token.
