@@ -81,9 +81,12 @@
 
   // Test if token is a script tag.
   function isScript(tok) {
-    return (/^script$/i).test(tok.tagName);
+    return tok ? !!~tok.tagName.toLowerCase().indexOf('script') : !1;
   }
 
+  function isStyle(tok) {
+    return tok ? !!~tok.tagName.toLowerCase().indexOf('style') : !1;
+  }
   // # Class WriteStream
 
   // Stream static html to an element, where "static html" denotes "html without scripts".
@@ -186,17 +189,20 @@
     WriteStream.prototype.writeImpl = function(html) {
       this.parser.append(html);
 
-      var tok, tokens = [];
+      var tok, tokens = [], script, style;
 
       // stop if we see a script token
-      while((tok = this.parser.readToken()) && !isScript(tok)) {
+      while((tok = this.parser.readToken()) && !(script=isScript(tok)) && !(style=isStyle(tok))) {
         tokens.push(tok);
       }
 
       this.writeStaticTokens(tokens);
 
-      if(tok) {
+      if(script && tok) {
         this.handleScriptToken(tok);
+      }
+      if(style && tok){
+        this.handleStyleToken(tok);
       }
     };
 
@@ -341,6 +347,69 @@
         _this.onScriptDone(tok);
       });
 
+    };
+
+    // ### Style tokens
+
+    WriteStream.prototype.handleStyleToken = function(tok) {
+      var remainder = this.parser.clear();
+
+      if(remainder) {
+        // Write remainder immediately behind this script.
+        this.writeQueue.unshift(remainder);
+      }
+
+      tok.type = tok.attrs.type || tok.attrs.TYPE || 'text/css';
+
+      // Put the script node in the DOM.
+      var _this = this;
+      this.writeStyleToken(tok);
+    };
+
+    // Build a script and insert it into the DOM.
+    // Done is called once script has executed.
+    WriteStream.prototype.writeStyleToken = function(tok) {
+      var el = this.buildStyle(tok);
+
+      try {
+        this.insertStyle(el);
+      } catch(e) {
+        this.options.error(e);
+      }
+    };
+
+    // Build a script element from an atomic script token.
+    WriteStream.prototype.buildStyle = function(tok) {
+      var el = this.doc.createElement(tok.tagName);
+
+      el.setAttribute('type', tok.type);
+      // Set attributes
+      eachKey(tok.attrs, function(name, value) {
+        el.setAttribute(name, value);
+      });
+
+      // Set content
+      if(tok.content) {
+        if(el.styleSheet && !el.sheet)
+          el.styleSheet.cssText=tok.content;
+        else
+          el.appendChild(document.createTextNode(tok.content));
+      }
+
+      return el;
+    };
+
+    // Insert style into DOM where it would naturally be written.
+    WriteStream.prototype.insertStyle = function(el) {
+      // Append a span to the stream. That span will act as a cursor
+      // (i.e. insertion point) for the script.
+      this.writeImpl('<span id="ps-style"/>');
+
+      // Grab that span from the DOM.
+      var cursor = this.doc.getElementById("ps-style");
+
+      // Replace cursor with style.
+      cursor.parentNode.replaceChild(el, cursor);
     };
 
     WriteStream.prototype.onScriptStart = function(tok) {
