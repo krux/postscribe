@@ -355,21 +355,20 @@
       var remainder = this.parser.clear();
 
       if(remainder) {
-        // Write remainder immediately behind this script.
+        // Write remainder immediately behind this style.
         this.writeQueue.unshift(remainder);
       }
 
       tok.type = tok.attrs.type || tok.attrs.TYPE || 'text/css';
 
-      // Put the script node in the DOM.
+      // Put the style node in the DOM.
       var _this = this;
       this.writeStyleToken(tok);
 
       this.write();
     };
 
-    // Build a script and insert it into the DOM.
-    // Done is called once script has executed.
+    // Build a style and insert it into the DOM.
     WriteStream.prototype.writeStyleToken = function(tok) {
       var el = this.buildStyle(tok);
 
@@ -380,7 +379,7 @@
       }
     };
 
-    // Build a script element from an atomic script token.
+    // Build a style element from an atomic style token.
     WriteStream.prototype.buildStyle = function(tok) {
       var el = this.doc.createElement(tok.tagName);
 
@@ -404,7 +403,7 @@
     // Insert style into DOM where it would naturally be written.
     WriteStream.prototype.insertStyle = function(el) {
       // Append a span to the stream. That span will act as a cursor
-      // (i.e. insertion point) for the script.
+      // (i.e. insertion point) for the style.
       this.writeImpl('<span id="ps-style"/>');
 
       // Grab that span from the DOM.
