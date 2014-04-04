@@ -81,11 +81,11 @@
 
   // Test if token is a script tag.
   function isScript(tok) {
-    return tok ? !!~tok.tagName.toLowerCase().indexOf('script') : !1;
+    return !tok || !('tagName' in tok) ? !1 : !!~tok.tagName.toLowerCase().indexOf('script');
   }
 
   function isStyle(tok) {
-    return tok ? !!~tok.tagName.toLowerCase().indexOf('style') : !1;
+    return !tok || !('tagName' in tok) ? !1 : !!~tok.tagName.toLowerCase().indexOf('style');
   }
   // # Class WriteStream
 
