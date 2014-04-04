@@ -198,10 +198,10 @@
 
       this.writeStaticTokens(tokens);
 
-      if(script && tok) {
+      if(script) {
         this.handleScriptToken(tok);
       }
-      if(style && tok){
+      if(style){
         this.handleStyleToken(tok);
       }
     };
@@ -364,6 +364,8 @@
       // Put the script node in the DOM.
       var _this = this;
       this.writeStyleToken(tok);
+
+      this.write();
     };
 
     // Build a script and insert it into the DOM.
