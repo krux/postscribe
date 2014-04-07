@@ -46,10 +46,10 @@
     var stack = [];
 
     var unescapeHTMLEntities = function(html) {
-      return html.replace(/(&#\d{1,4};)/gm, function(match){
+      return typeof html == 'string' ? html.replace(/(&#\d{1,4};)/gm, function(match){
         var code = match.substring(2,match.length-1);
         return String.fromCharCode(code);
-      });
+      }) : html;
     };
 
     var append = function(str) {
