@@ -362,11 +362,11 @@
       tok.type = tok.attrs.type || tok.attrs.TYPE || 'text/css';
 
       // Put the style node in the DOM.
-      var _this = this;
       this.writeStyleToken(tok);
 
-      if(remainder)
+      if(remainder) {
         this.write();
+      }
     };
 
     // Build a style and insert it into the DOM.
@@ -377,10 +377,12 @@
 
       // Set content
       if(tok.content) {
-        if(el.styleSheet && !el.sheet)
+        if(el.styleSheet && !el.sheet) {
           el.styleSheet.cssText=tok.content;
-        else
+        }
+        else {
           el.appendChild(document.createTextNode(tok.content));
+        }
       }
     };
 
