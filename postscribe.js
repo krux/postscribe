@@ -381,7 +381,7 @@
           el.styleSheet.cssText=tok.content;
         }
         else {
-          el.appendChild(document.createTextNode(tok.content));
+          el.appendChild(this.doc.createTextNode(tok.content));
         }
       }
     };
