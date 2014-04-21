@@ -81,9 +81,12 @@
 
   // Test if token is a script tag.
   function isScript(tok) {
-    return (/^script$/i).test(tok.tagName);
+    return !tok || !('tagName' in tok) ? !1 : !!~tok.tagName.toLowerCase().indexOf('script');
   }
 
+  function isStyle(tok) {
+    return !tok || !('tagName' in tok) ? !1 : !!~tok.tagName.toLowerCase().indexOf('style');
+  }
   // # Class WriteStream
 
   // Stream static html to an element, where "static html" denotes "html without scripts".
@@ -186,17 +189,20 @@
     WriteStream.prototype.writeImpl = function(html) {
       this.parser.append(html);
 
-      var tok, tokens = [];
+      var tok, tokens = [], script, style;
 
       // stop if we see a script token
-      while((tok = this.parser.readToken()) && !isScript(tok)) {
+      while((tok = this.parser.readToken()) && !(script=isScript(tok)) && !(style=isStyle(tok))) {
         tokens.push(tok);
       }
 
       this.writeStaticTokens(tokens);
 
-      if(tok) {
+      if(script) {
         this.handleScriptToken(tok);
+      }
+      if(style){
+        this.handleStyleToken(tok);
       }
     };
 
@@ -256,7 +262,7 @@
             );
 
             // Don't proxy scripts: they have no bearing on DOM structure.
-            if(tok.attrs.id !== "ps-script") {
+            if(tok.attrs.id !== "ps-script" && tok.attrs.id !== "ps-style") {
               // Proxy: strip all attributes and inject proxyof attribute
               proxy.push(
                 // ignore atomic tags (e.g., style): they have no "structural" effect
@@ -341,6 +347,69 @@
         _this.onScriptDone(tok);
       });
 
+    };
+
+    // ### Style tokens
+
+    WriteStream.prototype.handleStyleToken = function(tok) {
+      var remainder = this.parser.clear();
+
+      if(remainder) {
+        // Write remainder immediately behind this style.
+        this.writeQueue.unshift(remainder);
+      }
+
+      tok.type = tok.attrs.type || tok.attrs.TYPE || 'text/css';
+
+      // Put the style node in the DOM.
+      this.writeStyleToken(tok);
+
+      if(remainder) {
+        this.write();
+      }
+    };
+
+    // Build a style and insert it into the DOM.
+    WriteStream.prototype.writeStyleToken = function(tok) {
+      var el = this.buildStyle(tok);
+
+      this.insertStyle(el);
+
+      // Set content
+      if(tok.content) {
+        if(el.styleSheet && !el.sheet) {
+          el.styleSheet.cssText=tok.content;
+        }
+        else {
+          el.appendChild(this.doc.createTextNode(tok.content));
+        }
+      }
+    };
+
+    // Build a style element from an atomic style token.
+    WriteStream.prototype.buildStyle = function(tok) {
+      var el = this.doc.createElement(tok.tagName);
+
+      el.setAttribute('type', tok.type);
+      // Set attributes
+      eachKey(tok.attrs, function(name, value) {
+        el.setAttribute(name, value);
+      });
+
+      return el;
+    };
+
+    // Insert style into DOM where it would naturally be written.
+    WriteStream.prototype.insertStyle = function(el) {
+      // Append a span to the stream. That span will act as a cursor
+      // (i.e. insertion point) for the style.
+      this.writeImpl('<span id="ps-style"/>');
+
+      // Grab that span from the DOM.
+      var cursor = this.doc.getElementById("ps-style");
+
+      // Replace cursor with style.
+      cursor.parentNode.replaceChild(el, cursor);
     };
 
     WriteStream.prototype.onScriptStart = function(tok) {
