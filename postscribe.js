@@ -525,8 +525,8 @@
         },
 
         onerror: function() {
-          error({ message: 'remote script failed ' + el.src });
           cleanup();
+          error({ message: 'remote script failed ' + el.src });
         }
       });
     };
