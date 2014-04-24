@@ -508,25 +508,36 @@
     WriteStream.prototype.scriptLoadHandler = function(el, done) {
       function cleanup() {
         el = el.onload = el.onreadystatechange = el.onerror = null;
-        done();
       }
 
       // Error handler
       var error = this.options.error;
 
+      function success() {
+        cleanup();
+        done();
+      }
+
+      function failure(err) {
+        cleanup();
+        error(err);
+        done();
+      }
+
       // Set handlers
       set(el, {
-        onload: function() { cleanup(); },
+        onload: function() {
+          success();
+        },
 
         onreadystatechange: function() {
           if(/^(loaded|complete)$/.test( el.readyState )) {
-            cleanup();
+            success();
           }
         },
 
         onerror: function() {
-          error({ message: 'remote script failed ' + el.src });
-          cleanup();
+          failure({ message: 'remote script failed ' + el.src });
         }
       });
     };
