@@ -19,49 +19,15 @@ module.exports = function(grunt) {
     },
 
     jshint: {
-      // Apply to all js files
-      options: {
-        curly: true,
-        eqeqeq: true,
-        expr: true,
-        forin: true,
-        indent: 2,
-        latedef: false,
-        newcap: true,
-        noarg: true,
-        noempty: true,
-        white: false,
-        // debatable
-        sub: true,
-        undef: true,
-        // Really. Leave it
-        unused: true
-      },
+      // Grr, plugin keeps trying to iterate this...
+      jshintrc: './.jshintrc',
       // Just for the 'node' src files
       node: {
-        src: ['Gruntfile.js', 'test/generate_expected.phantom.js'],
-        options: {
-          globals: {
-            console: false,
-            process: false,
-            module: true,
-            require: false,
-            __dirname: false,
-            exports: true
-          }
-        }
+        src: ['Gruntfile.js', 'test/generate_expected.phantom.js']
       },
       // Just for the 'browser' src files
       browser: {
-        src: ['postscribe.js'],
-        // Let's be very strict here
-        options: {
-          loopfunc: true,
-          expr: true,
-          evil: true,
-          // Reluctantly added
-          eqnull: true
-        }
+        src: ['postscribe.js']
       }
     },
     concat: {
