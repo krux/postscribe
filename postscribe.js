@@ -9,6 +9,12 @@
 
   var global = this;
 
+  var UNDEFINED = void 0;
+
+  function existy(thing) {
+    return thing !== UNDEFINED && thing !== null;
+  }
+
   if(global.postscribe) {
     return;
   }
@@ -26,7 +32,7 @@
 
   // Is this a function?
   function isFunction(x) {
-    return "function" === typeof x;
+    return 'function' === typeof x;
   }
 
   // Loop over each item in an array-like value.
@@ -59,7 +65,7 @@
   function defaults(options, _defaults) {
     options = options || {};
     eachKey(_defaults, function(key, val) {
-      if(options[key] == null) {
+      if(!existy(options[key])) {
         options[key] = val;
       }
     });
@@ -116,9 +122,9 @@
         var val = el.getAttribute(attr);
 
         // IE 8 returns a number if it's a number
-        return val == null ? val : String(val);
+        return !existy(val) ? val : String(val);
 
-      } else if( value != null && value !== '') {
+      } else if(existy(value) && value !== '') {
         // Set
         el.setAttribute(attr, value);
 
@@ -180,7 +186,7 @@
     };
 
     WriteStream.prototype.callFunction = function(fn) {
-      var tok = { type: "function", value: fn.name || fn.toString() };
+      var tok = { type: 'function', value: fn.name || fn.toString() };
       this.onScriptStart(tok);
       fn.call(this.win, this.doc);
       this.onScriptDone(tok);
@@ -262,7 +268,7 @@
             );
 
             // Don't proxy scripts: they have no bearing on DOM structure.
-            if(tok.attrs.id !== "ps-script" && tok.attrs.id !== "ps-style") {
+            if(tok.attrs.id !== 'ps-script' && tok.attrs.id !== 'ps-style') {
               // Proxy: strip all attributes and inject proxyof attribute
               proxy.push(
                 // ignore atomic tags (e.g., style): they have no "structural" effect
@@ -294,7 +300,7 @@
 
       // use shift/unshift so that children are walked in document order
 
-      while((node = stack.shift()) != null) {
+      while(existy(node = stack.shift())) {
 
         var isElement = node.nodeType === 1;
         var isProxy = isElement && data(node, 'proxyof');
@@ -406,7 +412,7 @@
       this.writeImpl('<span id="ps-style"/>');
 
       // Grab that span from the DOM.
-      var cursor = this.doc.getElementById("ps-style");
+      var cursor = this.doc.getElementById('ps-style');
 
       // Replace cursor with style.
       cursor.parentNode.replaceChild(el, cursor);
@@ -421,7 +427,7 @@
     WriteStream.prototype.onScriptDone = function(tok) {
       // Pop script and check nesting.
       if(tok !== this.scriptStack[0]) {
-        this.options.error({ message: "Bad script nesting or script finished twice" });
+        this.options.error({ message: 'Bad script nesting or script finished twice' });
         return;
       }
       this.scriptStack.shift();
@@ -492,7 +498,7 @@
       this.writeImpl('<span id="ps-script"/>');
 
       // Grab that span from the DOM.
-      var cursor = this.doc.getElementById("ps-script");
+      var cursor = this.doc.getElementById('ps-script');
 
       // Replace cursor with script.
       cursor.parentNode.replaceChild(el, cursor);
