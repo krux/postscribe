@@ -1,3 +1,5 @@
+/*jshint browser:true*/
+/*globals $:false,module,setOptions,testWrite,asyncTest,postscribe,ok,start,skip,supports,test,stop*/
 $(document).ready(function(){
 
   // style elements
@@ -381,13 +383,13 @@ $(document).ready(function(){
   module('Tag Soup');
   setOptions({});
 
-  testWrite("TS1", function(ctx) {
+  testWrite('TS1', function(ctx) {
     ctx.write('<div><i></div>');
     ctx.write('foo');
   });
 
 
-  testWrite("TS2", function(ctx) {
+  testWrite('TS2', function(ctx) {
     ctx.write('<div><i>');
     ctx.write('<div>foo');
     ctx.write('<div><i>');
@@ -406,13 +408,13 @@ $(document).ready(function(){
 
 
 
-  testWrite("TS5", function(ctx) {
+  testWrite('TS5', function(ctx) {
     ctx.write('<div><i></div>');
   });
 
 
 
-  testWrite("TS6", function(ctx) {
+  testWrite('TS6', function(ctx) {
     ctx.write('<div><i></div>');
     ctx.write('<div>foo<i>');
     ctx.write('</div>bar');
@@ -429,21 +431,21 @@ $(document).ready(function(){
     ctx.write('</i>');
   });
 
-  testWrite("TS9", function(ctx) {
+  testWrite('TS9', function(ctx) {
     ctx.write('<div><i></div>');
     ctx.write('foo');
     ctx.write('<div>');
     ctx.write('</i>');
   });
 
-  testWrite("TS10", function(ctx) {
+  testWrite('TS10', function(ctx) {
     ctx.write('<div><i></div>');
     ctx.write('foo');
     ctx.write('<div>bar');
     ctx.write('</i>');
   });
 
-  testWrite("TS11", function(ctx) {
+  testWrite('TS11', function(ctx) {
     ctx.write('<div><b><i></div>');
     ctx.write('foo');
     ctx.write('<div>bar<i>');
@@ -464,19 +466,21 @@ $(document).ready(function(){
   });
 
   testWrite('iframe with script content', function(ctx) {
+    //noinspection BadExpressionStatementJS
     ctx.writeInline('document.write("<iframe><script><\\/script></iframe>")');
   });
 
   testWrite('textarea with script content', function(ctx) {
+    //noinspection BadExpressionStatementJS
     ctx.writeInline('document.write("<textarea><script><\\/script></textarea>")');
   });
 
   test('naked remote write', function() {
     var div = document.createElement('div');
-    div.id = "naked-remote-write";
+    div.id = 'naked-remote-write';
     document.body.appendChild(div);
     stop();
-    postscribe('#naked-remote-write', "<script src='remote/write-div.js'></script>", function() {
+    postscribe('#naked-remote-write', '<script src="remote/write-div.js"></script>', function() {
       ok(true);
       start();
     });
@@ -490,15 +494,15 @@ $(document).ready(function(){
   if(window.supportsVbscript) {
     test('vbscript', function() {
       var div = document.createElement('div');
-      div.id = "vbscript-test";
+      div.id = 'vbscript-test';
       document.body.appendChild(div);
-      postscribe('#vbscript-test', "<script type='text/vbscript'>canWriteVbscriptTags = true</script>");
-      ok(window.canWriteVbscriptTags, "wrote vbscript tag");
+      postscribe('#vbscript-test', '<script type="text/vbscript">canWriteVbscriptTags = true</script>');
+      ok(window.canWriteVbscriptTags, 'wrote vbscript tag');
 
       stop();
-      postscribe('#vbscript-test', "<script type='text/vbscript' src='remote/set-global.vb'></script>", {
+      postscribe('#vbscript-test', '<script type="text/vbscript" src="remote/set-global.vb"></script>', {
         done: function() {
-          ok(window.remoteVbscriptGlobal, "wrote remote vbscript tag");
+          ok(window.remoteVbscriptGlobal, 'wrote remote vbscript tag');
           start();
         }
       });
@@ -506,7 +510,7 @@ $(document).ready(function(){
     });
   }
 
-  module("errors");
+  module('errors');
 
   function testError(name, html) {
     test(name, function() {
@@ -532,17 +536,18 @@ $(document).ready(function(){
 
   if(!$.browser.msie || $.browser.version > 8) {
     // Doesn't work in IE7/8
-    testError('syntax-error', "<script>va x</script>");
+    //noinspection JSUnresolvedVariable,JSUnresolvedVariable,BadExpressionStatementJS
+    testError('syntax-error', '<script>va x</script>');
 
-    testError('js exception', "<script>throw 1;</script>");
+    testError('js exception', '<script>throw 1;</script>');
   }
 
   if(!$.browser.msie) {
     // IE cannot report remote script errors
 
-    testError('remote script malformed url', "<script src='404'></script>");
+    testError('remote script malformed url', '<script src="404"></script>');
 
-    testError('remote script 404', "<script src='http://cdn.krxd.net/not_found'></script>");
+    testError('remote script 404', '<script src="http://cdn.krxd.net/not_found"></script>');
 
     // TODO: This doesn't work in phantomJS "generate_expected"
     //testError('remote script exception', "<script src='remote/error.js'></script>");
@@ -559,6 +564,7 @@ $(document).ready(function(){
   });
 
   testWrite('wma: split mid-attribute', function(ctx) {
+    //noinspection BadExpressionStatementJS
     ctx.write('<img a', 'lt="foo">');
     ctx.eq($('img', ctx.doc).attr('alt'));
   });
@@ -574,6 +580,7 @@ $(document).ready(function(){
   });
 
   testWrite('wma: docwrite outside parent of script', function(ctx) {
+    //noinspection BadExpressionStatementJS
     ctx.write('<div>A<script type="', 'text/javascript">\n',
         'doc', 'ument.write("B</div>C");\n</script>D');
   });
@@ -586,7 +593,7 @@ $(document).ready(function(){
     ctx.write('<div><b><i></i></b></div>', 'foo', '<div>bar<i>', '</i>bla');
   });
 
-  testWrite("wma: TS2", function(ctx) {
+  testWrite('wma: TS2', function(ctx) {
     ctx.write('<div><i>', '<div>foo', '<div><i>');
   });
 
@@ -628,10 +635,17 @@ $(document).ready(function(){
     ctx.writeln('<div><b><i></i></b></div>', 'foo', '<div>bar<i>', '</i>bla');
   });
 
-  testWrite("wlma: TS2", function(ctx) {
+  testWrite('wlma: TS2', function(ctx) {
     ctx.writeln('<div><i>', '<div>foo', '<div><i>');
   });
 
-
+  testWrite('Handles closed self-closing tags', function(ctx) {
+    ctx.writeln(
+      '<div id="first" style="background: red; padding: 5px">' +
+        '<embed></embed>' +
+        '<div id="second" style="background: yellow">Should be yellow in red box, right?</div>' +
+      '</div>'
+    );
+  });
 });
 

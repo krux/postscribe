@@ -2,7 +2,7 @@ framework: qunit
 
 test_page: test/test.html
 
-on_start: browserstack tunnel localhost:<port>
+#on_start: browserstack tunnel localhost:<port>
 
 launchers:
 

@@ -1,4 +1,4 @@
-/*globals module:false*/
+/*jshint node:true*/
 module.exports = function(grunt) {
 
   var pkg = grunt.file.readJSON('package.json');
@@ -27,7 +27,7 @@ module.exports = function(grunt) {
       },
       // Just for the 'browser' src files
       browser: {
-        src: ['postscribe.js']
+        src: ['postscribe.js', 'htmlParser/htmlParser.js', 'test/test.js']
       }
     },
     concat: {
