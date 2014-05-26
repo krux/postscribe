@@ -138,7 +138,7 @@ Try forking [this jsfiddle](http://jsfiddle.net/dbrans/Znpxv/). We've set everyt
 ## Testing
 Using [travis-ci](https://travis-ci.org) and [grunt](http://gruntjs.com), the [Qunit](http://qunitjs.com) unit tests are run on every commit using PhantomJS to run the tests with a real browser.
 
-Current Build Status: [![Build Status](https://secure.travis-ci.org/krux/postscribe.png)](http://travis-ci.org/krux/postscribe)
+Current Build Status: [![Build Status](//api.travis-ci.org/krux/postscribe.svg?branch=master)](https://travis-ci.org/krux/postscribe)
 
 To run the tests:
 
