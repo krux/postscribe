@@ -279,6 +279,10 @@ $(document).ready(function(){
     function(ctx) {
       ctx.writeRemote('remote/write-inline-script.js');
       ctx.write('<div id="local">Local</div>');
+    },
+    function(ctx) {
+      ctx.writeRemote('remote/nested-table.js');
+      ctx.write('<div id="local">Local</div>');
     }
   );
 
