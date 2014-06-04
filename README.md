@@ -23,7 +23,7 @@ For more information:
 
 PostScribe overrides document.write. It is best and safest to use PostScribe after DOM is ready.
 
-Include `./htmlParser/htmlParser.js` and `./postscribe.js` on your page. TODO: cdn for postscribe.min.js
+Include `./htmlParser/htmlParser.js` and `./postscribe.js` on your page.
 
 To append html to #mydiv:
 

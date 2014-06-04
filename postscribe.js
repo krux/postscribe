@@ -3,8 +3,6 @@
 //     postscribe is freely distributable under the MIT license.
 //     For all details and documentation:
 //     http://krux.github.io/postscribe
-
-
 (function() {
 
   var global = this;
@@ -615,7 +613,7 @@
       };
 
       // Write to the stream
-      active.write(html, function streamDone() {
+      active.write(options.beforeWrite, html, function streamDone() {
         // restore document.write
         set(doc, stash);
 
@@ -625,7 +623,7 @@
         options.done();
         active = null;
         nextStream();
-      });
+      }, options.afterWrite);
 
       return active;
     }
