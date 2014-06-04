@@ -1,6 +1,6 @@
 /*jshint browser:true*/
 /*globals $:false,module,setOptions,testWrite,asyncTest,postscribe,ok,start,skip,supports,test,stop*/
-$(document).ready(function(){
+$(document).ready(function() {
 
   // style elements
   // comments
@@ -54,7 +54,7 @@ $(document).ready(function(){
   testWrite('self closing', function(ctx) {
     ctx.write('<div class="foo"/>');
   });
-  
+
 
   // document.write (script) tests
   module('document.write');
@@ -150,6 +150,7 @@ $(document).ready(function(){
     ctx.write('<img src="http&#58;&#47;&#47;lorempixel.com&#47;400&#47;200&#47;sports&#47;" alt="image"/>');
   });
 
+
   module('document.write overwriting.');
   function readNativeDocumentMethodString(method) {
     // Cache cause this takes a long time.
@@ -229,6 +230,7 @@ $(document).ready(function(){
     all(function(val) {return ok(!val);});
   });
 
+
   module('multiple');
   testWrite('MULT1',
 
@@ -282,12 +284,10 @@ $(document).ready(function(){
     }
   );
 
-  // Test simple writing
 
+  // Test simple writing
   module('Self Closing');
   setOptions({});
-
-
 
 
   module('Simple writes');
@@ -307,12 +307,10 @@ $(document).ready(function(){
     ctx.write('>foo');
   });
 
-
   testWrite('SW2-b', function(ctx) {
     ctx.write('<div>foo');
     ctx.write('<div>bar');
   });
-
 
   testWrite('SW3', function(ctx) {
     ctx.write('<div><i>foo');
@@ -388,13 +386,11 @@ $(document).ready(function(){
     ctx.write('foo');
   });
 
-
   testWrite('TS2', function(ctx) {
     ctx.write('<div><i>');
     ctx.write('<div>foo');
     ctx.write('<div><i>');
   });
-
 
   testWrite('foo should be italicized', function(ctx) {
     ctx.write('<div><i>');
@@ -406,20 +402,15 @@ $(document).ready(function(){
     ctx.write('<div>foo');
   });
 
-
-
   testWrite('TS5', function(ctx) {
     ctx.write('<div><i></div>');
   });
-
-
 
   testWrite('TS6', function(ctx) {
     ctx.write('<div><i></div>');
     ctx.write('<div>foo<i>');
     ctx.write('</div>bar');
   });
-
 
   testWrite('character placeholders', function(ctx) {
     ctx.write('<div><div><i></div>');
@@ -510,6 +501,7 @@ $(document).ready(function(){
     });
   }
 
+
   module('errors');
 
   function testError(name, html) {
@@ -596,7 +588,6 @@ $(document).ready(function(){
   testWrite('wma: TS2', function(ctx) {
     ctx.write('<div><i>', '<div>foo', '<div><i>');
   });
-
 
 
   module('writeln with multiple arguments');
