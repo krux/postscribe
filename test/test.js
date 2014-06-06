@@ -1,6 +1,6 @@
 /*jshint browser:true*/
 /*globals $:false,module,setOptions,testWrite,asyncTest,postscribe,ok,start,skip,supports,test,stop*/
-$(document).ready(function(){
+$(document).ready(function() {
 
   // style elements
   // comments
@@ -150,6 +150,7 @@ $(document).ready(function(){
     ctx.write('<img src="http&#58;&#47;&#47;lorempixel.com&#47;400&#47;200&#47;sports&#47;" alt="image"/>');
   });
 
+  
   module('document.write overwriting.');
   function readNativeDocumentMethodString(method) {
     // Cache cause this takes a long time.
@@ -229,6 +230,7 @@ $(document).ready(function(){
     all(function(val) {return ok(!val);});
   });
 
+
   module('multiple');
   testWrite('MULT1',
 
@@ -263,7 +265,7 @@ $(document).ready(function(){
     function(ctx) {
       ctx.writeRemote('remote/write-remote-and-inline-script.js');
       ctx.write('<div id="local">Local</div>');
-    } ,
+    },
     function(ctx) {
       ctx.writeRemote('remote/write-inline-script.js');
       ctx.write('<div id="local">Local</div>');
@@ -282,8 +284,8 @@ $(document).ready(function(){
     }
   );
 
+ 
   // Test simple writing
-
   module('Self Closing');
   setOptions({});
 
@@ -302,7 +304,7 @@ $(document).ready(function(){
     );
   });
 
-
+  
   module('Simple writes');
   setOptions({});
 
@@ -320,12 +322,10 @@ $(document).ready(function(){
     ctx.write('>foo');
   });
 
-
   testWrite('SW2-b', function(ctx) {
     ctx.write('<div>foo');
     ctx.write('<div>bar');
   });
-
 
   testWrite('SW3', function(ctx) {
     ctx.write('<div><i>foo');
@@ -401,13 +401,11 @@ $(document).ready(function(){
     ctx.write('foo');
   });
 
-
   testWrite('TS2', function(ctx) {
     ctx.write('<div><i>');
     ctx.write('<div>foo');
     ctx.write('<div><i>');
   });
-
 
   testWrite('foo should be italicized', function(ctx) {
     ctx.write('<div><i>');
@@ -419,20 +417,15 @@ $(document).ready(function(){
     ctx.write('<div>foo');
   });
 
-
-
   testWrite('TS5', function(ctx) {
     ctx.write('<div><i></div>');
   });
-
-
 
   testWrite('TS6', function(ctx) {
     ctx.write('<div><i></div>');
     ctx.write('<div>foo<i>');
     ctx.write('</div>bar');
   });
-
 
   testWrite('character placeholders', function(ctx) {
     ctx.write('<div><div><i></div>');
@@ -497,7 +490,6 @@ $(document).ready(function(){
       ok(true);
       start();
     });
-
   });
 
 
@@ -611,7 +603,6 @@ $(document).ready(function(){
   });
 
 
-
   module('writeln with multiple arguments');
   setOptions({});
 
@@ -651,5 +642,23 @@ $(document).ready(function(){
   testWrite('wlma: TS2', function(ctx) {
     ctx.writeln('<div><i>', '<div>foo', '<div><i>');
   });
+
+
+  module('api');
+
+  var testCalled = function(desc, method) {
+    asyncTest(desc + ' ' + method, function() {
+      var options = {};
+      options[method] = function() {
+        ok(1);
+        start();
+      };
+      postscribe(document.body, '<script type="text/javascript" src="remote/set-global1.js"></script>', options);
+    });
+  };
+
+  testCalled('it calls', 'beforeEnqueue');
+  testCalled('it calls', 'afterDequeue');
+  testCalled('it calls', 'afterStreamStart');
 });
 

@@ -1,11 +1,34 @@
-//     postscribe.js 1.2.0
+//     postscribe.js 1.2.1
 //     (c) Copyright 2012 to the present, Krux
 //     postscribe is freely distributable under the MIT license.
 //     For all details and documentation:
 //     http://krux.github.io/postscribe
-
-
+/*globals htmlParser:false*/
 (function() {
+  // A function that intentionally does nothing.
+  function doNothing() {}
+
+  // Available options and defaults.
+  var OPTIONS = {
+    // Called when an async script has loaded.
+    afterAsync: doNothing,
+    // Called immediately before removing from the write queue.
+    afterDequeue: doNothing,
+    // Called sync after a stream's first thread release.
+    afterStreamStart: doNothing,
+    // Called after writing buffered document.write calls.
+    afterWrite: doNothing,
+    // Called immediately before adding to the write queue.
+    beforeEnqueue: doNothing,
+    // Called before writing buffered document.write calls.
+    beforeWrite: function(str) { return str; },
+    // Called when evaluation is finished.
+    done: doNothing,
+    // Called when a write results in an error.
+    error: function(e) { throw e; },
+    // Whether to let scripts w/ async attribute set fall out of the queue.
+    releaseAsync: false
+  };
 
   var global = this;
 
@@ -25,10 +48,6 @@
   // # Helper Functions
 
   var slice = Array.prototype.slice;
-
-  // A function that intentionally does nothing.
-  function doNothing() {}
-
 
   // Is this a function?
   function isFunction(x) {
@@ -85,6 +104,10 @@
     }
   }
 
+  var last = function(array) {
+    return array[array.length - 1];
+  };
+
   // Test if token is a script tag.
   function isScript(tok) {
     return !tok || !('tagName' in tok) ? !1 : !!~tok.tagName.toLowerCase().indexOf('script');
@@ -93,6 +116,7 @@
   function isStyle(tok) {
     return !tok || !('tagName' in tok) ? !1 : !!~tok.tagName.toLowerCase().indexOf('style');
   }
+
   // # Class WriteStream
 
   // Stream static html to an element, where "static html" denotes "html without scripts".
@@ -146,7 +170,7 @@
 
         doc: doc,
 
-        parser: global.htmlParser('', { autoFix: true }),
+        parser: htmlParser('', { autoFix: true }),
 
         // Actual elements by id.
         actuals: [root],
@@ -165,7 +189,6 @@
       data(this.proxyRoot, 'proxyof', 0);
 
     }
-
 
     WriteStream.prototype.write = function() {
       [].push.apply(this.writeQueue, arguments);
@@ -212,7 +235,6 @@
       }
     };
 
-
     // ## Contiguous non-script tokens (a chunk)
     WriteStream.prototype.writeStaticTokens = function(tokens) {
 
@@ -239,7 +261,6 @@
 
       return chunk;
     };
-
 
     WriteStream.prototype.buildChunk = function (tokens) {
       var nextId = this.actuals.length,
@@ -327,7 +348,6 @@
     };
 
     // ### Script tokens
-
     WriteStream.prototype.handleScriptToken = function(tok) {
       var remainder = this.parser.clear();
 
@@ -336,6 +356,7 @@
         this.writeQueue.unshift(remainder);
       }
 
+      //noinspection JSUnresolvedVariable
       tok.src = tok.attrs.src || tok.attrs.SRC;
 
       if(tok.src && this.scriptStack.length) {
@@ -356,7 +377,6 @@
     };
 
     // ### Style tokens
-
     WriteStream.prototype.handleStyleToken = function(tok) {
       var remainder = this.parser.clear();
 
@@ -383,6 +403,7 @@
 
       // Set content
       if(tok.content) {
+        //noinspection JSUnresolvedVariable
         if(el.styleSheet && !el.sheet) {
           el.styleSheet.cssText=tok.content;
         }
@@ -490,7 +511,6 @@
       return el;
     };
 
-
     // Insert script into DOM where it would naturally be written.
     WriteStream.prototype.insertScript = function(el) {
       // Append a span to the stream. That span will act as a cursor
@@ -503,7 +523,6 @@
       // Replace cursor with script.
       cursor.parentNode.replaceChild(el, cursor);
     };
-
 
     WriteStream.prototype.scriptLoadHandler = function(el, done) {
       function cleanup() {
@@ -551,10 +570,8 @@
 
   }());
 
-
-
   // Public-facing interface and queuing
-  var postscribe = (function() {
+  global.postscribe = (function() {
     var nextId = 0;
 
     var queue = [];
@@ -563,11 +580,14 @@
 
     function nextStream() {
       var args = queue.shift();
+      var options;
       if(args) {
+        options = last(args);
+        options.afterDequeue();
         args.stream = runStream.apply(null, args);
+        options.afterStreamStart();
       }
     }
-
 
     function runStream(el, html, options) {
       active = new WriteStream(el, options);
@@ -630,19 +650,11 @@
       return active;
     }
 
-
     function postscribe(el, html, options) {
       if(isFunction(options)) {
         options = { done: options };
       }
-      options = defaults(options, {
-        releaseAsync: false,
-        afterAsync: doNothing,
-        done: doNothing,
-        error: function(e) { throw e; },
-        beforeWrite: function(str) { return str; },
-        afterWrite: doNothing
-      });
+      options = defaults(options, OPTIONS);
 
       el =
         // id selector
@@ -664,7 +676,9 @@
         }
       };
 
+      options.beforeEnqueue(args);
       queue.push(args);
+
       if(!active) {
         nextStream();
       }
@@ -680,10 +694,5 @@
       // Expose internal classes.
       WriteStream: WriteStream
     });
-
   }());
-
-  // export postscribe
-  global.postscribe = postscribe;
-
 }());
