@@ -6,6 +6,10 @@
 
 
 (function() {
+  // A function that intentionally does nothing.
+  function doNothing() {}
+
+
   // Available options and defaults.
   var OPTIONS = {
     // Called when an async script has loaded.
@@ -46,10 +50,6 @@
   // # Helper Functions
 
   var slice = Array.prototype.slice;
-
-  // A function that intentionally does nothing.
-  function doNothing() {}
-
 
   // Is this a function?
   function isFunction(x) {
