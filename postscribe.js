@@ -1,14 +1,12 @@
-//     postscribe.js 1.2.0
+//     postscribe.js 1.2.1
 //     (c) Copyright 2012 to the present, Krux
 //     postscribe is freely distributable under the MIT license.
 //     For all details and documentation:
 //     http://krux.github.io/postscribe
-
-
+/*globals htmlParser:false*/
 (function() {
   // A function that intentionally does nothing.
   function doNothing() {}
-
 
   // Available options and defaults.
   var OPTIONS = {
@@ -118,6 +116,7 @@
   function isStyle(tok) {
     return !tok || !('tagName' in tok) ? !1 : !!~tok.tagName.toLowerCase().indexOf('style');
   }
+
   // # Class WriteStream
 
   // Stream static html to an element, where "static html" denotes "html without scripts".
@@ -171,7 +170,7 @@
 
         doc: doc,
 
-        parser: global.htmlParser('', { autoFix: true }),
+        parser: htmlParser('', { autoFix: true }),
 
         // Actual elements by id.
         actuals: [root],
@@ -190,7 +189,6 @@
       data(this.proxyRoot, 'proxyof', 0);
 
     }
-
 
     WriteStream.prototype.write = function() {
       [].push.apply(this.writeQueue, arguments);
@@ -237,7 +235,6 @@
       }
     };
 
-
     // ## Contiguous non-script tokens (a chunk)
     WriteStream.prototype.writeStaticTokens = function(tokens) {
 
@@ -264,7 +261,6 @@
 
       return chunk;
     };
-
 
     WriteStream.prototype.buildChunk = function (tokens) {
       var nextId = this.actuals.length,
@@ -352,7 +348,6 @@
     };
 
     // ### Script tokens
-
     WriteStream.prototype.handleScriptToken = function(tok) {
       var remainder = this.parser.clear();
 
@@ -361,6 +356,7 @@
         this.writeQueue.unshift(remainder);
       }
 
+      //noinspection JSUnresolvedVariable
       tok.src = tok.attrs.src || tok.attrs.SRC;
 
       if(tok.src && this.scriptStack.length) {
@@ -381,7 +377,6 @@
     };
 
     // ### Style tokens
-
     WriteStream.prototype.handleStyleToken = function(tok) {
       var remainder = this.parser.clear();
 
@@ -408,6 +403,7 @@
 
       // Set content
       if(tok.content) {
+        //noinspection JSUnresolvedVariable
         if(el.styleSheet && !el.sheet) {
           el.styleSheet.cssText=tok.content;
         }
@@ -477,7 +473,6 @@
       var el = this.buildScript(tok);
       var asyncRelease = this.shouldRelease(el);
       var afterAsync = this.options.afterAsync;
-      var afterRelease = this.options.afterRelease;
 
       if(tok.src) {
         // Fix for attribute "SRC" (capitalized). IE does not recognize it.
@@ -516,7 +511,6 @@
       return el;
     };
 
-
     // Insert script into DOM where it would naturally be written.
     WriteStream.prototype.insertScript = function(el) {
       // Append a span to the stream. That span will act as a cursor
@@ -529,7 +523,6 @@
       // Replace cursor with script.
       cursor.parentNode.replaceChild(el, cursor);
     };
-
 
     WriteStream.prototype.scriptLoadHandler = function(el, done) {
       function cleanup() {
@@ -577,10 +570,8 @@
 
   }());
 
-
-
   // Public-facing interface and queuing
-  var postscribe = (function() {
+  global.postscribe = (function() {
     var nextId = 0;
 
     var queue = [];
@@ -597,7 +588,6 @@
         options.afterStreamStart();
       }
     }
-
 
     function runStream(el, html, options) {
       active = new WriteStream(el, options);
@@ -660,7 +650,6 @@
       return active;
     }
 
-
     function postscribe(el, html, options) {
       if(isFunction(options)) {
         options = { done: options };
@@ -705,10 +694,5 @@
       // Expose internal classes.
       WriteStream: WriteStream
     });
-
   }());
-
-  // export postscribe
-  global.postscribe = postscribe;
-
 }());
