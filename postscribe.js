@@ -6,6 +6,27 @@
 
 
 (function() {
+  // Available options and defaults.
+  var OPTIONS = {
+    // Called when an async script has loaded.
+    afterAsync: doNothing,
+    // Called immediately before removing from the write queue.
+    afterDequeue: doNothing,
+    // Called sync after a stream's first thread release.
+    afterStreamStart: doNothing,
+    // Called after writing buffered document.write calls.
+    afterWrite: doNothing,
+    // Called immediately before adding to the write queue.
+    beforeEnqueue: doNothing,
+    // Called before writing buffered document.write calls.
+    beforeWrite: function(str) { return str; },
+    // Called when evaluation is finished.
+    done: doNothing,
+    // Called when a write results in an error.
+    error: function(e) { throw e; },
+    // Whether to let scripts w/ async attribute set fall out of the queue.
+    releaseAsync: false
+  };
 
   var global = this;
 
@@ -84,6 +105,10 @@
       return ret;
     }
   }
+
+  var last = function(array) {
+    return array[array.length - 1];
+  };
 
   // Test if token is a script tag.
   function isScript(tok) {
@@ -452,6 +477,7 @@
       var el = this.buildScript(tok);
       var asyncRelease = this.shouldRelease(el);
       var afterAsync = this.options.afterAsync;
+      var afterRelease = this.options.afterRelease;
 
       if(tok.src) {
         // Fix for attribute "SRC" (capitalized). IE does not recognize it.
@@ -563,8 +589,12 @@
 
     function nextStream() {
       var args = queue.shift();
+      var options;
       if(args) {
+        options = last(args);
+        options.afterDequeue();
         args.stream = runStream.apply(null, args);
+        options.afterStreamStart();
       }
     }
 
@@ -635,14 +665,7 @@
       if(isFunction(options)) {
         options = { done: options };
       }
-      options = defaults(options, {
-        releaseAsync: false,
-        afterAsync: doNothing,
-        done: doNothing,
-        error: function(e) { throw e; },
-        beforeWrite: function(str) { return str; },
-        afterWrite: doNothing
-      });
+      options = defaults(options, OPTIONS);
 
       el =
         // id selector
@@ -664,7 +687,9 @@
         }
       };
 
+      options.beforeEnqueue(args);
       queue.push(args);
+
       if(!active) {
         nextStream();
       }
