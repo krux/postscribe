@@ -150,6 +150,7 @@ $(document).ready(function() {
     ctx.write('<img src="http&#58;&#47;&#47;lorempixel.com&#47;400&#47;200&#47;sports&#47;" alt="image"/>');
   });
 
+  
   module('document.write overwriting.');
   function readNativeDocumentMethodString(method) {
     // Cache cause this takes a long time.
@@ -229,6 +230,7 @@ $(document).ready(function() {
     all(function(val) {return ok(!val);});
   });
 
+
   module('multiple');
   testWrite('MULT1',
 
@@ -263,7 +265,7 @@ $(document).ready(function() {
     function(ctx) {
       ctx.writeRemote('remote/write-remote-and-inline-script.js');
       ctx.write('<div id="local">Local</div>');
-    } ,
+    },
     function(ctx) {
       ctx.writeRemote('remote/write-inline-script.js');
       ctx.write('<div id="local">Local</div>');
@@ -282,14 +284,27 @@ $(document).ready(function() {
     }
   );
 
+ 
   // Test simple writing
-
   module('Self Closing');
   setOptions({});
 
+  testWrite('Handles closed self-closing tags that\'re closed.', function(ctx) {
+    ctx.writeln(
+      '<div id="first" style="background: red; padding: 5px">' +
+        '<embed></embed>' +
+        '<div id="second" style="background: yellow">Should be yellow in red box, right?</div>' +
+      '</div>'
+    );
+  });
 
+  testWrite('Handles closed self-closing tags that\'re closed w/ a slash.', function(ctx) {
+    ctx.writeln(
+      '<div><object><param name="allowFullScreen" value="true" /><param></param></object></div>'
+    );
+  });
 
-
+  
   module('Simple writes');
   setOptions({});
 
@@ -307,12 +322,10 @@ $(document).ready(function() {
     ctx.write('>foo');
   });
 
-
   testWrite('SW2-b', function(ctx) {
     ctx.write('<div>foo');
     ctx.write('<div>bar');
   });
-
 
   testWrite('SW3', function(ctx) {
     ctx.write('<div><i>foo');
@@ -388,13 +401,11 @@ $(document).ready(function() {
     ctx.write('foo');
   });
 
-
   testWrite('TS2', function(ctx) {
     ctx.write('<div><i>');
     ctx.write('<div>foo');
     ctx.write('<div><i>');
   });
-
 
   testWrite('foo should be italicized', function(ctx) {
     ctx.write('<div><i>');
@@ -406,20 +417,15 @@ $(document).ready(function() {
     ctx.write('<div>foo');
   });
 
-
-
   testWrite('TS5', function(ctx) {
     ctx.write('<div><i></div>');
   });
-
-
 
   testWrite('TS6', function(ctx) {
     ctx.write('<div><i></div>');
     ctx.write('<div>foo<i>');
     ctx.write('</div>bar');
   });
-
 
   testWrite('character placeholders', function(ctx) {
     ctx.write('<div><div><i></div>');
@@ -484,7 +490,6 @@ $(document).ready(function() {
       ok(true);
       start();
     });
-
   });
 
 
@@ -598,7 +603,6 @@ $(document).ready(function() {
   });
 
 
-
   module('writeln with multiple arguments');
   setOptions({});
 
@@ -637,15 +641,6 @@ $(document).ready(function() {
 
   testWrite('wlma: TS2', function(ctx) {
     ctx.writeln('<div><i>', '<div>foo', '<div><i>');
-  });
-
-  testWrite('Handles closed self-closing tags', function(ctx) {
-    ctx.writeln(
-      '<div id="first" style="background: red; padding: 5px">' +
-        '<embed></embed>' +
-        '<div id="second" style="background: yellow">Should be yellow in red box, right?</div>' +
-      '</div>'
-    );
   });
 
 
