@@ -70,6 +70,20 @@ Instead, remove the ad call and close the div
       });
     </script>
 
+There are some hooks you may pass as the third argument. For example:
+
+    <script type="text/javascript">
+      // jQuery used as an example of delaying until load.
+      $(function() {
+        postscribe('#ad', '<script src=doubleclick_url_with_params><\/script>', {
+          done: function() {
+            console.info('Dblclick script has been delivered.');
+          }
+        });
+      });
+    </script>
+
+See the beginning of [postscribe.js](./postscribe.js) for a complete list.
 
 # FAQ
 ##### Does it work with jQuery, Prototype, Backbone, Underscore, jQuery UI, YUI, mooTools, dojo, etc.?
@@ -155,6 +169,10 @@ We use jshint to do static analysis of the javascript and keep things smelling g
 
 # History
 Postscribe uses [software versioning standards](http://semver.org) as follows: major.new.maintenance[.trivial]. There are git tags for each release if you would like to see older versions.
+
+
+##### 1.3.0
+* Adds hooks around queuing and stream starting.
 
 ##### 1.2.0
 * Adds option to not overwrite doc.write while script[async] is loading.

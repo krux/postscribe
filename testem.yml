@@ -2,8 +2,6 @@ framework: qunit
 
 test_page: test/test.html
 
-#on_start: browserstack tunnel localhost:<port>
-
 launchers:
 
   bs_opera:
@@ -40,4 +38,4 @@ launchers:
 
 launch_in_ci: [PhantomJS, Firefox, bs_opera, bs_chrome, bs_safari_51, bs_safari_5, bs_ie_8, bs_ie_9, bs_ie_7]
 
-launch_in_dev: []
+launch_in_dev: [PhantomJS]
