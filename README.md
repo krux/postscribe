@@ -171,6 +171,9 @@ We use jshint to do static analysis of the javascript and keep things smelling g
 Postscribe uses [software versioning standards](http://semver.org) as follows: major.new.maintenance[.trivial]. There are git tags for each release if you would like to see older versions.
 
 
+##### 1.3.2
+* Screwed up the tagging. (automation coming soon...)
+
 ##### 1.3.0
 * Adds hooks around queuing and stream starting.
 

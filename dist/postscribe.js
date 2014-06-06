@@ -1,4 +1,4 @@
-/* Asynchronously write javascript, even with document.write., v1.3.0 https://krux.github.io/postscribe
+/* Asynchronously write javascript, even with document.write., v1.3.2 https://krux.github.io/postscribe
 Copyright (c) 2014 Derek Brans, MIT license https://github.com/krux/postscribe/blob/master/LICENSE */// An html parser written in JavaScript
 // Based on http://ejohn.org/blog/pure-javascript-html-parser/
 //TODO(#39)
@@ -363,7 +363,7 @@ Copyright (c) 2014 Derek Brans, MIT license https://github.com/krux/postscribe/b
   this.htmlParser = htmlParser;
 })();
 
-//     postscribe.js 1.2.1
+//     postscribe.js 1.3.2
 //     (c) Copyright 2012 to the present, Krux
 //     postscribe is freely distributable under the MIT license.
 //     For all details and documentation:
