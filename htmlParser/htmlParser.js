@@ -117,6 +117,12 @@
       },
 
       startTag: function() {
+
+        var endTagIndex = stream.indexOf('>');
+        if(endTagIndex === -1) {
+          return null; //avoid the match statement if there will be no match
+        }
+
         var match = stream.match( startTag );
 
         if ( match ) {
