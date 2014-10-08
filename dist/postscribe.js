@@ -118,6 +118,12 @@ Copyright (c) 2014 Derek Brans, MIT license https://github.com/krux/postscribe/b
       },
 
       startTag: function() {
+
+        var endTagIndex = stream.indexOf('>');
+        if(endTagIndex === -1) {
+          return null; //avoid the match statement if there will be no match
+        }
+
         var match = stream.match( startTag );
 
         if ( match ) {
