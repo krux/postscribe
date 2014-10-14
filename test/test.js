@@ -146,6 +146,16 @@ $(document).ready(function() {
     ctx.write('<SCRIPT TYPE="text/javascript" SRC="remote&#47;write-div.js"></SCRIPT>');
   });
 
+  // HTML Escaped Entities check issue #81 fix
+  testWrite('Escaped HTML Entity script entity name', function(ctx) {
+    ctx.write('<script type="text/javascript" src="remote/write-using-query-string.js?k=1&amp;k2=2"></script>');
+  });
+
+  // general html entity checking
+  testWrite('HTML entity text to write', function(ctx) {
+    ctx.write('<span><p>foo&amp;&#47;&#x00024;</p></span>');
+  });
+
   testWrite('Escaped HTML Entity remote image', function(ctx) {
     ctx.write('<img src="http&#58;&#47;&#47;lorempixel.com&#47;400&#47;200&#47;sports&#47;" alt="image"/>');
   });

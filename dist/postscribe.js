@@ -51,10 +51,14 @@ Copyright (c) 2014 Derek Brans, MIT license https://github.com/krux/postscribe/b
     var el = document.createElement('div');
 
     var unescapeHTMLEntities = function(html) {
-      el.innerHTML = html;
-
-      // i.e. and ff differ
-      return el.textContent || el.innerText || html;
+      if ( (typeof html === 'string') && (html.indexOf('&') !== -1) ) {
+        el.innerHTML = html;
+        // ie and ff differ
+        return el.textContent || el.innerText || html;
+      }
+      else {
+        return html;
+      }
     };
 
     var append = function(str) {
