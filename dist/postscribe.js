@@ -48,10 +48,11 @@ Copyright (c) 2014 Derek Brans, MIT license https://github.com/krux/postscribe/b
     var stack = [];
 
     var unescapeHTMLEntities = function(html) {
-      return typeof html === 'string' ? html.replace(/(&#\d{1,4};)/gm, function(match){
-        var code = match.substring(2,match.length-1);
-        return String.fromCharCode(code);
-      }) : html;
+      var el = document.createElement('div');
+      el.innerHTML = html;
+
+      // i.e. and ff differ
+      return el.textContent || el.innerText || html;
     };
 
     var append = function(str) {
