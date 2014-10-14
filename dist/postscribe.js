@@ -47,11 +47,18 @@ Copyright (c) 2014 Derek Brans, MIT license https://github.com/krux/postscribe/b
 
     var stack = [];
 
+    // Cache div element for unescaping html entities
+    var el = document.createElement('div');
+
     var unescapeHTMLEntities = function(html) {
-      return typeof html === 'string' ? html.replace(/(&#\d{1,4};)/gm, function(match){
-        var code = match.substring(2,match.length-1);
-        return String.fromCharCode(code);
-      }) : html;
+      if ( (typeof html === 'string') && (html.indexOf('&') !== -1) ) {
+        el.innerHTML = html;
+        // ie and ff differ
+        return el.textContent || el.innerText || html;
+      }
+      else {
+        return html;
+      }
     };
 
     var append = function(str) {
