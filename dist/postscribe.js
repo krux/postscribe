@@ -47,8 +47,10 @@ Copyright (c) 2014 Derek Brans, MIT license https://github.com/krux/postscribe/b
 
     var stack = [];
 
+    // Cache div element for unescaping html entities
+    var el = document.createElement('div');
+
     var unescapeHTMLEntities = function(html) {
-      var el = document.createElement('div');
       el.innerHTML = html;
 
       // i.e. and ff differ

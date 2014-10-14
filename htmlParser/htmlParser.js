@@ -46,8 +46,10 @@
 
     var stack = [];
 
+    // Cache div element for unescaping html entities
+    var el = document.createElement('div');
+
     var unescapeHTMLEntities = function(html) {
-      var el = document.createElement('div');
       el.innerHTML = html;
 
       // i.e. and ff differ
