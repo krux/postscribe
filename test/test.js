@@ -50,11 +50,11 @@ $(document).ready(function() {
     ctx.write('<input type="checkbox" checked>');
     ctx.eq($('input', ctx.doc).attr('checked'));
   });
-  
+
   testWrite('self closing', function(ctx) {
     ctx.write('<div class="foo"/>');
   });
-  
+
 
   // document.write (script) tests
   module('document.write');
@@ -160,7 +160,7 @@ $(document).ready(function() {
     ctx.write('<img src="http&#58;&#47;&#47;lorempixel.com&#47;400&#47;200&#47;sports&#47;" alt="image"/>');
   });
 
-  
+
   module('document.write overwriting.');
   function readNativeDocumentMethodString(method) {
     // Cache cause this takes a long time.
@@ -275,7 +275,7 @@ $(document).ready(function() {
     function(ctx) {
       ctx.writeRemote('remote/write-remote-and-inline-script.js');
       ctx.write('<div id="local">Local</div>');
-    },
+    } ,
     function(ctx) {
       ctx.writeRemote('remote/write-inline-script.js');
       ctx.write('<div id="local">Local</div>');
@@ -294,7 +294,7 @@ $(document).ready(function() {
     }
   );
 
- 
+
   // Test simple writing
   module('Self Closing');
   setOptions({});
@@ -314,7 +314,7 @@ $(document).ready(function() {
     );
   });
 
-  
+
   module('Simple writes');
   setOptions({});
 
@@ -525,6 +525,7 @@ $(document).ready(function() {
     });
   }
 
+
   module('errors');
 
   function testError(name, html) {
@@ -611,7 +612,6 @@ $(document).ready(function() {
   testWrite('wma: TS2', function(ctx) {
     ctx.write('<div><i>', '<div>foo', '<div><i>');
   });
-
 
   module('writeln with multiple arguments');
   setOptions({});

@@ -15,9 +15,6 @@ var GENERATE_EXPECTED = !window.expectedBehavior;
 
 var testOptions = {};
 
-var defaultOptions = {
-};
-
 var ignoreScripts = (function() {
   var div = document.createElement('div');
   var html = '<SCRIPT TYPE="text/javascript" SRC="remote/write-div.js"></SCRIPT>';
@@ -45,10 +42,8 @@ var innerHtml = function(el) {
 window.nativeBehavior = {};
 
 if(!window.console) {
-  window.console = {log: function(){}};
+  window.console = {log: function() {}};
 }
-// reverse the first two arguments of equal
-var qunitEqual = equal;
 
 var getDoc = function(iframe) {
   return iframe.contentWindow.document;
@@ -71,35 +66,35 @@ var IFrame = function(id) {
   ifr.doc = getDoc(ifr);
 
   // write a content div
-  ifr.doc.write('<html><body><h3>'+id+'</h3>');
+  ifr.doc.write('<html><body><h3>' + id + '</h3>');
 
   ifr.doc._write = ifr.doc.write;
   ifr.doc._writeln = ifr.doc.writeln;
 
   ifr.doc.write = function() {
     ifr.doc._write.apply(ifr.doc, [].slice.call(arguments));
-  }
+  };
 
   ifr.doc.writeln = function() {
     var args = [].slice.call(arguments);
     args.push('\n');
     ifr.doc.write.apply(ifr.doc, args);
-  }
+  };
 
   ifr.doc.writeInline = function(js) {
-    this.write('<script>'+js+'</script>');
+    this.write('<script>' + js + '</script>');
   };
 
   ifr.doc.writeRemote = function(url) {
-    this.write('<script src="'+url+'"></script>');
+    this.write('<script src="' + url + '"></script>');
   };
 
   ifr.doc.callbackId = 0;
   ifr.doc.writeCallback = function(fn, msg) {
     ifr.doc.callbackId++;
-    var cbName = 'cb_'+ifr.doc.callbackId;
+    var cbName = 'cb_' + ifr.doc.callbackId;
     ifr.contentWindow[cbName] = fn;
-    ifr.doc.write('<script class="test_helper">'+cbName+'();//'+msg+'</script>');
+    ifr.doc.write('<script class="test_helper">' + cbName + '();//' + msg + '</script>');
   };
 
   return ifr;
@@ -150,10 +145,9 @@ var PauseMonitor = function(done) {
 var execute = function(name, tags, options) {
   random.reset();
 
-  console.log('\n\ntest start '+name);
-  var tag, i;
+  console.log('\n\ntest start ' + name);
   for(var i = 0, tag; tag = tags[i]; i++) {
-    tag.id = 'tag'+i;
+    tag.id = 'tag' + i;
   }
 
   var ifr, mode, pauseMonitor;
@@ -162,7 +156,7 @@ var execute = function(name, tags, options) {
     common: function(tag) {
       var doc = getDoc(ifr);
 
-      var self = tag[mode+'Ctx'] = {
+      var self = tag[mode + 'Ctx'] = {
 
         tag: tag,
 
@@ -185,12 +179,12 @@ var execute = function(name, tags, options) {
         },
 
         onFinished: function() {
-          self.eq(innerHtml(self.div), tag.id+':Final InnerHtml');
-          console.log(tag.id+' finished');
+          self.eq(innerHtml(self.div), tag.id + ':Final InnerHtml');
+          console.log(tag.id + ' finished');
         },
 
         render: function renderTest() {
-          console.log(tag.id+' starting');
+          console.log(tag.id + ' starting');
           self.tag.render(self);
           self.pause();
           self.writeCallback(function() {
@@ -200,7 +194,7 @@ var execute = function(name, tags, options) {
         },
 
         compareInnerHtml: function() {
-          self.eqPrefix(innerHtml(self.div), tag.id+':'+[].slice.call(arguments).join(''));
+          self.eqPrefix(innerHtml(self.div), tag.id + ':' + [].slice.call(arguments).join(''));
         }
 
       };
@@ -258,7 +252,7 @@ var execute = function(name, tags, options) {
         }
 
         //TODO(dbrans): Add comment explaining why this is commented out.
-        //str = str.replace(/\.js/g, '.js?'+Math.random());
+        //str = str.replace(/\.js/g, '.js?' + Math.random());
 
         $.each(args, function(index, value) {
           self.written = self.written + value;
@@ -284,8 +278,7 @@ var execute = function(name, tags, options) {
       var expectCalls;
 
       if(expectedBehavior) {  //$.browser.msie || $.browser.mozilla && parseFloat($.browser.version) < 2 ) {
-        expectCalls = expectedBehavior['test '+name][tag.id].calls;
-
+        expectCalls = expectedBehavior['test ' + name][tag.id].calls;
       } else {
         expectCalls = [].slice.call(tag.nativeCtx.calls);
       }
@@ -311,7 +304,7 @@ var execute = function(name, tags, options) {
         if(!args) {
           args = ['args was null', 'args was null'];
         } else if (args[1] !== msg) {
-          msg = 'mismatch: 1:' + args[1] + ' 2:'+msg;
+          msg = 'mismatch: 1:' + args[1] + ' 2:' + msg;
         }
 
         if(args[0] !== val) {
@@ -334,7 +327,7 @@ var execute = function(name, tags, options) {
         if(!args) {
           args = ['args was null', 'args was null'];
         } else if (args[1] !== msg) {
-          msg = 'mismatch: 1:' + args[1] + ' 2:'+msg;
+          msg = 'mismatch: 1:' + args[1] + ' 2:' + msg;
         }
 
 
@@ -372,7 +365,7 @@ var execute = function(name, tags, options) {
 
       console.log('\ntest native');
 
-      ifr = IFrame('[EXPECTED]'+name);
+      ifr = IFrame('[EXPECTED]' + name);
 
       // render tags inline
       mode = 'native';
@@ -385,10 +378,10 @@ var execute = function(name, tags, options) {
 
       for(i = 0; tag = tags[i]; i++) {
 
-        ifr.doc._write('<div class=tag id='+tag.id+'>');
+        ifr.doc._write('<div class=tag id=' + tag.id + '>');
 
         // render inline
-        ifr.doc._write('<script class="test_helper">renderTag('+i+')</script>');
+        ifr.doc._write('<script class="test_helper">renderTag(' + i + ')</script>');
         ifr.doc._write('</div>');
       }
 
@@ -399,7 +392,7 @@ var execute = function(name, tags, options) {
       console.log('\nintermission');
 
       if(GENERATE_EXPECTED) {
-        var testBehavior = nativeBehavior['test '+name] = {};
+        var testBehavior = nativeBehavior['test ' + name] = {};
 
         // spit out native
         for(i = 0; tag = tags[i]; i++) {
@@ -415,14 +408,14 @@ var execute = function(name, tags, options) {
 
       console.log('\ntest writer');
 
-      ifr = IFrame('[ACTUAL]'+name);
+      ifr = IFrame('[ACTUAL]' + name);
 
       ifr.doc.write = function() {
         ok(false, ifr.doc.currentTag.id + ' - document.write outside: ' + [].slice.call(arguments).join(''));
       };
 
       for(i = 0; tag = tags[i]; i++) {
-        ifr.doc._write('<div class=tag id='+tag.id+'></div>');
+        ifr.doc._write('<div class=tag id=' + tag.id + '></div>');
       }
 
       // render at the bottom of the page.
@@ -444,10 +437,10 @@ var execute = function(name, tags, options) {
           var ctx = Context[mode](tag, ifr.doc);
           pauseMonitor.add(ctx);
           tag.ctx = ctx;
-          ctx.writer = postscribe(ctx.div, '<script class="test_helper">renderTag('+i+')</script>', {
+          ctx.writer = postscribe(ctx.div, '<script class="test_helper">renderTag(' + i + ')</script>', {
             name: tag.id,
             beforeWrite: function(str) {
-              return str;//.replace(/\.js/g, '.js?'+Math.random());
+              return str;
             },
             afterWrite: function(str) {
               ctx.written += str;
@@ -465,7 +458,7 @@ var execute = function(name, tags, options) {
 
     function finishedTest(done) {
       start();
-      console.log('test finished '+name);
+      console.log('test finished ' + name);
       done();
     }
   ];
@@ -507,7 +500,7 @@ var testWrite = function(name) {
   // TEST OPTIONS
   var options = testOptions;
 
-  test(name+(window.JSON ? JSON.stringify(options):''), function() {
+  test(name + (window.JSON ? JSON.stringify(options):''), function() {
     execute(name, tags, options);
 
     if(GENERATE_EXPECTED && window.JSON && JSON.stringify) {
