@@ -20,6 +20,8 @@
     afterWrite: doNothing,
     // Called immediately before adding to the write queue.
     beforeEnqueue: doNothing,
+    // Called before writing a token
+    beforeTokenWrite: function(tok) { return tok; },
     // Called before writing buffered document.write calls.
     beforeWrite: function(str) { return str; },
     // Called when evaluation is finished.
@@ -222,7 +224,11 @@
 
       // stop if we see a script token
       while((tok = this.parser.readToken()) && !(script=isScript(tok)) && !(style=isStyle(tok))) {
-        tokens.push(tok);
+        tok = this.options.beforeTokenWrite(tok);
+
+        if (tok) {
+          tokens.push(tok);
+        }
       }
 
       this.writeStaticTokens(tokens);
@@ -359,6 +365,13 @@
       //noinspection JSUnresolvedVariable
       tok.src = tok.attrs.src || tok.attrs.SRC;
 
+      tok = this.options.beforeTokenWrite(tok);
+
+      if(!tok) {
+        // User has removed this token
+        return;
+      }
+
       if(tok.src && this.scriptStack.length) {
         // Defer this script until scriptStack is empty.
         // Assumption 1: This script will not start executing until
@@ -387,8 +400,12 @@
 
       tok.type = tok.attrs.type || tok.attrs.TYPE || 'text/css';
 
-      // Put the style node in the DOM.
-      this.writeStyleToken(tok);
+      tok = this.options.beforeTokenWrite(tok);
+
+      if(tok) {
+        // Put the style node in the DOM.
+        this.writeStyleToken(tok);
+      }
 
       if(remainder) {
         this.write();
