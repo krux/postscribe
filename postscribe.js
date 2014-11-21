@@ -20,7 +20,7 @@
     afterWrite: doNothing,
     // Called immediately before adding to the write queue.
     beforeEnqueue: doNothing,
-    // Called before writing a token
+    // Called before writing a token.
     beforeTokenWrite: function(tok) { return tok; },
     // Called before writing buffered document.write calls.
     beforeWrite: function(str) { return str; },
@@ -282,7 +282,9 @@
 
       each(tokens, function(tok) {
 
-        raw.push(tok.text);
+        var tokenRaw = htmlParser.tokenToString(tok);
+
+        raw.push(tokenRaw);
 
         if(tok.attrs) { // tok.attrs <==> startTag or atomicTag or cursor
           // Ignore noscript tags. They are atomic, so we don't have to worry about children.
@@ -291,7 +293,7 @@
 
             // Actual: inject id attribute: replace '>' at end of start tag with id attribute + '>'
             actual.push(
-              tok.text.replace(/(\/?>)/, ' '+BASEATTR+'id='+id+' $1')
+              tokenRaw.replace(/(\/?>)/, ' '+BASEATTR+'id='+id+' $1')
             );
 
             // Don't proxy scripts: they have no bearing on DOM structure.
@@ -308,9 +310,9 @@
         } else {
           // Visit any other type of token
           // Actual: append.
-          actual.push(tok.text);
+          actual.push(tokenRaw);
           // Proxy: append endTags. Ignore everything else.
-          proxy.push(tok.type === 'endTag' ? tok.text : '');
+          proxy.push(tok.type === 'endTag' ? tokenRaw : '');
         }
       });
 
