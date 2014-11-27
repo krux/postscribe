@@ -364,8 +364,9 @@
             str += '="'+(val ? val.replace(/(^|[^\\])"/g, '$1\\\"') : '')+'"';
           }
         }
-        if (tok.rest)
+        if (tok.rest) {
           str += tok.rest;
+        }
         return str + (tok.unary && !tok.html5Unary ? '/>' : '>');
       },
       chars: function(tok) {

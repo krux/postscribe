@@ -657,7 +657,7 @@ $(document).ready(function() {
   module('token processing');
   setOptions({});
 
-  testBeforeTokenWriteCalled = function(name, html, type, expectedAmount) {
+  testBeforeWriteTokenCalled = function(name, html, type, expectedAmount) {
     test(name, function() {
       var amount = 0;
       var div = document.createElement('div');
@@ -665,7 +665,7 @@ $(document).ready(function() {
       document.body.appendChild(div);
       stop();
       postscribe(div, html, {
-        beforeTokenWrite: function(tok) {
+        beforeWriteToken: function(tok) {
           if (tok.tagName === type && tok.type !== 'endTag') {
             amount++;
           }
@@ -679,10 +679,10 @@ $(document).ready(function() {
     });
   };
 
-  testBeforeTokenWriteCalled('beforeTokenWrite is called for div', '<div>Test</div>', 'div', 1);
-  testBeforeTokenWriteCalled('beforeTokenWrite is called for script', '<script>document.write("A");</script>', 'script', 1);
-  testBeforeTokenWriteCalled('beforeTokenWrite is called for style', '<style>#test { }</style>', 'style', 1);
-  testBeforeTokenWriteCalled('beforeTokenWrite is called for nested scripts', '<script src="remote/write-inline-script.js"></script>', 'script', 2);
+  testBeforeWriteTokenCalled('beforeWriteToken is called for div', '<div>Test</div>', 'div', 1);
+  testBeforeWriteTokenCalled('beforeWriteToken is called for script', '<script>document.write("A");</script>', 'script', 1);
+  testBeforeWriteTokenCalled('beforeWriteToken is called for style', '<style>#test { }</style>', 'style', 1);
+  testBeforeWriteTokenCalled('beforeWriteToken is called for nested scripts', '<script src="remote/write-inline-script.js"></script>', 'script', 2);
 
   test('alter script src', function() {
     var div = document.createElement('div');
@@ -690,14 +690,14 @@ $(document).ready(function() {
     document.body.appendChild(div);
     stop();
     postscribe(div, '<script src="remote/write-inline-script.js"></script>', {
-      beforeTokenWrite: function(tok) {
+      beforeWriteToken: function(tok) {
         if (tok.tagName && tok.tagName === 'script') {
           tok.src = tok.src.replace('write-inline-script.js', 'write-div.js');
         }
         return tok;
       },
       done: function() {
-        ok(div.firstChild.src && div.firstChild.src.indexOf('write-div.js') > -1);
+        ok(div.firstChild.src.indexOf('write-div.js') > -1);
         start();
       }
     });
@@ -709,14 +709,14 @@ $(document).ready(function() {
     document.body.appendChild(div);
     stop();
     postscribe(div, '<img src="https://lorempixel.com/100/80/sports/" alt="">', {
-      beforeTokenWrite: function(tok) {
+      beforeWriteToken: function(tok) {
         if (tok.tagName && tok.tagName === 'img' && tok.attrs && tok.attrs.src) {
           tok.attrs.src = tok.attrs.src.replace('https://', 'http://');
         }
         return tok;
       },
       done: function() {
-        ok(div.firstChild.src && div.firstChild.src.indexOf('http://') === 0);
+        ok(div.firstChild.src.indexOf('http://') === 0);
         start();
       }
     });
@@ -733,7 +733,7 @@ $(document).ready(function() {
       '<script src="remote/write-remote-and-inline-script.js"></script>' +
       '<script src="http://domain2.com/example2.js"></script>', 
       {
-        beforeTokenWrite: function(tok) {
+        beforeWriteToken: function(tok) {
           if (tok.tagName && tok.tagName === 'script') {
             if (tok.src && tok.src.indexOf('http:') === 0) {
               return null;
@@ -761,7 +761,7 @@ $(document).ready(function() {
       '<style type="text/css">body { background-color: green; }</style>' +
       '<STYLE type="text/css">img { border: 1px solid red; }</STYLE>', 
       {
-        beforeTokenWrite: function(tok) {
+        beforeWriteToken: function(tok) {
           if (tok.tagName && tok.tagName.toLowerCase() === 'style') {
             return null;
           }
