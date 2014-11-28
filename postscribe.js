@@ -20,6 +20,8 @@
     afterWrite: doNothing,
     // Called immediately before adding to the write queue.
     beforeEnqueue: doNothing,
+    // Called before writing a token.
+    beforeWriteToken: function(tok) { return tok; },
     // Called before writing buffered document.write calls.
     beforeWrite: function(str) { return str; },
     // Called when evaluation is finished.
@@ -222,7 +224,11 @@
 
       // stop if we see a script token
       while((tok = this.parser.readToken()) && !(script=isScript(tok)) && !(style=isStyle(tok))) {
-        tokens.push(tok);
+        tok = this.options.beforeWriteToken(tok);
+
+        if (tok) {
+          tokens.push(tok);
+        }
       }
 
       this.writeStaticTokens(tokens);
@@ -276,7 +282,9 @@
 
       each(tokens, function(tok) {
 
-        raw.push(tok.text);
+        var tokenRaw = htmlParser.tokenToString(tok);
+
+        raw.push(tokenRaw);
 
         if(tok.attrs) { // tok.attrs <==> startTag or atomicTag or cursor
           // Ignore noscript tags. They are atomic, so we don't have to worry about children.
@@ -285,7 +293,7 @@
 
             // Actual: inject id attribute: replace '>' at end of start tag with id attribute + '>'
             actual.push(
-              tok.text.replace(/(\/?>)/, ' '+BASEATTR+'id='+id+' $1')
+              tokenRaw.replace(/(\/?>)/, ' '+BASEATTR+'id='+id+' $1')
             );
 
             // Don't proxy scripts: they have no bearing on DOM structure.
@@ -302,9 +310,9 @@
         } else {
           // Visit any other type of token
           // Actual: append.
-          actual.push(tok.text);
+          actual.push(tokenRaw);
           // Proxy: append endTags. Ignore everything else.
-          proxy.push(tok.type === 'endTag' ? tok.text : '');
+          proxy.push(tok.type === 'endTag' ? tokenRaw : '');
         }
       });
 
@@ -359,6 +367,13 @@
       //noinspection JSUnresolvedVariable
       tok.src = tok.attrs.src || tok.attrs.SRC;
 
+      tok = this.options.beforeWriteToken(tok);
+
+      if(!tok) {
+        // User has removed this token
+        return;
+      }
+
       if(tok.src && this.scriptStack.length) {
         // Defer this script until scriptStack is empty.
         // Assumption 1: This script will not start executing until
@@ -387,8 +402,12 @@
 
       tok.type = tok.attrs.type || tok.attrs.TYPE || 'text/css';
 
-      // Put the style node in the DOM.
-      this.writeStyleToken(tok);
+      tok = this.options.beforeWriteToken(tok);
+
+      if(tok) {
+        // Put the style node in the DOM.
+        this.writeStyleToken(tok);
+      }
 
       if(remainder) {
         this.write();

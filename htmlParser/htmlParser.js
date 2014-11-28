@@ -24,7 +24,7 @@
   // Regular Expressions for parsing tags and attributes
   var startTag = /^<([\-A-Za-z0-9_]+)((?:\s+[\w\-]+(?:\s*=?\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)>/;
   var endTag = /^<\/([\-A-Za-z0-9_]+)[^>]*>/;
-  var attr = /([\-A-Za-z0-9_]+)(?:\s*=\s*(?:(?:"((?:\\.|[^"])*)")|(?:'((?:\\.|[^'])*)')|([^>\s]+)))?/g;
+  var attr = /(?:([\-A-Za-z0-9_]+)\s*=\s*(?:(?:"((?:\\.|[^"])*)")|(?:'((?:\\.|[^'])*)')|([^>\s]+)))|(?:([\-A-Za-z0-9_]+)(\s|$)+)/g;
   var fillAttr = /^(checked|compact|declare|defer|disabled|ismap|multiple|nohref|noresize|noshade|nowrap|readonly|selected)$/i;
 
   var DEBUG = false;
@@ -134,17 +134,28 @@
 
         if ( match ) {
           var attrs = {};
+          var booleanAttrs = {};
+          var rest = match[2];
 
           match[2].replace(attr, function(match, name) {
-            var value = arguments[2] || arguments[3] || arguments[4] ||
-              fillAttr.test(name) && name || null;
-
-            attrs[name] = unescapeHTMLEntities(value);
+            if (!(arguments[2] || arguments[3] || arguments[4] || arguments[5])) {
+              attrs[name] = null;
+            } else if (arguments[5]) {
+              attrs[arguments[5]] = '';
+              booleanAttrs[name] = true;
+            } else {
+              var value = arguments[2] || arguments[3] || arguments[4] ||
+                fillAttr.test(name) && name || '';
+              attrs[name] = unescapeHTMLEntities(value);
+            }
+            rest = rest.replace(match, '');
           });
 
           return {
             tagName: match[1],
             attrs: attrs,
+            booleanAttrs: booleanAttrs,
+            rest: rest,
             unary: !!match[3],
             length: match[0].length
           };
@@ -237,6 +248,7 @@
           if(tok && tok.type === 'startTag') {
             // unary
             tok.unary = EMPTY.test(tok.tagName) || tok.unary;
+            tok.html5Unary = !/\/>$/.test(tok.text);
           }
           return tok;
         };
@@ -344,11 +356,18 @@
       startTag: function(tok) {
         var str = '<'+tok.tagName;
         for (var key in tok.attrs) {
+          str += ' '+key;
+          
           var val = tok.attrs[key];
-          // escape quotes
-          str += ' '+key+'="'+(val ? val.replace(/(^|[^\\])"/g, '$1\\\"') : '')+'"';
+          if (typeof tok.booleanAttrs[key] == 'undefined') {
+            // escape quotes
+            str += '="'+(val ? val.replace(/(^|[^\\])"/g, '$1\\\"') : '')+'"';
+          }
         }
-        return str + (tok.unary ? '/>' : '>');
+        if (tok.rest) {
+          str += tok.rest;
+        }
+        return str + (tok.unary && !tok.html5Unary ? '/>' : '>');
       },
       chars: function(tok) {
         return tok.text;
