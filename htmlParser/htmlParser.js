@@ -348,7 +348,7 @@
         return '</'+tok.tagName+'>';
       },
       atomicTag: function(tok) {
-        console.log(tok);
+        if(DEBUG) { console.log(tok); }
         return handler.startTag(tok) +
               tok.content +
               handler.endTag(tok);
@@ -359,7 +359,7 @@
           str += ' '+key;
           
           var val = tok.attrs[key];
-          if (typeof tok.booleanAttrs[key] == 'undefined') {
+          if (typeof tok.booleanAttrs == 'undefined' || typeof tok.booleanAttrs[key] == 'undefined') {
             // escape quotes
             str += '="'+(val ? val.replace(/(^|[^\\])"/g, '$1\\\"') : '')+'"';
           }
