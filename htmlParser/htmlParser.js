@@ -342,7 +342,7 @@
   htmlParser.tokenToString = function(tok) {
     var handler = {
       comment: function(tok) {
-        return '<--' + tok.content + '-->';
+        return '<!--' + tok.content;
       },
       endTag: function(tok) {
         return '</'+tok.tagName+'>';
