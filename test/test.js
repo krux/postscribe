@@ -148,7 +148,7 @@ $(document).ready(function() {
 
   // HTML Escaped Entities check issue #81 fix
   testWrite('Escaped HTML Entity script entity name', function(ctx) {
-    ctx.write('<script type="text/javascript" src="remote/write-using-query-string.js?k=1&amp;k2=2"></script>');
+    ctx.write('<script type="text/javascript" src="remote/write-using-query-string.js?k=1&k2=2"></script>');
   });
 
   // general html entity checking
