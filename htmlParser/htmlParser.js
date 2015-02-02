@@ -146,7 +146,7 @@
             } else {
               var value = arguments[2] || arguments[3] || arguments[4] ||
                 fillAttr.test(name) && name || '';
-              attrs[name] = unescapeHTMLEntities(value);
+              attrs[name] = (name == 'src' ? value : unescapeHTMLEntities(value));
             }
             rest = rest.replace(match, '');
           });
