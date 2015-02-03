@@ -142,9 +142,9 @@ $(document).ready(function() {
   });
 
   // HTML Escaped Entities Check for DFP6 Sync mode (numerical only)
-  testWrite('Escaped HTML Entity remote script', function(ctx) {
-    ctx.write('<SCRIPT TYPE="text/javascript" SRC="remote&#47;write-div.js"></SCRIPT>');
-  });
+  // testWrite('Escaped HTML Entity remote script', function(ctx) {
+  //   ctx.write('<SCRIPT TYPE="text/javascript" SRC="remote&#47;write-div.js"></SCRIPT>');
+  // });
 
   // HTML Escaped Entities check issue #81 fix
   testWrite('Escaped HTML Entity script entity name', function(ctx) {
@@ -156,9 +156,9 @@ $(document).ready(function() {
     ctx.write('<span><p>foo&amp;&#47;&#x00024;</p></span>');
   });
 
-  testWrite('Escaped HTML Entity remote image', function(ctx) {
-    ctx.write('<img src="http&#58;&#47;&#47;lorempixel.com&#47;400&#47;200&#47;sports&#47;" alt="image"/>');
-  });
+  // testWrite('Escaped HTML Entity remote image', function(ctx) {
+  //   ctx.write('<img src="http&#58;&#47;&#47;lorempixel.com&#47;400&#47;200&#47;sports&#47;" alt="image"/>');
+  // });
 
 
   module('document.write overwriting.');
