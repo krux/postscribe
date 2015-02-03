@@ -46,20 +46,6 @@
 
     var stack = [];
 
-    // Cache div element for unescaping html entities
-    var el = document.createElement('div');
-
-    var unescapeHTMLEntities = function(html) {
-      if ( (typeof html === 'string') && (html.indexOf('&') !== -1) ) {
-        el.innerHTML = html;
-        // ie and ff differ
-        return el.textContent || el.innerText || html;
-      }
-      else {
-        return html;
-      }
-    };
-
     var append = function(str) {
       stream += str;
     };
@@ -146,7 +132,7 @@
             } else {
               var value = arguments[2] || arguments[3] || arguments[4] ||
                 fillAttr.test(name) && name || '';
-              attrs[name] = (name == 'src' ? value : unescapeHTMLEntities(value));
+              attrs[name] = value;
             }
             rest = rest.replace(match, '');
           });
