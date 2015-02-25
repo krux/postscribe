@@ -82,11 +82,15 @@
     var reader = {
 
       comment: function() {
-        var index = stream.indexOf('-->');
+        var endNeedle = '-->';
+        var index = stream.indexOf(endNeedle);
+        var startIndex = String('<!--').length;
+        var endIndex = index + endNeedle.length;
+        
         if ( index >= 0 ) {
           return {
-            content: stream.substr(4, index),
-            length: index + 3
+            content: stream.substring(startIndex, endIndex),
+            length: endIndex
           };
         }
       },
