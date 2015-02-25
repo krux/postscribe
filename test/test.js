@@ -160,6 +160,18 @@ $(document).ready(function() {
     ctx.write('<img src="http&#58;&#47;&#47;lorempixel.com&#47;400&#47;200&#47;sports&#47;" alt="image"/>');
   });
 
+  testWrite('Regular HTML comments', function(ctx) {
+    ctx.write('<!-- Foo --> Hello <!-- Bar --> World!');
+  });
+
+  testWrite('No duplicated character after conditional comment', function(ctx) {
+    ctx.write('You are using Internet Explorer...<!--[if !IE]><!-->NOT!<!--<![endif]-->J');
+  });
+
+  testWrite('No duplicated character after conditional comment inside a script tag', function(ctx) {
+    ctx.write('<script>document.write("Foo <!--[if !IE]><!-->Bar<!--<![endif]-->!");</script>');
+  });
+
 
   module('document.write overwriting.');
   function readNativeDocumentMethodString(method) {
