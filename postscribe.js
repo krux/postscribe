@@ -199,7 +199,7 @@
       // because new writeQueue gets pushed
       var arg;
       while(!this.deferredRemote &&
-            this.writeQueue.length) {
+      this.writeQueue.length) {
         arg = this.writeQueue.shift();
 
         if(isFunction(arg)) {
@@ -271,14 +271,14 @@
     WriteStream.prototype.buildChunk = function (tokens) {
       var nextId = this.actuals.length,
 
-          // The raw html of this chunk.
-          raw = [],
+      // The raw html of this chunk.
+        raw = [],
 
-          // The html to create the nodes in the tokens (with id's injected).
-          actual = [],
+      // The html to create the nodes in the tokens (with id's injected).
+        actual = [],
 
-          // Html that can later be used to proxy the nodes in the tokens.
-          proxy = [];
+      // Html that can later be used to proxy the nodes in the tokens.
+        proxy = [];
 
       each(tokens, function(tok) {
 
@@ -302,7 +302,7 @@
               proxy.push(
                 // ignore atomic tags (e.g., style): they have no "structural" effect
                 tok.type === 'atomicTag' ? '' :
-                  '<'+tok.tagName+' '+BASEATTR+'proxyof='+id+(tok.unary ? ' />' : '>')
+                '<'+tok.tagName+' '+BASEATTR+'proxyof='+id+(tok.unary ? ' />' : '>')
               );
             }
           }
@@ -590,7 +590,7 @@
   }());
 
   // Public-facing interface and queuing
-  global.postscribe = (function() {
+  global.Postscribe = function() {
     var nextId = 0;
 
     var queue = [];
@@ -678,8 +678,8 @@
       el =
         // id selector
         (/^#/).test(el) ? global.document.getElementById(el.substr(1)) :
-        // jquery object. TODO: loop over all elements.
-        el.jquery ? el[0] : el;
+          // jquery object. TODO: loop over all elements.
+          el.jquery ? el[0] : el;
 
 
       var args = [el, html, options];
@@ -713,5 +713,9 @@
       // Expose internal classes.
       WriteStream: WriteStream
     });
-  }());
+  };
+
+  // Create a postscribe object to avoid breaking stuff
+  global.postscribe = new Postscribe();
+
 }());
