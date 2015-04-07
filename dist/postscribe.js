@@ -1,5 +1,5 @@
 /* Asynchronously write javascript, even with document.write., v1.3.2 https://krux.github.io/postscribe
-Copyright (c) 2014 Derek Brans, MIT license https://github.com/krux/postscribe/blob/master/LICENSE */// An html parser written in JavaScript
+Copyright (c) 2015 Derek Brans, MIT license https://github.com/krux/postscribe/blob/master/LICENSE */// An html parser written in JavaScript
 // Based on http://ejohn.org/blog/pure-javascript-html-parser/
 //TODO(#39)
 /*globals console:false*/
@@ -25,7 +25,7 @@ Copyright (c) 2014 Derek Brans, MIT license https://github.com/krux/postscribe/b
   // Regular Expressions for parsing tags and attributes
   var startTag = /^<([\-A-Za-z0-9_]+)((?:\s+[\w\-]+(?:\s*=?\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)>/;
   var endTag = /^<\/([\-A-Za-z0-9_]+)[^>]*>/;
-  var attr = /([\-A-Za-z0-9_]+)(?:\s*=\s*(?:(?:"((?:\\.|[^"])*)")|(?:'((?:\\.|[^'])*)')|([^>\s]+)))?/g;
+  var attr = /(?:([\-A-Za-z0-9_]+)\s*=\s*(?:(?:"((?:\\.|[^"])*)")|(?:'((?:\\.|[^'])*)')|([^>\s]+)))|(?:([\-A-Za-z0-9_]+)(\s|$)+)/g;
   var fillAttr = /^(checked|compact|declare|defer|disabled|ismap|multiple|nohref|noresize|noshade|nowrap|readonly|selected)$/i;
 
   var DEBUG = false;
@@ -135,17 +135,28 @@ Copyright (c) 2014 Derek Brans, MIT license https://github.com/krux/postscribe/b
 
         if ( match ) {
           var attrs = {};
+          var booleanAttrs = {};
+          var rest = match[2];
 
           match[2].replace(attr, function(match, name) {
-            var value = arguments[2] || arguments[3] || arguments[4] ||
-              fillAttr.test(name) && name || null;
-
-            attrs[name] = unescapeHTMLEntities(value);
+            if (!(arguments[2] || arguments[3] || arguments[4] || arguments[5])) {
+              attrs[name] = null;
+            } else if (arguments[5]) {
+              attrs[arguments[5]] = '';
+              booleanAttrs[name] = true;
+            } else {
+              var value = arguments[2] || arguments[3] || arguments[4] ||
+                fillAttr.test(name) && name || '';
+              attrs[name] = unescapeHTMLEntities(value);
+            }
+            rest = rest.replace(match, '');
           });
 
           return {
             tagName: match[1],
             attrs: attrs,
+            booleanAttrs: booleanAttrs,
+            rest: rest,
             unary: !!match[3],
             length: match[0].length
           };
@@ -238,6 +249,7 @@ Copyright (c) 2014 Derek Brans, MIT license https://github.com/krux/postscribe/b
           if(tok && tok.type === 'startTag') {
             // unary
             tok.unary = EMPTY.test(tok.tagName) || tok.unary;
+            tok.html5Unary = !/\/>$/.test(tok.text);
           }
           return tok;
         };
@@ -331,13 +343,13 @@ Copyright (c) 2014 Derek Brans, MIT license https://github.com/krux/postscribe/b
   htmlParser.tokenToString = function(tok) {
     var handler = {
       comment: function(tok) {
-        return '<--' + tok.content + '-->';
+        return '<!--' + tok.content;
       },
       endTag: function(tok) {
         return '</'+tok.tagName+'>';
       },
       atomicTag: function(tok) {
-        console.log(tok);
+        if(DEBUG) { console.log(tok); }
         return handler.startTag(tok) +
               tok.content +
               handler.endTag(tok);
@@ -345,11 +357,18 @@ Copyright (c) 2014 Derek Brans, MIT license https://github.com/krux/postscribe/b
       startTag: function(tok) {
         var str = '<'+tok.tagName;
         for (var key in tok.attrs) {
+          str += ' '+key;
+          
           var val = tok.attrs[key];
-          // escape quotes
-          str += ' '+key+'="'+(val ? val.replace(/(^|[^\\])"/g, '$1\\\"') : '')+'"';
+          if (typeof tok.booleanAttrs == 'undefined' || typeof tok.booleanAttrs[key] == 'undefined') {
+            // escape quotes
+            str += '="'+(val ? val.replace(/(^|[^\\])"/g, '$1\\\"') : '')+'"';
+          }
         }
-        return str + (tok.unary ? '/>' : '>');
+        if (tok.rest) {
+          str += tok.rest;
+        }
+        return str + (tok.unary && !tok.html5Unary ? '/>' : '>');
       },
       chars: function(tok) {
         return tok.text;
@@ -398,6 +417,8 @@ Copyright (c) 2014 Derek Brans, MIT license https://github.com/krux/postscribe/b
     afterWrite: doNothing,
     // Called immediately before adding to the write queue.
     beforeEnqueue: doNothing,
+    // Called before writing a token.
+    beforeWriteToken: function(tok) { return tok; },
     // Called before writing buffered document.write calls.
     beforeWrite: function(str) { return str; },
     // Called when evaluation is finished.
@@ -575,7 +596,7 @@ Copyright (c) 2014 Derek Brans, MIT license https://github.com/krux/postscribe/b
       // because new writeQueue gets pushed
       var arg;
       while(!this.deferredRemote &&
-            this.writeQueue.length) {
+      this.writeQueue.length) {
         arg = this.writeQueue.shift();
 
         if(isFunction(arg)) {
@@ -600,7 +621,11 @@ Copyright (c) 2014 Derek Brans, MIT license https://github.com/krux/postscribe/b
 
       // stop if we see a script token
       while((tok = this.parser.readToken()) && !(script=isScript(tok)) && !(style=isStyle(tok))) {
-        tokens.push(tok);
+        tok = this.options.beforeWriteToken(tok);
+
+        if (tok) {
+          tokens.push(tok);
+        }
       }
 
       this.writeStaticTokens(tokens);
@@ -643,18 +668,20 @@ Copyright (c) 2014 Derek Brans, MIT license https://github.com/krux/postscribe/b
     WriteStream.prototype.buildChunk = function (tokens) {
       var nextId = this.actuals.length,
 
-          // The raw html of this chunk.
-          raw = [],
+      // The raw html of this chunk.
+        raw = [],
 
-          // The html to create the nodes in the tokens (with id's injected).
-          actual = [],
+      // The html to create the nodes in the tokens (with id's injected).
+        actual = [],
 
-          // Html that can later be used to proxy the nodes in the tokens.
-          proxy = [];
+      // Html that can later be used to proxy the nodes in the tokens.
+        proxy = [];
 
       each(tokens, function(tok) {
 
-        raw.push(tok.text);
+        var tokenRaw = htmlParser.tokenToString(tok);
+
+        raw.push(tokenRaw);
 
         if(tok.attrs) { // tok.attrs <==> startTag or atomicTag or cursor
           // Ignore noscript tags. They are atomic, so we don't have to worry about children.
@@ -663,7 +690,7 @@ Copyright (c) 2014 Derek Brans, MIT license https://github.com/krux/postscribe/b
 
             // Actual: inject id attribute: replace '>' at end of start tag with id attribute + '>'
             actual.push(
-              tok.text.replace(/(\/?>)/, ' '+BASEATTR+'id='+id+' $1')
+              tokenRaw.replace(/(\/?>)/, ' '+BASEATTR+'id='+id+' $1')
             );
 
             // Don't proxy scripts: they have no bearing on DOM structure.
@@ -672,7 +699,7 @@ Copyright (c) 2014 Derek Brans, MIT license https://github.com/krux/postscribe/b
               proxy.push(
                 // ignore atomic tags (e.g., style): they have no "structural" effect
                 tok.type === 'atomicTag' ? '' :
-                  '<'+tok.tagName+' '+BASEATTR+'proxyof='+id+(tok.unary ? ' />' : '>')
+                '<'+tok.tagName+' '+BASEATTR+'proxyof='+id+(tok.unary ? ' />' : '>')
               );
             }
           }
@@ -680,9 +707,9 @@ Copyright (c) 2014 Derek Brans, MIT license https://github.com/krux/postscribe/b
         } else {
           // Visit any other type of token
           // Actual: append.
-          actual.push(tok.text);
+          actual.push(tokenRaw);
           // Proxy: append endTags. Ignore everything else.
-          proxy.push(tok.type === 'endTag' ? tok.text : '');
+          proxy.push(tok.type === 'endTag' ? tokenRaw : '');
         }
       });
 
@@ -737,6 +764,13 @@ Copyright (c) 2014 Derek Brans, MIT license https://github.com/krux/postscribe/b
       //noinspection JSUnresolvedVariable
       tok.src = tok.attrs.src || tok.attrs.SRC;
 
+      tok = this.options.beforeWriteToken(tok);
+
+      if(!tok) {
+        // User has removed this token
+        return;
+      }
+
       if(tok.src && this.scriptStack.length) {
         // Defer this script until scriptStack is empty.
         // Assumption 1: This script will not start executing until
@@ -765,8 +799,12 @@ Copyright (c) 2014 Derek Brans, MIT license https://github.com/krux/postscribe/b
 
       tok.type = tok.attrs.type || tok.attrs.TYPE || 'text/css';
 
-      // Put the style node in the DOM.
-      this.writeStyleToken(tok);
+      tok = this.options.beforeWriteToken(tok);
+
+      if(tok) {
+        // Put the style node in the DOM.
+        this.writeStyleToken(tok);
+      }
 
       if(remainder) {
         this.write();
@@ -949,7 +987,7 @@ Copyright (c) 2014 Derek Brans, MIT license https://github.com/krux/postscribe/b
   }());
 
   // Public-facing interface and queuing
-  global.postscribe = (function() {
+  global.Postscribe = function() {
     var nextId = 0;
 
     var queue = [];
@@ -1037,8 +1075,8 @@ Copyright (c) 2014 Derek Brans, MIT license https://github.com/krux/postscribe/b
       el =
         // id selector
         (/^#/).test(el) ? global.document.getElementById(el.substr(1)) :
-        // jquery object. TODO: loop over all elements.
-        el.jquery ? el[0] : el;
+          // jquery object. TODO: loop over all elements.
+          el.jquery ? el[0] : el;
 
 
       var args = [el, html, options];
@@ -1072,5 +1110,9 @@ Copyright (c) 2014 Derek Brans, MIT license https://github.com/krux/postscribe/b
       // Expose internal classes.
       WriteStream: WriteStream
     });
-  }());
+  };
+
+  // Create a postscribe object to avoid breaking stuff
+  global.postscribe = new Postscribe();
+
 }());

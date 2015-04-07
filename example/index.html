@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+  <title>Postscribes</title>
+</head>
+<body>
+
+<div class="page-header">
+  <h1 class="text-center">
+    Multi-instance Postscribe.js
+  </h1>
+</div>
+
+<div class="row">
+  <div class="col-md-offset-1 col-md-3">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Postscribe 1</h3>
+      </div>
+      <div class="panel-body">
+        <div id="p1"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Postscribe 2</h3>
+      </div>
+      <div class="panel-body">
+        <div id="p2"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Postscribe 3</h3>
+      </div>
+      <div class="panel-body">
+        <div id="p3"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<hr>
+
+
+<script type="application/javascript" src="../dist/postscribe.min.js"></script>
+<script type="application/javascript" src="../htmlParser/htmlParser.js"></script>
+
+<script>
+
+  window.onload = init;
+
+  function init() {
+
+    // Regression test for the old postscribe calls
+
+    postscribe('#p3', '<pre>P3.1</pre>', {
+      done: function () {
+        console.log('P3 1');
+      }
+    });
+
+    postscribe('#p3', '<scr' + "ipt type='application/javascript' src='https://www.thisurldoesnotexists.forsure'></scri" + "pt>" , {
+      error: function () {
+        console.log('P3: www.thisurldoesnotexists.forsure');
+      }
+    });
+
+    postscribe('#p3', '<pre>P3.2</pre>', {
+      done: function () {
+        console.log('P3 2');
+      }
+    });
+
+    // create two different instances of Postscribe
+    var post1 = new Postscribe();
+    var post2 = new Postscribe();
+
+    post1('#p1', '<scr' + "ipt type='application/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.js'></scri" + "pt>" , {
+      done: function () {
+        console.log('P1 jQuery');
+      }
+    });
+
+    post1('#p1', '<scr' + "ipt type='application/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/6to5/3.6.5/browser.js'></scri" + "pt>" , {
+      done: function () {
+        console.log('P1 Browser');
+      }
+    });
+
+    post1('#p1', '<scr' + "ipt type='application/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js'></scri" + "pt>" , {
+      done: function () {
+        console.log('P1 Browser');
+      }
+    });
+
+    post1('#p1', '<pre>P1.1</pre>', {
+      done: function () {
+        console.log('P1 1');
+      }
+    });
+
+    post2('#p2', '<pre>P2.2</pre>', {
+      done: function () {
+        console.log('P2 1');
+      }
+    });
+
+    post1('#p1', '<pre>P1.2</pre>', {
+      done: function () {
+        console.log('P1 2');
+      }
+    });
+
+  }
+</script>
+
+
+</body>
+</html>
