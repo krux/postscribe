@@ -589,8 +589,8 @@
 
   }());
 
-  // Public-facing interface and queuing
-  global.postscribe = (function() {
+  // Public-facing constructor
+  global.Postscribe = function() {
     var nextId = 0;
 
     var queue = [];
@@ -713,5 +713,9 @@
       // Expose internal classes.
       WriteStream: WriteStream
     });
-  }());
+  };
+
+  // Public-facing interface and queuing
+  global.postscribe = new Postscribe();
+
 }());
