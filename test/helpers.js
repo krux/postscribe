@@ -238,19 +238,6 @@ var execute = function(name, tags, options) {
         var args = [].slice.call(arguments);
         console.log('native docwrite', args);
 
-        if(parser) {
-          $.each(args, function(index, value) {
-            parser.append(value);
-          });
-          args = (function() {
-            var str = '';
-            for(var tok; tok = parser.readToken();) {
-              str += tok.text;
-            }
-            return [str];
-          })();
-        }
-
         //TODO(dbrans): Add comment explaining why this is commented out.
         //str = str.replace(/\.js/g, '.js?' + Math.random());
 
