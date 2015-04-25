@@ -18,6 +18,8 @@
     afterStreamStart: doNothing,
     // Called after writing buffered document.write calls.
     afterWrite: doNothing,
+    // Allows disabling the autoFix feature of htmlParser
+    autoFix: true,
     // Called immediately before adding to the write queue.
     beforeEnqueue: doNothing,
     // Called before writing a token.
@@ -172,7 +174,7 @@
 
         doc: doc,
 
-        parser: htmlParser('', { autoFix: true }),
+        parser: htmlParser('', { autoFix: OPTIONS.autoFix }),
 
         // Actual elements by id.
         actuals: [root],
