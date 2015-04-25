@@ -1,5 +1,5 @@
-//     postscribe.js 1.3.2
-//     (c) Copyright 2012 to the present, Krux
+//     postscribe.js 1.4.0
+//     (c) Copyright 2012-2015 to the present, Krux
 //     postscribe is freely distributable under the MIT license.
 //     For all details and documentation:
 //     http://krux.github.io/postscribe
@@ -174,7 +174,7 @@
 
         doc: doc,
 
-        parser: htmlParser('', { autoFix: OPTIONS.autoFix }),
+        parser: htmlParser('', { autoFix: options.autoFix }),
 
         // Actual elements by id.
         actuals: [root],

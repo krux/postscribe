@@ -170,6 +170,12 @@ We use jshint to do static analysis of the javascript and keep things smelling g
 # History
 Postscribe uses [software versioning standards](http://semver.org) as follows: major.new.maintenance[.trivial]. There are git tags for each release if you would like to see older versions.
 
+##### 1.4.0
+* Fix incomplete tags blocking UI thread
+* beforeWriteToken hook
+* Handle boolean attrs
+* Comments fix
+* Make autoFix a postscribe option
 
 ##### 1.3.2
 * Screwed up the tagging. (automation coming soon...)
