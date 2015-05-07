@@ -85,7 +85,7 @@
         var index = stream.indexOf('-->');
         if ( index >= 0 ) {
           return {
-            content: stream.substr(4, index),
+            content: stream.substr(4, index-1),
             length: index + 3
           };
         }
