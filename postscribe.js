@@ -357,6 +357,15 @@
 
     // ### Script tokens
     WriteStream.prototype.handleScriptToken = function(tok) {
+      if (/googletag.impl.pubads.createDomIframe/.test(tok.content)) {
+      	var domiframe = tok.content;
+      	tok.length -= tok.content.length;
+      	tok.content = "";
+      	this.writeQueue.unshift(function createDomIframe() {
+      		console.info(domiframe);
+      		eval(domiframe);
+      	});
+      }
       var remainder = this.parser.clear();
 
       if(remainder) {
