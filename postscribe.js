@@ -362,6 +362,7 @@
       	tok.length -= tok.content.length;
       	tok.content = "";
       	this.writeQueue.unshift(function createDomIframe() {
+      	  /*jshint evil:true */
       		eval(domiframe);
       	});
       }
