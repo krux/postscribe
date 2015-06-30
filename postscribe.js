@@ -716,4 +716,12 @@
       WriteStream: WriteStream
     });
   }());
+
+  // In addition to the global, also export postscribe as an AMD module
+  if (typeof define === 'function' && define.amd) {
+    define('postscribe', [], function() {
+      return global.postscribe;
+    });
+  }
+
 }());

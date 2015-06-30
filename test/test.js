@@ -728,10 +728,10 @@ $(document).ready(function() {
     div.id = 'skip-scripts-from-http-sources';
     document.body.appendChild(div);
     stop();
-    postscribe(div, 
+    postscribe(div,
       '<script src="http://domain.com/example.js"></script>' +
       '<script src="remote/write-remote-and-inline-script.js"></script>' +
-      '<script src="http://domain2.com/example2.js"></script>', 
+      '<script src="http://domain2.com/example2.js"></script>',
       {
         beforeWriteToken: function(tok) {
           if (tok.tagName && tok.tagName === 'script') {
@@ -757,9 +757,9 @@ $(document).ready(function() {
     div.id = 'skip-all-style-declarations';
     document.body.appendChild(div);
     stop();
-    postscribe(div, 
+    postscribe(div,
       '<style type="text/css">body { background-color: green; }</style>' +
-      '<STYLE type="text/css">img { border: 1px solid red; }</STYLE>', 
+      '<STYLE type="text/css">img { border: 1px solid red; }</STYLE>',
       {
         beforeWriteToken: function(tok) {
           if (tok.tagName && tok.tagName.toLowerCase() === 'style') {
@@ -792,5 +792,28 @@ $(document).ready(function() {
   testCalled('it calls', 'beforeEnqueue');
   testCalled('it calls', 'afterDequeue');
   testCalled('it calls', 'afterStreamStart');
+
+
+  module('AMD');
+
+  test('defines postscribe as an AMD module', function() {
+    stop();
+    require(['postscribe'],function(postscribeAMD){
+      ok(postscribeAMD);
+      start();
+    });
+  });
+
+  test('can execute postscribe via AMD module', function () {
+    stop();
+    require(['postscribe'], function (postscribeAMD) {
+      postscribeAMD(document.body, '<div id="postscribeAMD">Hola AMD</div>', {
+        done: function () {
+          ok(document.querySelector('#postscribeAMD').innerHTML == 'Hola AMD');
+          start();
+        }
+      });
+    });
+  });
 });
 
