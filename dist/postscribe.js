@@ -86,7 +86,7 @@ Copyright (c) 2015 Derek Brans, MIT license https://github.com/krux/postscribe/b
         var index = stream.indexOf('-->');
         if ( index >= 0 ) {
           return {
-            content: stream.substr(4, index),
+            content: stream.substr(4, index-1),
             length: index + 3
           };
         }
