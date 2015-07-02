@@ -1,10 +1,10 @@
 # Overview
 
-Remote scripts, especially ads, block the page from doing anything else while they load. They contribute a large % to load times which [affects your bottom line](http://devnet.kentico.com/Blogs/Thomas-Robbins/September-2012/How-loading-time-affects-your-bottom-line-Infograp.aspx). *Asynchronous* ads do not block the page and can be delivered after core content - [Async FTW](http://www.krux.com/pro/broadcasts/krux_blog/synchronous_vs_asynchronous_tags_whats_the_big_deal/).
+Remote scripts, especially ads, block the page from doing anything else while they load. They contribute a large % to load times which [affects your bottom line](http://devnet.kentico.com/Blogs/Thomas-Robbins/September-2012/How-loading-time-affects-your-bottom-line-Infograp.aspx). *Asynchronous* ads do not block the page and can be delivered after core content - [Async FTW](http://www.krux.com/blog/krux-engineers/synchronous-versus-asynchronous-tags-whats-the-big-deal/).
 
 Why is it so hard to deliver ads asynchronously? Because they may contain calls to `document.write`, which expects to be handled synchronously. **PostScribe lets you deliver a synchronous ad asynchronously without modifying the ad code**.
 
-Shameless Plug: Using this standalone library is a great start, but if you want to go further and have your tags centrally managed instead of having them hard-coded on the page, Check out [Krux's SuperTag](http://www.krux.com/pro/whatwedo/manage/supertag/), developed by the same authors as this library.
+Shameless Plug: Using this standalone library is a great start, but if you want to go further and have your tags centrally managed instead of having them hard-coded on the page, Check out [Krux's SuperTag](https://www.krux.com/data-management-platform-solutions/super-tag-management/), developed by the same authors as this library.
 
 
 ### Approach
@@ -94,7 +94,7 @@ Yep. It neither depends on nor conflicts with any of the existing popular javasc
 
 
 # Who is using it
-This project was originally developed at [Krux](http://www.krux.com) as part of its [SuperTag](http://www.krux.com/pro/whatwedo/manage/supertag/) product. There it was battle tested on high-profile sites like [The New York Times](http://www.nytimes.com), [The Wall Street Journal](http://online.wsj.com), [NBCU](http://www.nbcuni.com), and hundreds of others. It is actively maintained by Krux.
+This project was originally developed at [Krux](http://www.krux.com) as part of its [SuperTag](https://www.krux.com/data-management-platform-solutions/super-tag-management/) product. There it was battle tested on high-profile sites like [The New York Times](http://www.nytimes.com), [The Wall Street Journal](http://online.wsj.com), [NBCU](http://www.nbcuni.com), and hundreds of others. It is actively maintained by Krux.
 
 
 # Browser Compatibility
