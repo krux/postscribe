@@ -23,7 +23,21 @@ For more information:
 
 PostScribe overrides document.write. It is best and safest to use PostScribe after DOM is ready.
 
-Include `./htmlParser/htmlParser.js` and `./postscribe.js` on your page. TODO: cdn for postscribe.min.js
+## Installation
+
+In a browser:
+
+    <script src="./dist/postscribe.min.js"></script>
+
+With an AMD loader:
+
+    require(['postscribe'], function(postscribe) {});
+
+In Node.js/io.js using CommonJS, first `npm install --save postscribe`, then:
+
+    var postscribe = require('postscribe');
+
+## Usage
 
 To append html to #mydiv:
 
@@ -133,9 +147,10 @@ We ♥ [forks and pull requests](https://help.github.com/articles/using-pull-req
 ## Environment
 To run the tests and static code analysis tools, you will need to have the following installed:
 
-* nodejs (>=0.8) & npm - [Install Instructions](https://github.com/joyent/node/wiki/Installation)
+* nodejs (>=0.10) & npm - [Install Instructions](https://github.com/joyent/node/wiki/Installation)
 * All other project dependencies are installed via npm with `npm install`
   * [grunt](http://gruntjs.com) - a 'make' like tool for automating build, test, and other dev tasks
+  * [webpack](https://webpack.github.io/) - packages commonjs/AMD-modules for usage in the browser
   * [PhantomJS](http://phantomjs.org/) - A headless browser based on Webkit.
 
 
