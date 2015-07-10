@@ -173,17 +173,21 @@ To run the tests:
 
 `$ npm test`
 
-We use jshint to do static analysis of the javascript and keep things smelling good. To run jslint:
+We use ESLint to do static analysis of the javascript and keep things smelling good. To run ESLint:
 
 `$ npm run lint`
 
-**Pro Tip**: You can use TDD and have jslint and the tests run on every commit with:
+**Pro Tip**: You can use TDD and have ESLint and the tests run on every commit with:
 
 `$ npm run tdd`
 
 
 # History
 Postscribe uses [software versioning standards](http://semver.org) as follows: major.new.maintenance[.trivial]. There are git tags for each release if you would like to see older versions.
+
+##### 2.0.0
+* Support loading Postscribe as UMD module (browser global/CommonJS/AMD)
+* Started building with Webpack. Running directly from source is no longer possible.
 
 ##### 1.4.0
 * Fix incomplete tags blocking UI thread
