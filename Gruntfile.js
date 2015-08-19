@@ -90,7 +90,7 @@ module.exports = function(grunt) {
 
   });
 
-  grunt.registerTask('generate_expected', 'Generate Files', function() {
+  grunt.registerTask('generateExpected', 'Generate Files', function() {
     var done = this.async();
 
     var data = grunt.config('generateExpected');
@@ -105,7 +105,7 @@ module.exports = function(grunt) {
     });
   });
 
-  grunt.registerTask('test', ['build', 'generate_expected', 'qunit']);
+  grunt.registerTask('test', ['build', 'generateExpected', 'qunit']);
   grunt.registerTask('lint', ['eslint']);
   grunt.registerTask('build', ['clean', 'webpack:build', 'webpack:buildmin']);
   // This is what gets run when you don't specify an argument for grunt.
