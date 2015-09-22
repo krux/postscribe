@@ -28,10 +28,6 @@
       2,
       "allow-null"
     ],
-    "global-strict": [
-      2,
-      "never"
-    ],
     "guard-for-in": 0,
     "new-cap": 2,
     "no-bitwise": 0,
@@ -64,7 +60,7 @@
       "single"
     ],
     "semi": 2,
-    "strict": 0,
+    "strict": [2, "never"],
     "valid-typeof": 2,
     "wrap-iife": [
       2,

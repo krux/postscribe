@@ -17,7 +17,7 @@ module.exports = function(grunt) {
     meta: {
       banner: '<%= pkg.description %>, v<%= pkg.version %> <%= pkg.homepage %>\n' +
         'Copyright (c) <%= grunt.template.today(\'yyyy\') %> <%= pkg.author.name %>, MIT license ' +
-        '<%= pkg.licenses[0].url %>'
+        'https://github.com/krux/postscribe/blob/master/LICENSE'
     },
     clean: {
       build: ['dist']
