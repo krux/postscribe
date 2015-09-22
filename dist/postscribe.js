@@ -8,7 +8,7 @@ Copyright (c) 2015 Derek Brans, MIT license https://github.com/krux/postscribe/b
     var supports = {};
 
     var html;
-    var work = this.document.createElement('div');
+    var work = window.document.createElement('div');
 
     html = '<P><I></P></I>';
     work.innerHTML = html;
