@@ -71,6 +71,7 @@
     "node": ">=0.10"
   },
   "main": "dist/postscribe.js",
+  "browser": "dist/postscribe-commonjs.js",
   "scripts": {
     "lint": "grunt lint",
     "tdd": "grunt watch",

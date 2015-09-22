@@ -56,6 +56,21 @@ module.exports = function(grunt) {
           new webpack.BannerPlugin('<%= meta.banner %>')
         ]
       },
+      buildcommonjs: {
+        entry: {
+          postscribe: './src/postscribe.js'
+        },
+        output: {
+          path: path.join(__dirname, 'dist'),
+          filename: 'postscribe-commonjs.js',
+          library: ['postscribe'],
+          libraryTarget: 'commonjs2'
+        },
+        plugins: [
+          new webpack.BannerPlugin('<%= meta.banner %>')
+        ],
+        externals: ['object-assign']
+      },
       buildmin: {
         entry: {
           postscribe: './src/postscribe.js'
@@ -107,7 +122,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('test', ['build', 'generateExpected', 'qunit']);
   grunt.registerTask('lint', ['eslint']);
-  grunt.registerTask('build', ['clean', 'webpack:build', 'webpack:buildmin']);
+  grunt.registerTask('build', ['clean', 'webpack:build', 'webpack:buildcommonjs', 'webpack:buildmin']);
   // This is what gets run when you don't specify an argument for grunt.
   grunt.registerTask('default', ['lint', 'test']);
 
