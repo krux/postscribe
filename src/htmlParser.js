@@ -8,7 +8,7 @@ var supports = (function() {
   var target = {};
 
   var html;
-  var work = this.document.createElement('div');
+  var work = document.createElement('div');
 
   html = '<P><I></P></I>';
   work.innerHTML = html;
