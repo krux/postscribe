@@ -1,4 +1,4 @@
-/*! Asynchronously write javascript, even with document.write., v2.0.1 https://krux.github.io/postscribe
+/*! Asynchronously write javascript, even with document.write., v2.0.2 https://krux.github.io/postscribe
 Copyright (c) 2015 Derek Brans, MIT license https://github.com/krux/postscribe/blob/master/LICENSE */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -770,6 +770,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  }
 
+	  var unescapeURLs = function(html) {
+	    if ( (typeof html === 'string') && (html.indexOf('&') !== -1) ) {
+	      html = html.replace('amp;', '').replace(/(&#\d{1,4};)/gm, function(match){
+	          var code = match.substring(2,match.length-1);
+	          return String.fromCharCode(code);
+	        });
+	    }
+	    return encodeURI(html);
+	  };
+
 	  // Cache div element for unescaping html entities
 	  var el = document.createElement('div');
 
@@ -870,7 +880,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          } else {
 	            var value = arguments[2] || arguments[3] || arguments[4] ||
 	              fillAttr.test(name) && name || '';
-	            attrs[name] = unescapeHTMLEntities(value);
+	            attrs[name] = (name === 'src') ? unescapeURLs(value) : unescapeHTMLEntities(value);
 	          }
 	          rest = rest.replace(matched, '');
 	        });
