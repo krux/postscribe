@@ -1,3 +1,7 @@
+# UMD fork of Postscribe
+
+Available on NPM as `postscribe-umd`. Will merge in all fixes that happen at krux/postscribe and some more.
+
 # Overview
 
 Remote scripts, especially ads, block the page from doing anything else while they load. They contribute a large % to load times which [affects your bottom line](http://devnet.kentico.com/Blogs/Thomas-Robbins/September-2012/How-loading-time-affects-your-bottom-line-Infograp.aspx). *Asynchronous* ads do not block the page and can be delivered after core content - [Async FTW](http://www.krux.com/blog/krux-engineers/synchronous-versus-asynchronous-tags-whats-the-big-deal/).

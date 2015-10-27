@@ -1,5 +1,5 @@
 {
-  "name": "postscribe",
+  "name": "postscribe-umd",
   "description": "Asynchronously write javascript, even with document.write.",
   "version": "2.0.2",
   "keywords": [
@@ -37,15 +37,15 @@
   ],
   "maintainers": [
     {
-      "name": "Joshua Newman",
-      "email": "joshua.newman@krux.com"
+      "name": "Ambroos Vaes",
+      "email": "ambroosv@gmail.com"
     }
   ],
-  "bugs": "https://github.com/krux/postscribe/issues",
+  "bugs": "https://github.com/ambroos/postscribe/issues",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git@github.com:krux/postscribe.git"
+    "url": "git@github.com:ambroos/postscribe.git"
   },
   "dependencies": {
     "object-assign": "^4.0.1"
