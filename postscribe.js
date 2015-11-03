@@ -34,7 +34,7 @@
     releaseAsync: false
   };
 
-  var global = this;
+  var root = typeof global !== 'undefined' ? global : this.window || this.global;
 
   var UNDEFINED = void 0;
 
@@ -42,7 +42,7 @@
     return thing !== UNDEFINED && thing !== null;
   }
 
-  if(global.postscribe) {
+  if(root.postscribe) {
     return;
   }
 
@@ -592,7 +592,7 @@
   }());
 
   // Public-facing interface and queuing
-  global.postscribe = (function() {
+  root.postscribe = (function() {
     var nextId = 0;
 
     var queue = [];
@@ -679,7 +679,7 @@
 
       el =
         // id selector
-        (/^#/).test(el) ? global.document.getElementById(el.substr(1)) :
+        (/^#/).test(el) ? root.document.getElementById(el.substr(1)) :
         // jquery object. TODO: loop over all elements.
         el.jquery ? el[0] : el;
 

@@ -3,11 +3,13 @@
 //TODO(#39)
 /*globals console:false*/
 (function() {
+  var root = typeof global !== 'undefined' ? global : this.window || this.global;
+
   var supports = (function() {
     var supports = {};
 
     var html;
-    var work = this.document.createElement('div');
+    var work = root.document.createElement('div');
 
     html = '<P><I></P></I>';
     work.innerHTML = html;
@@ -357,7 +359,7 @@
         var str = '<'+tok.tagName;
         for (var key in tok.attrs) {
           str += ' '+key;
-          
+
           var val = tok.attrs[key];
           if (typeof tok.booleanAttrs == 'undefined' || typeof tok.booleanAttrs[key] == 'undefined') {
             // escape quotes
@@ -391,5 +393,5 @@
     htmlParser.browserHasFlaw = htmlParser.browserHasFlaw || (!supports[key]) && key;
   }
 
-  this.htmlParser = htmlParser;
+  root.htmlParser = htmlParser;
 })();
