@@ -457,7 +457,9 @@
       var cursor = this.doc.getElementById('ps-style');
 
       // Replace cursor with style.
-      cursor.parentNode.replaceChild(el, cursor);
+      if (cursor) {
+        cursor.parentNode.replaceChild(el, cursor);
+      }
     };
 
     WriteStream.prototype.onScriptStart = function(tok) {
@@ -542,7 +544,9 @@
       var cursor = this.doc.getElementById('ps-script');
 
       // Replace cursor with script.
-      cursor.parentNode.replaceChild(el, cursor);
+      if (cursor) {
+        cursor.parentNode.replaceChild(el, cursor);
+      }
     };
 
     WriteStream.prototype.scriptLoadHandler = function(el, done) {
@@ -674,6 +678,11 @@
     function postscribe(el, html, options) {
       if(isFunction(options)) {
         options = { done: options };
+      } else if (options === 'clear') {
+        queue = [];
+        active = null;
+        nextId = 0;
+        return;
       }
       options = defaults(options, OPTIONS);
 
