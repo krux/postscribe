@@ -27,11 +27,15 @@ Include `./htmlParser/htmlParser.js` and `./postscribe.js` on your page. TODO: c
 
 To append html to #mydiv:
 
-    postscribe('#mydiv', '<h1>Hello PostScribe</h1>');
+```javascript
+postscribe('#mydiv', '<h1>Hello PostScribe</h1>');
+```
 
 In general:
 
-    postscribe(element, html, options);
+```javascript
+postscribe(element, html, options);
+```
 
 * *element:* a DOM Element, jQuery object, or id selector (e.g. "#mydiv")
 * *html:* an html string or a function that takes a DOM Document and writes to it.
@@ -41,47 +45,55 @@ In general:
 
 If you just want to mess around, include the js files at the top of an html page that contains the following:
 
-    <div id="mydiv"></div>
-    <script type="text/javascript">
-      postscribe('#mydiv', '<h1>Hello PostScribe</h1>');
-    </script>
+```html
+<div id="mydiv"></div>
+<script type="text/javascript">
+  postscribe('#mydiv', '<h1>Hello PostScribe</h1>');
+</script>
+```
 
 
 ## How to use postscribe to render an ad after load
 
 Where normally you would have
 
-    <div id="ad"><h5>Advertisement</h5>
-      <script type="text/javascript">
-        // Build url params and make the ad call
-        document.write('<script src=doubleclick_url_with_params><\/script>');
-      </script>
-    </div>
+```html
+<div id="ad"><h5>Advertisement</h5>
+  <script type="text/javascript">
+    // Build url params and make the ad call
+    document.write('<script src=doubleclick_url_with_params><\/script>');
+  </script>
+</div>
+```
 
 Instead, remove the ad call and close the div
 
-    <div id="ad"><h5>Advertisement</h5></div>
+```html
+<div id="ad"><h5>Advertisement</h5></div>
 
-    <script type="text/javascript">
-      // jQuery used as an example of delaying until load.
-      $(function() {
-        // Build url params and make the ad call
-        postscribe('#ad', '<script src=doubleclick_url_with_params><\/script>');
-      });
-    </script>
+<script type="text/javascript">
+  // jQuery used as an example of delaying until load.
+  $(function() {
+    // Build url params and make the ad call
+    postscribe('#ad', '<script src=doubleclick_url_with_params><\/script>');
+  });
+</script>
+```
 
 There are some hooks you may pass as the third argument. For example:
 
-    <script type="text/javascript">
-      // jQuery used as an example of delaying until load.
-      $(function() {
-        postscribe('#ad', '<script src=doubleclick_url_with_params><\/script>', {
-          done: function() {
-            console.info('Dblclick script has been delivered.');
-          }
-        });
-      });
-    </script>
+```html
+<script type="text/javascript">
+  // jQuery used as an example of delaying until load.
+  $(function() {
+    postscribe('#ad', '<script src=doubleclick_url_with_params><\/script>', {
+      done: function() {
+        console.info('Dblclick script has been delivered.');
+      }
+    });
+  });
+</script>
+```
 
 See the beginning of [postscribe.js](./postscribe.js) for a complete list.
 
@@ -156,15 +168,21 @@ Current Build Status: [![Build Status](https://travis-ci.org/krux/postscribe.svg
 
 To run the tests:
 
-`$ npm test`
+```console
+$ npm test
+```
 
 We use jshint to do static analysis of the javascript and keep things smelling good. To run jslint:
 
-`$ npm run lint`
+```console
+$ npm run lint
+```
 
 **Pro Tip**: You can use TDD and have jslint and the tests run on every commit with:
 
-`$ npm run tdd`
+```console
+$ npm run tdd
+```
 
 
 # History
