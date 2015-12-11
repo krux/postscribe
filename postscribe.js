@@ -552,13 +552,17 @@
 
       // Error handler
       var error = this.options.error;
+      var origOnLoad = el.onload || doNothing;
+      var origOnError = el.onerror  || doNothing;
 
       function success() {
+        origOnLoad();
         cleanup();
         done();
       }
 
       function failure(err) {
+        origOnError();
         cleanup();
         error(err);
         done();
