@@ -145,6 +145,10 @@ module.exports = (function() {
       // e.g., no tokens, or a noscript that got ignored
       return;
     }
+
+    // Export extracted inline event handlers (side-effect)
+    this.options.exportEventHandlers(chunk.fns, this.win);
+
     chunk.html = this.proxyHistory + chunk.actual;
     this.proxyHistory += chunk.proxy;
 
