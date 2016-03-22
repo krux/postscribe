@@ -173,11 +173,14 @@ module.exports = (function() {
         actual = [],
 
         // Html that can later be used to proxy the nodes in the tokens.
-        proxy = [];
+        proxy = [],
+
+        // Extracted inline event handler function objects
+        fns = {};
 
     each(tokens, function(tok) {
 
-      var tokenRaw = htmlParser.tokenToString(tok);
+      var tokenRaw = htmlParser.tokenToString(tok, fns);
 
       raw.push(tokenRaw);
 
@@ -212,6 +215,7 @@ module.exports = (function() {
     });
 
     return {
+      fns: fns,
       tokens: tokens,
       raw: raw.join(''),
       actual: actual.join(''),
