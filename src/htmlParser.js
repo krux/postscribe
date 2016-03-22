@@ -20,6 +20,8 @@ var supports = (function() {
   return target;
 })();
 
+var escapeQuotes = require('./helpers').escapeQuotes;
+
 // Regular Expressions for parsing tags and attributes
 var startTag = /^<([\-A-Za-z0-9_]+)((?:\s+[\w\-]+(?:\s*=?\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)>/;
 var endTag = /^<\/([\-A-Za-z0-9_]+)[^>]*>/;
@@ -368,7 +370,7 @@ htmlParser.tokenToString = function(rootTok) {
         var val = tok.attrs[key];
         if (typeof tok.booleanAttrs === 'undefined' || typeof tok.booleanAttrs[key] === 'undefined') {
           // escape quotes
-          str += '="' + (val ? val.replace(/(^|[^\\])"/g, '$1\\\"') : '') + '"';
+          str += '="' + escapeQuotes(val) + '"';
         }
       }
       if (tok.rest) {
@@ -389,7 +391,7 @@ htmlParser.escapeAttributes = function(attrs) {
 
   for (var name in attrs) {
     var value = attrs[name];
-    escapedAttrs[name] = value && value.replace(/(^|[^\\])"/g, '$1\\\"');
+    escapedAttrs[name] = escapeQuotes(value);
   }
   return escapedAttrs;
 };
