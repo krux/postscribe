@@ -27,6 +27,7 @@ var startTag = /^<([\-A-Za-z0-9_]+)((?:\s+[\w\-]+(?:\s*=?\s*(?:(?:"[^"]*")|(?:'[
 var endTag = /^<\/([\-A-Za-z0-9_]+)[^>]*>/;
 var attr = /(?:([\-A-Za-z0-9_]+)\s*=\s*(?:(?:"((?:\\.|[^"])*)")|(?:'((?:\\.|[^'])*)')|([^>\s]+)))|(?:([\-A-Za-z0-9_]+)(\s|$)+)/g;
 var fillAttr = /^(checked|compact|declare|defer|disabled|ismap|multiple|nohref|noresize|noshade|nowrap|readonly|selected)$/i;
+var inlineEventHandler = /^on[a-z]+/;
 
 var DEBUG = false;
 
@@ -348,7 +349,20 @@ function htmlParser(stream, options) {
 
 htmlParser.supports = supports;
 
-htmlParser.tokenToString = function(rootTok) {
+htmlParser.tokenToString = function(rootTok, fns) {
+  var fnStash = {
+    nextName: function (eventAttrib) {
+      return '__psIFX_' + (+new Date()) + '_' + (Math.random() * 99999 | 0) + '_' + (eventAttrib || 'anon');
+    },
+    push: function (eventAttrib, srcStr) {
+      var name = this.nextName(eventAttrib);
+      while (fns.hasOwnProperty(name)) {
+        name = this.nextName(eventAttrib);
+      }
+      fns[name] = new Function(srcStr);
+      return name;
+    }
+  };
   var handler = {
     comment: function(tok) {
       return '<!--' + tok.content;
@@ -369,8 +383,16 @@ htmlParser.tokenToString = function(rootTok) {
 
         var val = tok.attrs[key];
         if (typeof tok.booleanAttrs === 'undefined' || typeof tok.booleanAttrs[key] === 'undefined') {
-          // escape quotes
-          str += '="' + escapeQuotes(val) + '"';
+          if (inlineEventHandler.test(key)) {
+            try {
+              str += '="' + fnStash.push(key, val) + '.call(this);"';
+            } catch (e) {
+              throw new Error('Failed replacing inline event handler with function for ' + key + ': ' + e.message);
+            }
+          } else {
+            // escape quotes
+            str += '="' + escapeQuotes(val) + '"';
+          }
         }
       }
       if (tok.rest) {
