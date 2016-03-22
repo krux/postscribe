@@ -1,5 +1,5 @@
 /*! Asynchronously write javascript, even with document.write., v2.0.2 https://krux.github.io/postscribe
-Copyright (c) 2015 Derek Brans, MIT license https://github.com/krux/postscribe/blob/master/LICENSE */
+Copyright (c) 2016 Derek Brans, MIT license https://github.com/krux/postscribe/blob/master/LICENSE */
 module.exports =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -54,8 +54,8 @@ module.exports =
 	//     http://krux.github.io/postscribe
 
 	var WriteStream = __webpack_require__(1);
-	var objectAssign = __webpack_require__(3);
-	var helpers = __webpack_require__(4);
+	var objectAssign = __webpack_require__(4);
+	var helpers = __webpack_require__(3);
 
 	// A function that intentionally does nothing.
 	function doNothing() {}
@@ -64,6 +64,7 @@ module.exports =
 	var toArray = helpers.toArray;
 	var defaults = helpers.defaults;
 	var last = helpers.last;
+	var eachKey = helpers.eachKey;
 
 	// Available options and defaults.
 	var OPTIONS = {
@@ -87,6 +88,12 @@ module.exports =
 	  done: doNothing,
 	  // Called when a write results in an error.
 	  error: function(e) { throw e; },
+	  // Called when inline event handlers were extracted, must export into global namespace
+	  exportEventHandlers: function (fns, scope) {
+	    eachKey(fns, function (name, fnRef) {
+	      scope[name] = fnRef;
+	    });
+	  },
 	  // Whether to let scripts w/ async attribute set fall out of the queue.
 	  releaseAsync: false
 	};
@@ -240,9 +247,9 @@ module.exports =
 
 	// Proxy elements are mapped to *actual* elements in the DOM by injecting a data-id attribute into each start tag in `staticHtml`.
 	var htmlParser = __webpack_require__(2);
-	var objectAssign = __webpack_require__(3);
+	var objectAssign = __webpack_require__(4);
 
-	var helpers = __webpack_require__(4);
+	var helpers = __webpack_require__(3);
 
 	var isFunction = helpers.isFunction;
 	var each = helpers.each;
@@ -371,6 +378,10 @@ module.exports =
 	      // e.g., no tokens, or a noscript that got ignored
 	      return;
 	    }
+
+	    // Export extracted inline event handlers (side-effect)
+	    this.options.exportEventHandlers(chunk.fns, this.win);
+
 	    chunk.html = this.proxyHistory + chunk.actual;
 	    this.proxyHistory += chunk.proxy;
 
@@ -399,11 +410,14 @@ module.exports =
 	        actual = [],
 
 	        // Html that can later be used to proxy the nodes in the tokens.
-	        proxy = [];
+	        proxy = [],
+
+	        // Extracted inline event handler function objects
+	        fns = {};
 
 	    each(tokens, function(tok) {
 
-	      var tokenRaw = htmlParser.tokenToString(tok);
+	      var tokenRaw = htmlParser.tokenToString(tok, fns);
 
 	      raw.push(tokenRaw);
 
@@ -438,6 +452,7 @@ module.exports =
 	    });
 
 	    return {
+	      fns: fns,
 	      tokens: tokens,
 	      raw: raw.join(''),
 	      actual: actual.join(''),
@@ -714,7 +729,7 @@ module.exports =
 
 /***/ },
 /* 2 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	// A stateless HTML Parser written in JavaScript
 	// Based on http://ejohn.org/blog/pure-javascript-html-parser/
@@ -738,11 +753,14 @@ module.exports =
 	  return target;
 	})();
 
+	var escapeQuotes = __webpack_require__(3).escapeQuotes;
+
 	// Regular Expressions for parsing tags and attributes
 	var startTag = /^<([\-A-Za-z0-9_]+)((?:\s+[\w\-]+(?:\s*=?\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)>/;
 	var endTag = /^<\/([\-A-Za-z0-9_]+)[^>]*>/;
 	var attr = /(?:([\-A-Za-z0-9_]+)\s*=\s*(?:(?:"((?:\\.|[^"])*)")|(?:'((?:\\.|[^'])*)')|([^>\s]+)))|(?:([\-A-Za-z0-9_]+)(\s|$)+)/g;
 	var fillAttr = /^(checked|compact|declare|defer|disabled|ismap|multiple|nohref|noresize|noshade|nowrap|readonly|selected)$/i;
+	var inlineEventHandler = /^on[a-z]+/;
 
 	var DEBUG = false;
 
@@ -1064,7 +1082,20 @@ module.exports =
 
 	htmlParser.supports = supports;
 
-	htmlParser.tokenToString = function(rootTok) {
+	htmlParser.tokenToString = function(rootTok, fns) {
+	  var fnStash = {
+	    nextName: function (eventAttrib) {
+	      return '__psIFX_' + (+new Date()) + '_' + (Math.random() * 99999 | 0) + '_' + (eventAttrib || 'anon');
+	    },
+	    push: function (eventAttrib, srcStr) {
+	      var name = this.nextName(eventAttrib);
+	      while (fns.hasOwnProperty(name)) {
+	        name = this.nextName(eventAttrib);
+	      }
+	      fns[name] = new Function(srcStr);
+	      return name;
+	    }
+	  };
 	  var handler = {
 	    comment: function(tok) {
 	      return '<!--' + tok.content;
@@ -1085,8 +1116,16 @@ module.exports =
 
 	        var val = tok.attrs[key];
 	        if (typeof tok.booleanAttrs === 'undefined' || typeof tok.booleanAttrs[key] === 'undefined') {
-	          // escape quotes
-	          str += '="' + (val ? val.replace(/(^|[^\\])"/g, '$1\\\"') : '') + '"';
+	          if (inlineEventHandler.test(key)) {
+	            try {
+	              str += '="' + fnStash.push(key, val) + '.call(this);"';
+	            } catch (e) {
+	              throw new Error('Failed replacing inline event handler with function for ' + key + ': ' + e.message);
+	            }
+	          } else {
+	            // escape quotes
+	            str += '="' + escapeQuotes(val) + '"';
+	          }
 	        }
 	      }
 	      if (tok.rest) {
@@ -1107,7 +1146,7 @@ module.exports =
 
 	  for (var name in attrs) {
 	    var value = attrs[name];
-	    escapedAttrs[name] = value && value.replace(/(^|[^\\])"/g, '$1\\\"');
+	    escapedAttrs[name] = escapeQuotes(value);
 	  }
 	  return escapedAttrs;
 	};
@@ -1121,12 +1160,6 @@ module.exports =
 
 /***/ },
 /* 3 */
-/***/ function(module, exports) {
-
-	module.exports = require("object-assign");
-
-/***/ },
-/* 4 */
 /***/ function(module, exports) {
 
 	// Is this a function?
@@ -1150,6 +1183,10 @@ module.exports =
 	      fn.call(_this, key, obj[key]);
 	    }
 	  }
+	}
+
+	function escapeQuotes(str) {
+	  return (str ? str.replace(/(^|[^\\])"/g, '$1\\\"') : '');
 	}
 
 	function existy(thing) {
@@ -1197,6 +1234,7 @@ module.exports =
 	  isFunction: isFunction,
 	  each: each,
 	  eachKey: eachKey,
+	  escapeQuotes: escapeQuotes,
 	  existy: existy,
 	  defaults: defaults,
 	  toArray: toArray,
@@ -1205,6 +1243,12 @@ module.exports =
 	  isStyle: isStyle
 	};
 
+
+/***/ },
+/* 4 */
+/***/ function(module, exports) {
+
+	module.exports = require("object-assign");
 
 /***/ }
 /******/ ]);
