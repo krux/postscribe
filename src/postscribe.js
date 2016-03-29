@@ -15,6 +15,7 @@ var isFunction = helpers.isFunction;
 var toArray = helpers.toArray;
 var defaults = helpers.defaults;
 var last = helpers.last;
+var eachKey = helpers.eachKey;
 
 // Available options and defaults.
 var OPTIONS = {
@@ -38,6 +39,12 @@ var OPTIONS = {
   done: doNothing,
   // Called when a write results in an error.
   error: function(e) { throw e; },
+  // Called when inline event handlers were extracted, must export into global namespace
+  exportEventHandlers: function (fns, scope) {
+    eachKey(fns, function (name, fnRef) {
+      scope[name] = fnRef;
+    });
+  },
   // Whether to let scripts w/ async attribute set fall out of the queue.
   releaseAsync: false
 };

@@ -145,6 +145,10 @@ module.exports = (function() {
       // e.g., no tokens, or a noscript that got ignored
       return;
     }
+
+    // Export extracted inline event handlers (side-effect)
+    this.options.exportEventHandlers(chunk.fns, this.win);
+
     chunk.html = this.proxyHistory + chunk.actual;
     this.proxyHistory += chunk.proxy;
 
@@ -173,11 +177,14 @@ module.exports = (function() {
         actual = [],
 
         // Html that can later be used to proxy the nodes in the tokens.
-        proxy = [];
+        proxy = [],
+
+        // Extracted inline event handler function objects
+        fns = {};
 
     each(tokens, function(tok) {
 
-      var tokenRaw = htmlParser.tokenToString(tok);
+      var tokenRaw = htmlParser.tokenToString(tok, fns);
 
       raw.push(tokenRaw);
 
@@ -212,6 +219,7 @@ module.exports = (function() {
     });
 
     return {
+      fns: fns,
       tokens: tokens,
       raw: raw.join(''),
       actual: actual.join(''),

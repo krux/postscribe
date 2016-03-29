@@ -739,10 +739,10 @@ $(document).ready(function() {
     div.id = 'skip-scripts-from-http-sources';
     document.body.appendChild(div);
     stop();
-    postscribe(div, 
+    postscribe(div,
       '<script src="http://domain.com/example.js"></script>' +
       '<script src="remote/write-remote-and-inline-script.js"></script>' +
-      '<script src="http://domain2.com/example2.js"></script>', 
+      '<script src="http://domain2.com/example2.js"></script>',
       {
         beforeWriteToken: function(tok) {
           if (tok.tagName && tok.tagName === 'script') {
@@ -768,9 +768,9 @@ $(document).ready(function() {
     div.id = 'skip-all-style-declarations';
     document.body.appendChild(div);
     stop();
-    postscribe(div, 
+    postscribe(div,
       '<style type="text/css">body { background-color: green; }</style>' +
-      '<STYLE type="text/css">img { border: 1px solid red; }</STYLE>', 
+      '<STYLE type="text/css">img { border: 1px solid red; }</STYLE>',
       {
         beforeWriteToken: function(tok) {
           if (tok.tagName && tok.tagName.toLowerCase() === 'style') {
@@ -785,7 +785,6 @@ $(document).ready(function() {
       }
     );
   });
-
 
   module('api');
 
@@ -803,5 +802,33 @@ $(document).ready(function() {
   testCalled('it calls', 'beforeEnqueue');
   testCalled('it calls', 'afterDequeue');
   testCalled('it calls', 'afterStreamStart');
+
+  module('bug: inline event handlers');
+  setOptions({
+    useExpected: false
+  });
+  test('inline event handler is replaced with function call', function() {
+    var div = document.createElement('div');
+    document.body.appendChild(div);
+    stop();
+    postscribe(div,
+      "<iframe id='inline-event-test' src='about:blank' onload='this.onload=null;this.src=this.src+\"#modified\"'></iframe>",
+      {
+        done: function() {
+          var iframe = div.firstChild;
+          ok(-1 < iframe.src.indexOf('#modified'), 'event handler modified iframe#src');
+          div.parentNode.removeChild(div);
+          start();
+        },
+        exportEventHandlers: function (fns, scope) {
+          ok(1 === Object.keys(fns).length, 'exportEventHandlers was called with one function');
+
+          Object.keys(fns).forEach(function (name) {
+            scope[name] = fns[name];
+          });
+        }
+      }
+    );
+  });
 });
 

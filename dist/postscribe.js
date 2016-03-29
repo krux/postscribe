@@ -1,5 +1,5 @@
 /*! Asynchronously write javascript, even with document.write., v2.0.2 https://krux.github.io/postscribe
-Copyright (c) 2015 Derek Brans, MIT license https://github.com/krux/postscribe/blob/master/LICENSE */
+Copyright (c) 2016 Derek Brans, MIT license https://github.com/krux/postscribe/blob/master/LICENSE */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -63,8 +63,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	//     http://krux.github.io/postscribe
 
 	var WriteStream = __webpack_require__(1);
-	var objectAssign = __webpack_require__(3);
-	var helpers = __webpack_require__(4);
+	var objectAssign = __webpack_require__(4);
+	var helpers = __webpack_require__(3);
 
 	// A function that intentionally does nothing.
 	function doNothing() {}
@@ -73,6 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var toArray = helpers.toArray;
 	var defaults = helpers.defaults;
 	var last = helpers.last;
+	var eachKey = helpers.eachKey;
 
 	// Available options and defaults.
 	var OPTIONS = {
@@ -96,6 +97,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	  done: doNothing,
 	  // Called when a write results in an error.
 	  error: function(e) { throw e; },
+	  // Called when inline event handlers were extracted, must export into global namespace
+	  exportEventHandlers: function (fns, scope) {
+	    eachKey(fns, function (name, fnRef) {
+	      scope[name] = fnRef;
+	    });
+	  },
 	  // Whether to let scripts w/ async attribute set fall out of the queue.
 	  releaseAsync: false
 	};
@@ -249,9 +256,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	// Proxy elements are mapped to *actual* elements in the DOM by injecting a data-id attribute into each start tag in `staticHtml`.
 	var htmlParser = __webpack_require__(2);
-	var objectAssign = __webpack_require__(3);
+	var objectAssign = __webpack_require__(4);
 
-	var helpers = __webpack_require__(4);
+	var helpers = __webpack_require__(3);
 
 	var isFunction = helpers.isFunction;
 	var each = helpers.each;
@@ -380,6 +387,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	      // e.g., no tokens, or a noscript that got ignored
 	      return;
 	    }
+
+	    // Export extracted inline event handlers (side-effect)
+	    this.options.exportEventHandlers(chunk.fns, this.win);
+
 	    chunk.html = this.proxyHistory + chunk.actual;
 	    this.proxyHistory += chunk.proxy;
 
@@ -408,11 +419,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        actual = [],
 
 	        // Html that can later be used to proxy the nodes in the tokens.
-	        proxy = [];
+	        proxy = [],
+
+	        // Extracted inline event handler function objects
+	        fns = {};
 
 	    each(tokens, function(tok) {
 
-	      var tokenRaw = htmlParser.tokenToString(tok);
+	      var tokenRaw = htmlParser.tokenToString(tok, fns);
 
 	      raw.push(tokenRaw);
 
@@ -447,6 +461,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    });
 
 	    return {
+	      fns: fns,
 	      tokens: tokens,
 	      raw: raw.join(''),
 	      actual: actual.join(''),
@@ -723,7 +738,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 2 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	// A stateless HTML Parser written in JavaScript
 	// Based on http://ejohn.org/blog/pure-javascript-html-parser/
@@ -747,11 +762,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return target;
 	})();
 
+	var escapeQuotes = __webpack_require__(3).escapeQuotes;
+
 	// Regular Expressions for parsing tags and attributes
 	var startTag = /^<([\-A-Za-z0-9_]+)((?:\s+[\w\-]+(?:\s*=?\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)>/;
 	var endTag = /^<\/([\-A-Za-z0-9_]+)[^>]*>/;
 	var attr = /(?:([\-A-Za-z0-9_]+)\s*=\s*(?:(?:"((?:\\.|[^"])*)")|(?:'((?:\\.|[^'])*)')|([^>\s]+)))|(?:([\-A-Za-z0-9_]+)(\s|$)+)/g;
 	var fillAttr = /^(checked|compact|declare|defer|disabled|ismap|multiple|nohref|noresize|noshade|nowrap|readonly|selected)$/i;
+	var inlineEventHandler = /^on[a-z]+/;
 
 	var DEBUG = false;
 
@@ -1073,7 +1091,20 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	htmlParser.supports = supports;
 
-	htmlParser.tokenToString = function(rootTok) {
+	htmlParser.tokenToString = function(rootTok, fns) {
+	  var fnStash = {
+	    nextName: function (eventAttrib) {
+	      return '__psIFX_' + (+new Date()) + '_' + (Math.random() * 99999 | 0) + '_' + (eventAttrib || 'anon');
+	    },
+	    push: function (eventAttrib, srcStr) {
+	      var name = this.nextName(eventAttrib);
+	      while (fns.hasOwnProperty(name)) {
+	        name = this.nextName(eventAttrib);
+	      }
+	      fns[name] = new Function(srcStr);
+	      return name;
+	    }
+	  };
 	  var handler = {
 	    comment: function(tok) {
 	      return '<!--' + tok.content;
@@ -1094,8 +1125,16 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        var val = tok.attrs[key];
 	        if (typeof tok.booleanAttrs === 'undefined' || typeof tok.booleanAttrs[key] === 'undefined') {
-	          // escape quotes
-	          str += '="' + (val ? val.replace(/(^|[^\\])"/g, '$1\\\"') : '') + '"';
+	          if (inlineEventHandler.test(key)) {
+	            try {
+	              str += '="' + fnStash.push(key, val) + '.call(this);"';
+	            } catch (e) {
+	              throw new Error('Failed replacing inline event handler with function for ' + key + ': ' + e.message);
+	            }
+	          } else {
+	            // escape quotes
+	            str += '="' + escapeQuotes(val) + '"';
+	          }
 	        }
 	      }
 	      if (tok.rest) {
@@ -1116,7 +1155,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  for (var name in attrs) {
 	    var value = attrs[name];
-	    escapedAttrs[name] = value && value.replace(/(^|[^\\])"/g, '$1\\\"');
+	    escapedAttrs[name] = escapeQuotes(value);
 	  }
 	  return escapedAttrs;
 	};
@@ -1130,51 +1169,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 3 */
-/***/ function(module, exports) {
-
-	/* eslint-disable no-unused-vars */
-	'use strict';
-	var hasOwnProperty = Object.prototype.hasOwnProperty;
-	var propIsEnumerable = Object.prototype.propertyIsEnumerable;
-
-	function toObject(val) {
-		if (val === null || val === undefined) {
-			throw new TypeError('Object.assign cannot be called with null or undefined');
-		}
-
-		return Object(val);
-	}
-
-	module.exports = Object.assign || function (target, source) {
-		var from;
-		var to = toObject(target);
-		var symbols;
-
-		for (var s = 1; s < arguments.length; s++) {
-			from = Object(arguments[s]);
-
-			for (var key in from) {
-				if (hasOwnProperty.call(from, key)) {
-					to[key] = from[key];
-				}
-			}
-
-			if (Object.getOwnPropertySymbols) {
-				symbols = Object.getOwnPropertySymbols(from);
-				for (var i = 0; i < symbols.length; i++) {
-					if (propIsEnumerable.call(from, symbols[i])) {
-						to[symbols[i]] = from[symbols[i]];
-					}
-				}
-			}
-		}
-
-		return to;
-	};
-
-
-/***/ },
-/* 4 */
 /***/ function(module, exports) {
 
 	// Is this a function?
@@ -1198,6 +1192,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	      fn.call(_this, key, obj[key]);
 	    }
 	  }
+	}
+
+	function escapeQuotes(str) {
+	  return (str ? str.replace(/(^|[^\\])"/g, '$1\\\"') : '');
 	}
 
 	function existy(thing) {
@@ -1245,12 +1243,58 @@ return /******/ (function(modules) { // webpackBootstrap
 	  isFunction: isFunction,
 	  each: each,
 	  eachKey: eachKey,
+	  escapeQuotes: escapeQuotes,
 	  existy: existy,
 	  defaults: defaults,
 	  toArray: toArray,
 	  last: last,
 	  isScript: isScript,
 	  isStyle: isStyle
+	};
+
+
+/***/ },
+/* 4 */
+/***/ function(module, exports) {
+
+	/* eslint-disable no-unused-vars */
+	'use strict';
+	var hasOwnProperty = Object.prototype.hasOwnProperty;
+	var propIsEnumerable = Object.prototype.propertyIsEnumerable;
+
+	function toObject(val) {
+		if (val === null || val === undefined) {
+			throw new TypeError('Object.assign cannot be called with null or undefined');
+		}
+
+		return Object(val);
+	}
+
+	module.exports = Object.assign || function (target, source) {
+		var from;
+		var to = toObject(target);
+		var symbols;
+
+		for (var s = 1; s < arguments.length; s++) {
+			from = Object(arguments[s]);
+
+			for (var key in from) {
+				if (hasOwnProperty.call(from, key)) {
+					to[key] = from[key];
+				}
+			}
+
+			if (Object.getOwnPropertySymbols) {
+				symbols = Object.getOwnPropertySymbols(from);
+				for (var i = 0; i < symbols.length; i++) {
+					if (propIsEnumerable.call(from, symbols[i])) {
+						to[symbols[i]] = from[symbols[i]];
+					}
+				}
+			}
+		}
+
+		return to;
 	};
 
 

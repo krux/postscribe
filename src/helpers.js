@@ -21,6 +21,10 @@ function eachKey(obj, fn, _this) {
   }
 }
 
+function escapeQuotes(str) {
+  return (str ? str.replace(/(^|[^\\])"/g, '$1\\\"') : '');
+}
+
 function existy(thing) {
   return thing !== void 0 && thing !== null;
 }
@@ -66,6 +70,7 @@ module.exports = {
   isFunction: isFunction,
   each: each,
   eachKey: eachKey,
+  escapeQuotes: escapeQuotes,
   existy: existy,
   defaults: defaults,
   toArray: toArray,
