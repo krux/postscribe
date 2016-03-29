@@ -1,4 +1,4 @@
-/*! Asynchronously write javascript, even with document.write., v2.0.2 https://krux.github.io/postscribe
+/*! Asynchronously write javascript, even with document.write., v2.0.3 https://krux.github.io/postscribe
 Copyright (c) 2016 Derek Brans, MIT license https://github.com/krux/postscribe/blob/master/LICENSE */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
