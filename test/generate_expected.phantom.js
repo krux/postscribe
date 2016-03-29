@@ -36,7 +36,7 @@ page.open(url, function(status) {
         });
       };
 
-      // Give up if a test fails after a long time. 
+      // Give up if a test fails after a long time.
       var handle;
       QUnit.testStart(function(details) {
         handle = window.setTimeout(function() {

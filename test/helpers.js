@@ -230,7 +230,7 @@ var execute = function(name, tags, options) {
         // do nothing
       };
 
-      var parser = htmlParser('', {
+      var parser = postscribe.htmlParser('', {
         autoFix: true
       });
 

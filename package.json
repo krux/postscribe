@@ -1,7 +1,7 @@
 {
-  "name": "postscribe",
+  "name": "postscribe-umd",
   "description": "Asynchronously write javascript, even with document.write.",
-  "version": "1.4.0",
+  "version": "2.0.3",
   "keywords": [
     "document.write",
     "tag writer",
@@ -28,49 +28,54 @@
     {
       "name": "Joshua Newman",
       "email": "joshua.newman@krux.com"
+    },
+    {
+      "name": "Ambroos Vaes",
+      "email": "ambroosv@gmail.com",
+      "web": "https://github.com/Ambroos"
     }
   ],
   "maintainers": [
     {
-      "name": "Joshua Newman",
-      "email": "joshua.newman@krux.com"
+      "name": "Ambroos Vaes",
+      "email": "ambroosv@gmail.com"
     }
   ],
-  "bugs": "https://github.com/krux/postscribe/issues",
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "https://github.com/krux/postscribe/blob/master/LICENSE"
-    }
-  ],
+  "bugs": "https://github.com/ambroos/postscribe/issues",
+  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git@github.com:krux/postscribe.git"
+    "url": "git@github.com:ambroos/postscribe.git"
   },
-  "dependencies": {},
+  "dependencies": {
+    "object-assign": "^4.0.1"
+  },
   "devDependencies": {
-    "grunt": "0.4",
-    "grunt-cli": "0.1.13",
-    "grunt-contrib-concat": "0.5.0",
-    "grunt-contrib-jshint": "0.10.0",
-    "grunt-contrib-qunit": "0.5.2",
-    "grunt-contrib-uglify": "0.2.7",
-    "grunt-contrib-watch": "0.5.3",
+    "grunt": "^0.4.5",
+    "grunt-cli": "^0.1.13",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-contrib-qunit": "^0.7.0",
+    "grunt-contrib-watch": "^0.6.0",
+    "grunt-eslint": "^17.3.1",
+    "grunt-webpack": "^1.0.11",
     "jquery": "^1.11.1",
-    "lodash": "2.4.1",
-    "phantomjs": "1.9.11",
-    "qunit": "^0.7.5",
-    "testem": "0.6.22"
+    "lodash": "^3.10.0",
+    "phantomjs": "^1.9.11",
+    "qunit": "^0.7.7",
+    "testem": "^0.9.8",
+    "webpack": "^1.12.2",
+    "webpack-dev-server": "^1.12.1"
   },
   "homepage": "https://krux.github.io/postscribe",
   "engines": {
     "node": ">=0.10"
   },
-  "main": "postscribe.js",
-  "filename": "postscribe.min.js",
+  "main": "dist/postscribe.js",
+  "browser": "dist/postscribe-commonjs.js",
   "scripts": {
-    "lint": "grunt jshint",
+    "lint": "grunt lint",
     "tdd": "grunt watch",
-    "test": "grunt"
+    "test": "grunt",
+    "build": "grunt build"
   }
 }

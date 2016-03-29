@@ -1,3 +1,7 @@
+# UMD fork of Postscribe
+
+Available on NPM as `postscribe-umd`. Will merge in all fixes that happen at krux/postscribe and some more.
+
 # Overview
 
 Remote scripts, especially ads, block the page from doing anything else while they load. They contribute a large % to load times which [affects your bottom line](http://devnet.kentico.com/Blogs/Thomas-Robbins/September-2012/How-loading-time-affects-your-bottom-line-Infograp.aspx). *Asynchronous* ads do not block the page and can be delivered after core content - [Async FTW](http://www.krux.com/blog/krux-engineers/synchronous-versus-asynchronous-tags-whats-the-big-deal/).
@@ -23,7 +27,21 @@ For more information:
 
 PostScribe overrides document.write. It is best and safest to use PostScribe after DOM is ready.
 
-Include `./htmlParser/htmlParser.js` and `./postscribe.js` on your page. TODO: cdn for postscribe.min.js
+## Installation
+
+In a browser:
+
+    <script src="./dist/postscribe.min.js"></script>
+
+With an AMD loader:
+
+    require(['postscribe'], function(postscribe) {});
+
+In Node.js/io.js using CommonJS, first `npm install --save postscribe`, then:
+
+    var postscribe = require('postscribe');
+
+## Usage
 
 To append html to #mydiv:
 
@@ -133,9 +151,10 @@ We ♥ [forks and pull requests](https://help.github.com/articles/using-pull-req
 ## Environment
 To run the tests and static code analysis tools, you will need to have the following installed:
 
-* nodejs (>=0.8) & npm - [Install Instructions](https://github.com/joyent/node/wiki/Installation)
+* nodejs (>=0.10) & npm - [Install Instructions](https://github.com/joyent/node/wiki/Installation)
 * All other project dependencies are installed via npm with `npm install`
   * [grunt](http://gruntjs.com) - a 'make' like tool for automating build, test, and other dev tasks
+  * [webpack](https://webpack.github.io/) - packages commonjs/AMD-modules for usage in the browser
   * [PhantomJS](http://phantomjs.org/) - A headless browser based on Webkit.
 
 
@@ -158,17 +177,21 @@ To run the tests:
 
 `$ npm test`
 
-We use jshint to do static analysis of the javascript and keep things smelling good. To run jslint:
+We use ESLint to do static analysis of the javascript and keep things smelling good. To run ESLint:
 
 `$ npm run lint`
 
-**Pro Tip**: You can use TDD and have jslint and the tests run on every commit with:
+**Pro Tip**: You can use TDD and have ESLint and the tests run on every commit with:
 
 `$ npm run tdd`
 
 
 # History
 Postscribe uses [software versioning standards](http://semver.org) as follows: major.new.maintenance[.trivial]. There are git tags for each release if you would like to see older versions.
+
+##### 2.0.0
+* Support loading Postscribe as UMD module (browser global/CommonJS/AMD)
+* Started building with Webpack. Running directly from source is no longer possible.
 
 ##### 1.4.0
 * Fix incomplete tags blocking UI thread
