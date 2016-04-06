@@ -1,34 +1,45 @@
 /*globals phantom:false, window:false, QUnit:false*/
 var fs = require('fs');
-
+var system = require('system');
 var page = require('webpage').create();
-var url = phantom.args[0] + '#generate_expected=1';
+var args = system.args;
+
+var url = 'file://./' + args[1]; // + '#generate_expected=1';
 
 page.onCallback = function(msg) {
   var content = '// FILE GENERATED AUTOMATICALLY. DO NOT MODIFY THIS FILE. THIS FILE IS GIT-IGNORED.\n';
   content += 'window.expectedBehavior = \n' + msg.data + ';';
-  fs.write(phantom.args[1], content);
+  fs.write(args[2], content);
   phantom.exit();
 };
 
 page.onError = function(e) {
-  throw e;
+  console.error(e);
 };
 
 page.onConsoleMessage = function(msg) {
   console.info(msg);
 };
 
+page.onResourceError = function(resourceError) {
+  console.log('Unable to load resource (#' + resourceError.id + ', URL: ' + resourceError.url + ')');
+  console.log('Error code: ' + resourceError.errorCode + '. Description: ' + resourceError.errorString);
+};
+
 var loaded;
 page.open(url, function(status) {
-  if(!loaded) {
+  if (!loaded) {
     loaded = true;
 
-    if(status !== 'success') {
-      throw 'Bad status \'' + status + '\'';
+    if (status !== 'success') {
+      console.error('Bad status \'' + status + '\'');
+      phantom.exit();
     }
-    console.log('Page loaded.');
-    page.evaluate(function() {
+
+    var result = page.evaluate(function() {
+      console.info(document.body.children.length);
+      return document.body.innerHTML;
+      /*
       var finish = function() {
         window.callPhantom({
           type: 'expected',
@@ -36,9 +47,9 @@ page.open(url, function(status) {
         });
       };
 
-      // Give up if a test fails after a long time. 
+      // Give up if a test fails after a long time.
       var handle;
-      QUnit.testStart(function(details) {
+      window.QUnit.testStart(function(details) {
         handle = window.setTimeout(function() {
           console.error('~STUCK~\n', details.name, '\ndid not complete!');
           console.error('Passing along whatever data is available.');
@@ -46,15 +57,20 @@ page.open(url, function(status) {
         }, 5000);
       });
 
-      QUnit.testDone(function() {
+      window.QUnit.testDone(function() {
         window.clearTimeout(handle);
       });
 
-      QUnit.done(function() {
+      window.QUnit.done(function() {
         console.log('Tests done.');
         finish();
       });
+
+       */
     });
+
+    console.info(result);
+    phantom.exit();
   }
 });
 

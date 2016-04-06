@@ -1,12 +1,11 @@
-
 // final innerHTML behaves like buffered innerHTML and not like streamed document.write
 // That is acceptable.
 
-if(/generate_expected=1/.test(location.href)) {
+if (/generate_expected=1/.test(location.href)) {
   window.expectedBehavior = false;
 }
 
-if(/wait=1/.test(location.href)) {
+if (/wait=1/.test(location.href)) {
   // wait before running tests.
   test('waiting', stop);
 }
@@ -25,24 +24,27 @@ var ignoreScripts = (function() {
 var innerHtml = function(el) {
   //return el.innerHTML.replace(/(\r\n)?<script[^>]*>[\s\S]*?<\/script>(\r\n)?/ig, '');
   var html = el.innerHTML
-    .replace(/\.js\?0\.\d+/g, '.js')
-    // The contents of iframes gets doubly-escaped because we pass the expected value through innerHTML.
-    // So we ignore it.
-    .replace(/(<iframe[^>]*>)[\s\S]*?(<\/iframe>)/ig, '$1$2');
+      .replace(/\.js\?0\.\d+/g, '.js')
+      // The contents of iframes gets doubly-escaped because we pass the expected value through innerHTML.
+      // So we ignore it.
+      .replace(/(<iframe[^>]*>)[\s\S]*?(<\/iframe>)/ig, '$1$2');
   return ignoreScripts ?
-    // remove all scripts (IE7/8, FF)
-    // IE7/8 because we pass expected html through the innerHTML of a div, scripts don't appear
-    // FF reverses order of attributes in the case that SRC is capitalized.
-    html.replace(/(\r\n)?<script[^>]*>[\s\S]*?<\/script>(\r\n)?/ig, '') :
-    // only remove helper scripts
-    // Webkit, IE9
-    html.replace(/<script class="test_helper">.*?<\/script>/g, '');
+      // remove all scripts (IE7/8, FF)
+      // IE7/8 because we pass expected html through the innerHTML of a div, scripts don't appear
+      // FF reverses order of attributes in the case that SRC is capitalized.
+      html.replace(/(\r\n)?<script[^>]*>[\s\S]*?<\/script>(\r\n)?/ig, '') :
+      // only remove helper scripts
+      // Webkit, IE9
+      html.replace(/<script class="test_helper">.*?<\/script>/g, '');
 };
 
 window.nativeBehavior = {};
 
-if(!window.console) {
-  window.console = {log: function() {}};
+if (!window.console) {
+  window.console = {
+    log: function() {
+    }
+  };
 }
 
 var getDoc = function(iframe) {
@@ -119,17 +121,16 @@ var PauseMonitor = function(done) {
       };
     },
 
-
-    checkDone: function () {
+    checkDone: function() {
       clearTimeout(timeout);
       // check if we're done on next tick.
       timeout = setTimeout(function() {
-        for(var i = 0, ctx; ctx = self.contexts[i]; i++) {
-          if(ctx.paused) {
+        for (var i = 0, ctx; ctx = self.contexts[i]; i++) {
+          if (ctx.paused) {
             return;
           }
         }
-        console.log('=== all contexts are done ===');
+        // console.log('=== all contexts are done ===');
         done();
         done = null;
       }, 0);
@@ -140,17 +141,18 @@ var PauseMonitor = function(done) {
   return self;
 };
 
-
 // a tag is a function that takes a document context
 var execute = function(name, tags, options) {
   random.reset();
 
-  console.log('\n\ntest start ' + name);
-  for(var i = 0, tag; tag = tags[i]; i++) {
+  // console.log('test start ' + name);
+  for (var i = 0, tag; tag = tags[i]; i++) {
     tag.id = 'tag' + i;
   }
 
-  var ifr, mode, pauseMonitor;
+  var ifr;
+  var mode;
+  var pauseMonitor;
 
   var Context = {
     common: function(tag) {
@@ -169,22 +171,22 @@ var execute = function(name, tags, options) {
         written: '',
 
         pause: function() {
-          console.log('ctx paused');
+          // console.log('ctx paused');
           self.paused = true;
         },
 
         resume: function() {
-          console.log('ctx resumed');
+          // console.log('ctx resumed');
           self.paused = false;
         },
 
         onFinished: function() {
           self.eq(innerHtml(self.div), tag.id + ':Final InnerHtml');
-          console.log(tag.id + ' finished');
+          // console.log(tag.id + ' finished');
         },
 
         render: function renderTest() {
-          console.log(tag.id + ' starting');
+          // console.log(tag.id + ' starting');
           self.tag.render(self);
           self.pause();
           self.writeCallback(function() {
@@ -196,7 +198,6 @@ var execute = function(name, tags, options) {
         compareInnerHtml: function() {
           self.eqPrefix(innerHtml(self.div), tag.id + ':' + [].slice.call(arguments).join(''));
         }
-
       };
 
       var delegateMethod = function(method) {
@@ -204,15 +205,16 @@ var execute = function(name, tags, options) {
           return doc[method].apply(doc, arguments);
         };
       };
-      var method, methods = 'write writeln writeInline writeRemote writeCallback'.split(' ');
-      while(method = methods.pop()) {
+      var method;
+      var methods = 'write writeln writeInline writeRemote writeCallback'.split(' ');
+      while (method = methods.pop()) {
         delegateMethod(method);
       }
 
       return self;
     },
 
-    native: function(tag){
+    native: function(tag) {
 
       var self = Context.common(tag);
 
@@ -226,7 +228,7 @@ var execute = function(name, tags, options) {
         self.calls.push([].slice.call(arguments));
       };
 
-      self.expect = function(){
+      self.expect = function() {
         // do nothing
       };
 
@@ -236,15 +238,15 @@ var execute = function(name, tags, options) {
 
       self.doc.write = function() {
         var args = [].slice.call(arguments);
-        console.log('native docwrite', args);
+        // console.log('native docwrite', args);
 
-        if(parser) {
+        if (parser) {
           $.each(args, function(index, value) {
             parser.append(value);
           });
           args = (function() {
             var str = '';
-            for(var tok; tok = parser.readToken();) {
+            for (var tok; tok = parser.readToken();) {
               str += tok.text;
             }
             return [str];
@@ -258,7 +260,7 @@ var execute = function(name, tags, options) {
           self.written = self.written + value;
         });
 
-        if(options.useInnerHtml) {
+        if (options.useInnerHtml) {
           self.div.innerHTML = self.written;
         } else {
           self.doc._write.apply(self.doc, args);
@@ -269,15 +271,14 @@ var execute = function(name, tags, options) {
       return self;
     },
 
-
-    writer: function(tag){
+    writer: function(tag) {
 
       var self = Context.common(tag);
       var work = self.doc.createElement('div');
 
       var expectCalls;
 
-      if(expectedBehavior) {  //$.browser.msie || $.browser.mozilla && parseFloat($.browser.version) < 2 ) {
+      if (expectedBehavior) {
         expectCalls = expectedBehavior['test ' + name][tag.id].calls;
       } else {
         expectCalls = [].slice.call(tag.nativeCtx.calls);
@@ -289,26 +290,26 @@ var execute = function(name, tags, options) {
 
       // Remove first \r\n from actual (needed for IE7-8)
       function clipRN(str) {
-        return str.replace(/^\r\n/, "");
+        return str.replace(/^\r\n/, '');
       }
 
       self.eq = function(val, msg) {
         var args = expectCalls.shift();
 
-        if(args && expectedBehavior) {
+        if (args && expectedBehavior) {
           // run it through innerHTML to get rid of browser inconsistencies
           work.innerHTML = args[0];
           args[0] = innerHtml(work);
         }
 
-        if(!args) {
+        if (!args) {
           args = ['args was null', 'args was null'];
         } else if (args[1] !== msg) {
           msg = 'mismatch: 1:' + args[1] + ' 2:' + msg;
         }
 
-        if(args[0] !== val) {
-          console.log('\nTest Fail', msg);
+        if (args[0] !== val) {
+          console.log('Test Fail', msg);
         }
 
         equal(args[0], clipRN(val), msg);
@@ -318,29 +319,27 @@ var execute = function(name, tags, options) {
       self.eqPrefix = function(val, msg) {
         var args = expectCalls.shift();
 
-        if(args && expectedBehavior) {
+        if (args && expectedBehavior) {
           // run it through innerHTML to get rid of browser inconsistencies
           work.innerHTML = args[0];
           args[0] = innerHtml(work);
         }
 
-        if(!args) {
+        if (!args) {
           args = ['args was null', 'args was null'];
         } else if (args[1] !== msg) {
           msg = 'mismatch: 1:' + args[1] + ' 2:' + msg;
         }
 
-
-        if(val.indexOf(args[0]) !== 0) {
-          if(args[0] !== clipRN(val)) {
-            console.log('\nTest Fail', msg);
+        if (val.indexOf(args[0]) !== 0) {
+          if (args[0] !== clipRN(val)) {
+            console.log('Test Fail', msg);
           }
           equal(args[0], clipRN(val), msg);
         } else {
           ok(true, msg);
         }
       };
-
 
       return self;
     }
@@ -358,12 +357,12 @@ var execute = function(name, tags, options) {
   var queue = [
 
     function NATIVE_MODE(done) {
-      if(window.expectedBehavior) {
+      if (window.expectedBehavior) {
         done();
         return;
       }
 
-      console.log('\ntest native');
+      // console.log('test native');
 
       ifr = IFrame('[EXPECTED]' + name);
 
@@ -376,7 +375,7 @@ var execute = function(name, tags, options) {
         renderTag(tags[i]);
       };
 
-      for(i = 0; tag = tags[i]; i++) {
+      for (i = 0; tag = tags[i]; i++) {
 
         ifr.doc._write('<div class=tag id=' + tag.id + '>');
 
@@ -389,13 +388,13 @@ var execute = function(name, tags, options) {
     },
 
     function intermission(done) {
-      console.log('\nintermission');
+      // console.log('intermission');
 
-      if(GENERATE_EXPECTED) {
+      if (GENERATE_EXPECTED) {
         var testBehavior = nativeBehavior['test ' + name] = {};
 
         // spit out native
-        for(i = 0; tag = tags[i]; i++) {
+        for (i = 0; tag = tags[i]; i++) {
           testBehavior[tag.id] = {
             calls: tag.nativeCtx.calls
           };
@@ -406,7 +405,7 @@ var execute = function(name, tags, options) {
 
     function WRITER_MODE(done) {
 
-      console.log('\ntest writer');
+      // console.log('test writer');
 
       ifr = IFrame('[ACTUAL]' + name);
 
@@ -414,7 +413,7 @@ var execute = function(name, tags, options) {
         ok(false, ifr.doc.currentTag.id + ' - document.write outside: ' + [].slice.call(arguments).join(''));
       };
 
-      for(i = 0; tag = tags[i]; i++) {
+      for (i = 0; tag = tags[i]; i++) {
         ifr.doc._write('<div class=tag id=' + tag.id + '></div>');
       }
 
@@ -432,7 +431,7 @@ var execute = function(name, tags, options) {
         ctx.render();
       };
 
-      for(var i = 0; i < shuffledTags.length; i++) {
+      for (var i = 0; i < shuffledTags.length; i++) {
         (function(tag, i) {
           var ctx = Context[mode](tag, ifr.doc);
           pauseMonitor.add(ctx);
@@ -458,14 +457,14 @@ var execute = function(name, tags, options) {
 
     function finishedTest(done) {
       start();
-      console.log('test finished ' + name);
+      // console.log('test finished ' + name);
       done();
     }
   ];
 
   var next = function() {
     var fn = queue.shift();
-    if(fn) {
+    if (fn) {
       fn(next);
     }
   };
@@ -473,12 +472,11 @@ var execute = function(name, tags, options) {
   next();
 };
 
-
 // innerHTML is sync under FF3.6. document.write is not.
 // We only care about this for testing. On a live site htmlWrite
 // behaves correctly because it's using innerHTML and not document.write
 var supports = {
-  docwriteSync: !($.browser.mozilla && $.browser.version.indexOf('1.9.') === 0)
+  docwriteSync: false
 };
 
 var nativeTimeout;
@@ -493,17 +491,17 @@ var testWrite = function(name) {
 
   var tags = [];
 
-  for(var i = 0, fn; fn = fns[i]; i++) {
+  for (var i = 0, fn; fn = fns[i]; i++) {
     tags.push(Tag(fn));
   }
 
   // TEST OPTIONS
   var options = testOptions;
 
-  test(name + (window.JSON ? JSON.stringify(options):''), function() {
+  test(name + (window.JSON ? JSON.stringify(options) : ''), function() {
     execute(name, tags, options);
 
-    if(GENERATE_EXPECTED && window.JSON && JSON.stringify) {
+    if (GENERATE_EXPECTED && window.JSON && JSON.stringify) {
       clearTimeout(nativeTimeout);
       nativeTimeout = setTimeout(function() {
         console.log('Native behavior:');
@@ -518,17 +516,20 @@ var testWrite = function(name) {
 
 var setOptions = function(options) {
   options.useExpected = true;
-  if(!supports.docwriteSync && !options.useExpected) {
+  if (!supports.docwriteSync && !options.useExpected) {
     options.useInnerHtml = true;
   }
-  if(options.useInnerHtml) {
+  if (options.useInnerHtml) {
     options.async = false;
     options.bufferPartialTags = true;
   }
   testOptions = options;
 };
 
-var skip = function() {return function() {};};
+var skip = function() {
+  return function() {
+  };
+};
 
 document.write([
   '<script type="text/vbscript">',

@@ -1,21 +1,35 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <!-- source files -->
-    <script src="../postscribe.js"></script>
-    <script src="../htmlParser/htmlParser.js"></script>
+    <title>PostScribe tests</title>
+    <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-1.23.0.css" type="text/css" media="screen" />
 
     <!-- vendor -->
-    <script src="vendor/jquery.js"></script>
-    <link rel="stylesheet" href="vendor/qunit.css" type="text/css" media="screen" />
-    <script type="text/javascript" src="vendor/qunit.js"></script>
-    <script src="/testem.js"></script>
+    <script src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
+    <script src="https://code.jquery.com/qunit/qunit-1.23.0.js"></script>
+
+    <!-- source files -->
+    <script src="../build/dist/postscribe.js"></script>
 
     <!-- test files -->
     <script src="random.js"></script>
     <script src="expected.js"></script>
     <script src="helpers.js"></script>
-    <script src="test.js"></script>
+    <script src="unit/api.js"></script>
+    <script src="unit/attributes.js"></script>
+    <script src="unit/docwrite.js"></script>
+    <script src="unit/docwritelnmultiple.js"></script>
+    <script src="unit/docwritemultiple.js"></script>
+    <script src="unit/errors.js"></script>
+    <script src="unit/immediacy.js"></script>
+    <script src="unit/multiple.js"></script>
+    <script src="unit/overwrite.js"></script>
+    <script src="unit/selfclosing.js"></script>
+    <script src="unit/simplewrites.js"></script>
+    <script src="unit/style.js"></script>
+    <script src="unit/tagsoup.js"></script>
+    <script src="unit/tokenprocessing.js"></script>
+    <script src="unit/vbscript.js"></script>
   </head>
 
   <body>
@@ -27,19 +41,4 @@
     <ol id="qunit-tests"></ol>
     <div id="qunit-fixture">test markup, will be hidden</div>
   </body>
-  <script>
-
-
-    var isTestem = /all-test-results/.test(QUnit.done.toString());
-    if(!isTestem) {
-      QUnit.done(function allDone(details){
-        if (details.failed === 0) {
-          jQuery("#qunit-header").append(" - Great Success!");
-        } else {
-          jQuery("#qunit-header").append(" - Fail!");
-        }
-      });
-    }
-
-  </script>
 </html>
