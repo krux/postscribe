@@ -1,1 +1,1 @@
-var global1 = "remote global1";
+var global1 = 'remote global1';
