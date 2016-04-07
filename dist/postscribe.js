@@ -9,14 +9,17 @@ Copyright (c) 2015 Derek Brans, MIT license https://github.com/krux/postscribe/b
 
     var html;
     var work = this.document.createElement('div');
-
-    html = '<P><I></P></I>';
-    work.innerHTML = html;
-    supports.tagSoup = work.innerHTML !== html;
-
-    work.innerHTML = '<P><i><P></P></i></P>';
-    supports.selfClose = work.childNodes.length === 2;
-
+    try {
+      html = '<P><I></P></I>';
+      work.innerHTML = html;
+      supports.tagSoup = work.innerHTML !== html;
+    } catch(e) {}
+    
+    try {
+      work.innerHTML = '<P><i><P></P></i></P>';
+      supports.selfClose = work.childNodes.length === 2;
+    } catch(ee) {}
+    
     return supports;
   })();
 
