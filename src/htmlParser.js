@@ -46,16 +46,6 @@ function htmlParser(stream, options) {
     }
   }
 
-  var unescapeURLs = function(html) {
-    if ( (typeof html === 'string') && (html.indexOf('&') !== -1) ) {
-      html = html.replace('amp;', '').replace(/(&#\d{1,4};)/gm, function(match){
-          var code = match.substring(2,match.length-1);
-          return String.fromCharCode(code);
-        });
-    }
-    return encodeURI(html);
-  };
-
   // Cache div element for unescaping html entities
   var el = document.createElement('div');
 
@@ -156,7 +146,7 @@ function htmlParser(stream, options) {
           } else {
             var value = arguments[2] || arguments[3] || arguments[4] ||
               fillAttr.test(name) && name || '';
-            attrs[name] = (name === 'src') ? unescapeURLs(value) : unescapeHTMLEntities(value);
+            attrs[name] = unescapeHTMLEntities(value);
           }
           rest = rest.replace(matched, '');
         });

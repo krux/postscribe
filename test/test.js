@@ -19,7 +19,6 @@ $(document).ready(function() {
     '}</style>' +
     '<div id="test_style">' +
     '<img src="http://lorempixel.com/100/80/sports/"/>' +
-    '<div data-x="a<b"></div>' +
     '</div>');
   });
 
@@ -147,19 +146,9 @@ $(document).ready(function() {
     ctx.write('<SCRIPT TYPE="text/javascript" SRC="remote&#47;write-div.js"></SCRIPT>');
   });
 
-  // HTML Escaped Entities - handle amp escaping on src attributes
-  testWrite('Escaped ampersand in src of remote script', function(ctx) {
-    ctx.write('<script type="text/javascript" src="remote/write-using-query-string.js?k=1&amp;k2=2"></script>');
-  });
-
-  // HTML Escaped Entities - do not convert &para to a paragraph symbol
-  testWrite('&para in querystring not escaped to paragraph symbol ', function(ctx) {
-    ctx.write('<script type="text/javascript" src="remote/write-using-query-string.js?k=1&param=foo"></script>');
-  });
-
   // HTML Escaped Entities check issue #81 fix
   testWrite('Escaped HTML Entity script entity name', function(ctx) {
-    ctx.write('<div data-x="a&lt;b"></div>');
+    ctx.write('<script type="text/javascript" src="remote/write-using-query-string.js?k=1&amp;k2=2"></script>');
   });
 
   // general html entity checking
