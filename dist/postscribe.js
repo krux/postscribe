@@ -86,7 +86,7 @@ Copyright (c) 2015 Derek Brans, MIT license https://github.com/krux/postscribe/b
         var index = stream.indexOf('-->');
         if ( index >= 0 ) {
           return {
-            content: stream.substr(4, index),
+            content: stream.substr(4, index-1),
             length: index + 3
           };
         }
@@ -854,7 +854,9 @@ Copyright (c) 2015 Derek Brans, MIT license https://github.com/krux/postscribe/b
       var cursor = this.doc.getElementById('ps-style');
 
       // Replace cursor with style.
-      cursor.parentNode.replaceChild(el, cursor);
+      if (cursor) {
+        cursor.parentNode.replaceChild(el, cursor);
+      }
     };
 
     WriteStream.prototype.onScriptStart = function(tok) {
@@ -939,7 +941,9 @@ Copyright (c) 2015 Derek Brans, MIT license https://github.com/krux/postscribe/b
       var cursor = this.doc.getElementById('ps-script');
 
       // Replace cursor with script.
-      cursor.parentNode.replaceChild(el, cursor);
+      if (cursor) {
+        cursor.parentNode.replaceChild(el, cursor);
+      }
     };
 
     WriteStream.prototype.scriptLoadHandler = function(el, done) {
@@ -1071,6 +1075,11 @@ Copyright (c) 2015 Derek Brans, MIT license https://github.com/krux/postscribe/b
     function postscribe(el, html, options) {
       if(isFunction(options)) {
         options = { done: options };
+      } else if (options === 'clear') {
+        queue = [];
+        active = null;
+        nextId = 0;
+        return;
       }
       options = defaults(options, OPTIONS);
 
