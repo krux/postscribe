@@ -17,7 +17,7 @@ export default {
 
   files: [
     'node_modules/jquery/dist/jquery.js',
-    'build/dist/postscribe.js',
+    'dist/postscribe.js',
     'test/random.js',
     'test/expected.js',
     'test/helpers.js',
