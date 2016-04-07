@@ -1,24 +1,6 @@
 // FILE GENERATED AUTOMATICALLY. DO NOT MODIFY THIS FILE. THIS FILE IS GIT-IGNORED.
 window.expectedBehavior = 
 {
-  "test simple style": {
-    "tag0": {
-      "calls": [
-        [
-          "<style type=\"text/css\">#test_style {background:blue;width:200px;height:300px;border: 2px solid red;}</style><div id=\"test_style\"><img src=\"http://lorempixel.com/100/80/sports/\"></div>",
-          "tag0:<style type=\"text/css\">#test_style {background:blue;width:200px;height:300px;border: 2px solid red;}</style><div id=\"test_style\"><img src=\"http://lorempixel.com/100/80/sports/\"/></div>"
-        ],
-        [
-          "<style type=\"text/css\">#test_style {background:blue;width:200px;height:300px;border: 2px solid red;}</style><div id=\"test_style\"><img src=\"http://lorempixel.com/100/80/sports/\"></div>",
-          "tag0:Final InnerHtml"
-        ],
-        [
-          "<style type=\"text/css\">#test_style {background:blue;width:200px;height:300px;border: 2px solid red;}</style><div id=\"test_style\"><img src=\"http://lorempixel.com/100/80/sports/\"></div>",
-          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
-        ]
-      ]
-    }
-  },
   "test string double quote": {
     "tag0": {
       "calls": [
@@ -282,7 +264,7 @@ window.expectedBehavior =
           "tag0:Z<script src=\"remote/write-div.js\"></script>N"
         ],
         [
-          "VQ<div id=\"remote\">remote</div>STXYQVQXSTSTXYEVQXSTF758Z<div id=\"remote\">remote</div>NAVQ",
+          "VQ<div id=\"remote\">remote</div>STXYQVQXSTSTXYEVQXSTF758Z<div id=\"remote\">remote</div>NAVQ<div id=\"remote\">remote</div>",
           "tag0:<div id=\"remote\">remote</div>"
         ],
         [
@@ -366,7 +348,7 @@ window.expectedBehavior =
           "tag0:Z<script src=\"remote/write-div.js\"></script>N"
         ],
         [
-          "VQ<div id=\"remote\">remote</div>STXYQVQXSTSTXYEVQXSTF758Z<div id=\"remote\">remote</div>NAVQ<div id=\"remote\">remote</div>STXYQVQXSTSTXYEVQXSTF758Z<div id=\"remote\">remote</div>NBVQ",
+          "VQ<div id=\"remote\">remote</div>STXYQVQXSTSTXYEVQXSTF758Z<div id=\"remote\">remote</div>NAVQ<div id=\"remote\">remote</div>STXYQVQXSTSTXYEVQXSTF758Z<div id=\"remote\">remote</div>NBVQ<div id=\"remote\">remote</div>",
           "tag0:<div id=\"remote\">remote</div>"
         ],
         [
@@ -502,7 +484,7 @@ window.expectedBehavior =
           "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
         ],
         [
-          "",
+          "<div id=\"remote\">remote</div>",
           "tag0:<div id=\"remote\">remote</div>"
         ],
         [
@@ -569,7 +551,7 @@ window.expectedBehavior =
         ],
         [
           "footruefalse",
-          "tag0:<script>var XQWER = \"foo\";</script><script>document.write(\"\"+window.XQWER + (this === window) + (window === top));</script>"
+          "tag0:<script>var XQWER = \"foo\";</script><script>document.write(\"\" + window.XQWER + (this === window) + (window === top));</script>"
         ],
         [
           "footruefalse",
@@ -598,7 +580,7 @@ window.expectedBehavior =
           "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
         ],
         [
-          "",
+          "<div id=\"remote\">remote</div>",
           "tag0:<div id=\"remote\">remote</div>"
         ],
         [
@@ -632,7 +614,7 @@ window.expectedBehavior =
           "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
         ],
         [
-          "",
+          "<div id=\"remote\">remote</div>",
           "tag0:<div id=\"remote\">remote</div>"
         ],
         [
@@ -674,7 +656,7 @@ window.expectedBehavior =
           "tag0:T"
         ],
         [
-          "VQ",
+          "VQ<div id=\"remote\">remote</div>",
           "tag0:<div id=\"remote\">remote</div>"
         ],
         [
@@ -700,35 +682,35 @@ window.expectedBehavior =
           "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
         ],
         [
-          "",
+          "V",
           "tag0:V"
         ],
         [
-          "",
+          "VQ",
           "tag0:Q<script src=\"remote/write-div.js\"></script>S"
         ],
         [
-          "",
+          "VQ",
           "tag0:T<script>document.write(\"X\")</script>Y"
         ],
         [
-          "",
+          "VQ",
           "tag0:Q<script src=\"remote/write-inline-script.js\"></script>S"
         ],
         [
-          "",
+          "VQ",
           "tag0:T<script>document.write(\"X\")</script>Y"
         ],
         [
-          "",
+          "VQ",
           "tag0:E<script src=\"remote/write-inline-script.js\"></script>F"
         ],
         [
-          "",
+          "VQ",
           "tag0:7<script>document.write(\"5\")</script>8"
         ],
         [
-          "",
+          "VQ",
           "tag0:Z<script src=\"remote/write-div.js\"></script>N"
         ],
         [
@@ -806,20 +788,20 @@ window.expectedBehavior =
           "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
         ],
         [
-          "",
+          "V",
           "tag0:V"
-        ],
-        [
-          "",
-          "tag0:Q<script>document.write(\"X\")</script>S"
-        ],
-        [
-          "",
-          "tag0:T"
         ],
         [
           "VQX",
           "tag0:X"
+        ],
+        [
+          "VQXS",
+          "tag0:Q<script>document.write(\"X\")</script>S"
+        ],
+        [
+          "VQXST",
+          "tag0:T"
         ],
         [
           "VQXST<div id=\"local\">Local</div>",
@@ -876,34 +858,12 @@ window.expectedBehavior =
       ]
     }
   },
-  "test Escaped HTML Entity remote script": {
-    "tag0": {
-      "calls": [
-        [
-          "",
-          "tag0:<SCRIPT TYPE=\"text/javascript\" SRC=\"remote&#47;write-div.js\"></SCRIPT>"
-        ],
-        [
-          "",
-          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
-        ],
-        [
-          "",
-          "tag0:<div id=\"remote\">remote</div>"
-        ],
-        [
-          "<div id=\"remote\">remote</div>",
-          "tag0:Final InnerHtml"
-        ]
-      ]
-    }
-  },
   "test Escaped HTML Entity script entity name": {
     "tag0": {
       "calls": [
         [
           "",
-          "tag0:<script type=\"text/javascript\" src=\"remote/write-using-query-string.js?k=1&amp;k2=2\"></script>"
+          "tag0:<script type=\"text/javascript\" src=\"remote/write-using-query-string.js?k=1&k2=2\"></script>"
         ],
         [
           "",
@@ -938,19 +898,343 @@ window.expectedBehavior =
       ]
     }
   },
-  "test Escaped HTML Entity remote image": {
+  "test wlma: split mid-element": {
     "tag0": {
       "calls": [
         [
-          "<img src=\"http://lorempixel.com/400/200/sports/\" alt=\"image\">",
-          "tag0:<img src=\"http&#58;&#47;&#47;lorempixel.com&#47;400&#47;200&#47;sports&#47;\" alt=\"image\"/>"
+          "<img alt=\"foo\">\n",
+          "tag0:<img alt=\"foo\">\n"
         ],
         [
-          "<img src=\"http://lorempixel.com/400/200/sports/\" alt=\"image\">",
+          "foo"
+        ],
+        [
+          "<img alt=\"foo\">\n",
           "tag0:Final InnerHtml"
         ],
         [
-          "<img src=\"http://lorempixel.com/400/200/sports/\" alt=\"image\">",
+          "<img alt=\"foo\">\n",
+          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
+        ]
+      ]
+    }
+  },
+  "test wlma: split mid-attribute": {
+    "tag0": {
+      "calls": [
+        [
+          "<img alt=\"foo\">\n",
+          "tag0:<img alt=\"foo\">\n"
+        ],
+        [
+          "foo"
+        ],
+        [
+          "<img alt=\"foo\">\n",
+          "tag0:Final InnerHtml"
+        ],
+        [
+          "<img alt=\"foo\">\n",
+          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
+        ]
+      ]
+    }
+  },
+  "test wlma: split mid-attribute-value": {
+    "tag0": {
+      "calls": [
+        [
+          "<img alt=\"foo\">\n",
+          "tag0:<img alt=\"foo\">\n"
+        ],
+        [
+          "foo"
+        ],
+        [
+          "<img alt=\"foo\">\n",
+          "tag0:Final InnerHtml"
+        ],
+        [
+          "<img alt=\"foo\">\n",
+          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
+        ]
+      ]
+    }
+  },
+  "test wlma: empty strings": {
+    "tag0": {
+      "calls": [
+        [
+          "<img alt=\"foo\">\n",
+          "tag0:<img alt=\"foo\">\n"
+        ],
+        [
+          "foo"
+        ],
+        [
+          "<img alt=\"foo\">\n",
+          "tag0:Final InnerHtml"
+        ],
+        [
+          "<img alt=\"foo\">\n",
+          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
+        ]
+      ]
+    }
+  },
+  "test wlma: docwrite outside parent of script": {
+    "tag0": {
+      "calls": [
+        [
+          "<div>AB</div>C",
+          "tag0:B</div>C"
+        ],
+        [
+          "<div>AB</div>CD\n",
+          "tag0:<div>A<script type=\"text/javascript\">\ndocument.write(\"B</div>C\");\n</script>D\n"
+        ],
+        [
+          "<div>AB</div>CD\n",
+          "tag0:Final InnerHtml"
+        ],
+        [
+          "<div>AB</div>CD\n",
+          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
+        ]
+      ]
+    }
+  },
+  "test wlma: SW9": {
+    "tag0": {
+      "calls": [
+        [
+          "<div><i></i></div>foo<div>bar<i></i>\n</div>",
+          "tag0:<div><i></i></div>foo<div>bar<i></i>\n"
+        ],
+        [
+          "<div><i></i></div>foo<div>bar<i></i>\n</div>",
+          "tag0:Final InnerHtml"
+        ],
+        [
+          "<div><i></i></div>foo<div>bar<i></i>\n</div>",
+          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
+        ]
+      ]
+    }
+  },
+  "test wlma: SW10": {
+    "tag0": {
+      "calls": [
+        [
+          "<div><b><i></i></b></div>foo<div>bar<i></i>bla\n</div>",
+          "tag0:<div><b><i></i></b></div>foo<div>bar<i></i>bla\n"
+        ],
+        [
+          "<div><b><i></i></b></div>foo<div>bar<i></i>bla\n</div>",
+          "tag0:Final InnerHtml"
+        ],
+        [
+          "<div><b><i></i></b></div>foo<div>bar<i></i>bla\n</div>",
+          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
+        ]
+      ]
+    }
+  },
+  "test wlma: TS2": {
+    "tag0": {
+      "calls": [
+        [
+          "<div><i><div>foo<div><i>\n</i></div></div></i></div>",
+          "tag0:<div><i><div>foo<div><i>\n"
+        ],
+        [
+          "<div><i><div>foo<div><i>\n</i></div></div></i></div>",
+          "tag0:Final InnerHtml"
+        ],
+        [
+          "<div><i><div>foo<div><i>\n</i></div></div></i></div>",
+          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
+        ]
+      ]
+    }
+  },
+  "test wma: split mid-element": {
+    "tag0": {
+      "calls": [
+        [
+          "<img alt=\"foo\">",
+          "tag0:<img alt=\"foo\">"
+        ],
+        [
+          "foo"
+        ],
+        [
+          "<img alt=\"foo\">",
+          "tag0:Final InnerHtml"
+        ],
+        [
+          "<img alt=\"foo\">",
+          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
+        ]
+      ]
+    }
+  },
+  "test wma: split mid-attribute": {
+    "tag0": {
+      "calls": [
+        [
+          "<img alt=\"foo\">",
+          "tag0:<img alt=\"foo\">"
+        ],
+        [
+          "foo"
+        ],
+        [
+          "<img alt=\"foo\">",
+          "tag0:Final InnerHtml"
+        ],
+        [
+          "<img alt=\"foo\">",
+          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
+        ]
+      ]
+    }
+  },
+  "test wma: split mid-attribute-value": {
+    "tag0": {
+      "calls": [
+        [
+          "<img alt=\"foo\">",
+          "tag0:<img alt=\"foo\">"
+        ],
+        [
+          "foo"
+        ],
+        [
+          "<img alt=\"foo\">",
+          "tag0:Final InnerHtml"
+        ],
+        [
+          "<img alt=\"foo\">",
+          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
+        ]
+      ]
+    }
+  },
+  "test wma: empty strings": {
+    "tag0": {
+      "calls": [
+        [
+          "<img alt=\"foo\">",
+          "tag0:<img alt=\"foo\">"
+        ],
+        [
+          "foo"
+        ],
+        [
+          "<img alt=\"foo\">",
+          "tag0:Final InnerHtml"
+        ],
+        [
+          "<img alt=\"foo\">",
+          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
+        ]
+      ]
+    }
+  },
+  "test wma: docwrite outside parent of script": {
+    "tag0": {
+      "calls": [
+        [
+          "<div>AB</div>C",
+          "tag0:B</div>C"
+        ],
+        [
+          "<div>AB</div>CD",
+          "tag0:<div>A<script type=\"text/javascript\">\ndocument.write(\"B</div>C\");\n</script>D"
+        ],
+        [
+          "<div>AB</div>CD",
+          "tag0:Final InnerHtml"
+        ],
+        [
+          "<div>AB</div>CD",
+          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
+        ]
+      ]
+    }
+  },
+  "test wma: SW9": {
+    "tag0": {
+      "calls": [
+        [
+          "<div><i></i></div>foo<div>bar<i></i></div>",
+          "tag0:<div><i></i></div>foo<div>bar<i></i>"
+        ],
+        [
+          "<div><i></i></div>foo<div>bar<i></i></div>",
+          "tag0:Final InnerHtml"
+        ],
+        [
+          "<div><i></i></div>foo<div>bar<i></i></div>",
+          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
+        ]
+      ]
+    }
+  },
+  "test wma: SW10": {
+    "tag0": {
+      "calls": [
+        [
+          "<div><b><i></i></b></div>foo<div>bar<i></i>bla</div>",
+          "tag0:<div><b><i></i></b></div>foo<div>bar<i></i>bla"
+        ],
+        [
+          "<div><b><i></i></b></div>foo<div>bar<i></i>bla</div>",
+          "tag0:Final InnerHtml"
+        ],
+        [
+          "<div><b><i></i></b></div>foo<div>bar<i></i>bla</div>",
+          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
+        ]
+      ]
+    }
+  },
+  "test wma: TS2": {
+    "tag0": {
+      "calls": [
+        [
+          "<div><i><div>foo<div><i></i></div></div></i></div>",
+          "tag0:<div><i><div>foo<div><i>"
+        ],
+        [
+          "<div><i><div>foo<div><i></i></div></div></i></div>",
+          "tag0:Final InnerHtml"
+        ],
+        [
+          "<div><i><div>foo<div><i></i></div></div></i></div>",
+          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
+        ]
+      ]
+    }
+  },
+  "test getElementById": {
+    "tag0": {
+      "calls": [
+        [
+          "<div id=\"foo\"><div>bar</div></div>",
+          "tag0:<div id=\"foo\"><div>bar"
+        ],
+        [
+          "<div id=\"foo\"><div>bar<i>bla</i></div><span>baz</span></div>",
+          "tag0:<i>bla</i></div>"
+        ],
+        [
+          "<div id=\"foo\"><div>bar<i>bla</i></div><span>baz</span></div>",
+          "tag0:Final InnerHtml"
+        ],
+        [
+          "<div id=\"foo\"><div>bar<i>bla</i></div><span>baz</span></div>",
           "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
         ]
       ]
@@ -972,15 +1256,15 @@ window.expectedBehavior =
           "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
         ],
         [
-          "",
+          "V",
           "tag0:V"
         ],
         [
-          "",
+          "VQ",
           "tag0:Q<script src=\"remote/write-div.js\"></script>S"
         ],
         [
-          "",
+          "VQ",
           "tag0:T"
         ],
         [
@@ -1008,35 +1292,35 @@ window.expectedBehavior =
           "tag1:<script class=\"test_helper\">cb_2();//Rendering Complete</script>"
         ],
         [
-          "",
+          "V",
           "tag1:V"
         ],
         [
-          "",
+          "VQ",
           "tag1:Q<script src=\"remote/write-div.js\"></script>S"
         ],
         [
-          "",
+          "VQ",
           "tag1:T<script>document.write(\"X\")</script>Y"
         ],
         [
-          "",
+          "VQ",
           "tag1:Q<script src=\"remote/write-inline-script.js\"></script>S"
         ],
         [
-          "",
+          "VQ",
           "tag1:T<script>document.write(\"X\")</script>Y"
         ],
         [
-          "",
+          "VQ",
           "tag1:E<script src=\"remote/write-inline-script.js\"></script>F"
         ],
         [
-          "",
+          "VQ",
           "tag1:7<script>document.write(\"5\")</script>8"
         ],
         [
-          "",
+          "VQ",
           "tag1:Z<script src=\"remote/write-div.js\"></script>N"
         ],
         [
@@ -1112,20 +1396,20 @@ window.expectedBehavior =
           "tag2:<script class=\"test_helper\">cb_3();//Rendering Complete</script>"
         ],
         [
-          "",
+          "V",
           "tag2:V"
-        ],
-        [
-          "",
-          "tag2:Q<script>document.write(\"X\")</script>S"
-        ],
-        [
-          "",
-          "tag2:T"
         ],
         [
           "VQX",
           "tag2:X"
+        ],
+        [
+          "VQXS",
+          "tag2:Q<script>document.write(\"X\")</script>S"
+        ],
+        [
+          "VQXST",
+          "tag2:T"
         ],
         [
           "VQXST<div id=\"local\">Local</div>",
@@ -1148,15 +1432,15 @@ window.expectedBehavior =
           "tag3:<script class=\"test_helper\">cb_4();//Rendering Complete</script>"
         ],
         [
-          "",
+          "V",
           "tag3:V"
         ],
         [
-          "",
+          "VQ",
           "tag3:Q<script src=\"remote/write-div.js\"></script>S"
         ],
         [
-          "",
+          "VQ",
           "tag3:T"
         ],
         [
@@ -1184,35 +1468,35 @@ window.expectedBehavior =
           "tag4:<script class=\"test_helper\">cb_5();//Rendering Complete</script>"
         ],
         [
-          "",
+          "V",
           "tag4:V"
         ],
         [
-          "",
+          "VQ",
           "tag4:Q<script src=\"remote/write-div.js\"></script>S"
         ],
         [
-          "",
+          "VQ",
           "tag4:T<script>document.write(\"X\")</script>Y"
         ],
         [
-          "",
+          "VQ",
           "tag4:Q<script src=\"remote/write-inline-script.js\"></script>S"
         ],
         [
-          "",
+          "VQ",
           "tag4:T<script>document.write(\"X\")</script>Y"
         ],
         [
-          "",
+          "VQ",
           "tag4:E<script src=\"remote/write-inline-script.js\"></script>F"
         ],
         [
-          "",
+          "VQ",
           "tag4:7<script>document.write(\"5\")</script>8"
         ],
         [
-          "",
+          "VQ",
           "tag4:Z<script src=\"remote/write-div.js\"></script>N"
         ],
         [
@@ -1288,20 +1572,20 @@ window.expectedBehavior =
           "tag5:<script class=\"test_helper\">cb_6();//Rendering Complete</script>"
         ],
         [
-          "",
+          "V",
           "tag5:V"
-        ],
-        [
-          "",
-          "tag5:Q<script>document.write(\"X\")</script>S"
-        ],
-        [
-          "",
-          "tag5:T"
         ],
         [
           "VQX",
           "tag5:X"
+        ],
+        [
+          "VQXS",
+          "tag5:Q<script>document.write(\"X\")</script>S"
+        ],
+        [
+          "VQXST",
+          "tag5:T"
         ],
         [
           "VQXST<div id=\"local\">Local</div>",
@@ -1324,15 +1608,15 @@ window.expectedBehavior =
           "tag6:<script class=\"test_helper\">cb_7();//Rendering Complete</script>"
         ],
         [
-          "",
+          "V",
           "tag6:V"
         ],
         [
-          "",
+          "VQ",
           "tag6:Q<script src=\"remote/write-div.js\"></script>S"
         ],
         [
-          "",
+          "VQ",
           "tag6:T"
         ],
         [
@@ -1360,35 +1644,35 @@ window.expectedBehavior =
           "tag7:<script class=\"test_helper\">cb_8();//Rendering Complete</script>"
         ],
         [
-          "",
+          "V",
           "tag7:V"
         ],
         [
-          "",
+          "VQ",
           "tag7:Q<script src=\"remote/write-div.js\"></script>S"
         ],
         [
-          "",
+          "VQ",
           "tag7:T<script>document.write(\"X\")</script>Y"
         ],
         [
-          "",
+          "VQ",
           "tag7:Q<script src=\"remote/write-inline-script.js\"></script>S"
         ],
         [
-          "",
+          "VQ",
           "tag7:T<script>document.write(\"X\")</script>Y"
         ],
         [
-          "",
+          "VQ",
           "tag7:E<script src=\"remote/write-inline-script.js\"></script>F"
         ],
         [
-          "",
+          "VQ",
           "tag7:7<script>document.write(\"5\")</script>8"
         ],
         [
-          "",
+          "VQ",
           "tag7:Z<script src=\"remote/write-div.js\"></script>N"
         ],
         [
@@ -1464,20 +1748,20 @@ window.expectedBehavior =
           "tag8:<script class=\"test_helper\">cb_9();//Rendering Complete</script>"
         ],
         [
-          "",
+          "V",
           "tag8:V"
-        ],
-        [
-          "",
-          "tag8:Q<script>document.write(\"X\")</script>S"
-        ],
-        [
-          "",
-          "tag8:T"
         ],
         [
           "VQX",
           "tag8:X"
+        ],
+        [
+          "VQXS",
+          "tag8:Q<script>document.write(\"X\")</script>S"
+        ],
+        [
+          "VQXST",
+          "tag8:T"
         ],
         [
           "VQXST<div id=\"local\">Local</div>",
@@ -1500,15 +1784,15 @@ window.expectedBehavior =
           "tag9:<script class=\"test_helper\">cb_10();//Rendering Complete</script>"
         ],
         [
-          "",
+          "V",
           "tag9:V"
         ],
         [
-          "",
+          "VQ",
           "tag9:Q<script src=\"remote/write-div.js\"></script>S"
         ],
         [
-          "",
+          "VQ",
           "tag9:T"
         ],
         [
@@ -1536,35 +1820,35 @@ window.expectedBehavior =
           "tag10:<script class=\"test_helper\">cb_11();//Rendering Complete</script>"
         ],
         [
-          "",
+          "V",
           "tag10:V"
         ],
         [
-          "",
+          "VQ",
           "tag10:Q<script src=\"remote/write-div.js\"></script>S"
         ],
         [
-          "",
+          "VQ",
           "tag10:T<script>document.write(\"X\")</script>Y"
         ],
         [
-          "",
+          "VQ",
           "tag10:Q<script src=\"remote/write-inline-script.js\"></script>S"
         ],
         [
-          "",
+          "VQ",
           "tag10:T<script>document.write(\"X\")</script>Y"
         ],
         [
-          "",
+          "VQ",
           "tag10:E<script src=\"remote/write-inline-script.js\"></script>F"
         ],
         [
-          "",
+          "VQ",
           "tag10:7<script>document.write(\"5\")</script>8"
         ],
         [
-          "",
+          "VQ",
           "tag10:Z<script src=\"remote/write-div.js\"></script>N"
         ],
         [
@@ -1640,20 +1924,20 @@ window.expectedBehavior =
           "tag11:<script class=\"test_helper\">cb_12();//Rendering Complete</script>"
         ],
         [
-          "",
+          "V",
           "tag11:V"
-        ],
-        [
-          "",
-          "tag11:Q<script>document.write(\"X\")</script>S"
-        ],
-        [
-          "",
-          "tag11:T"
         ],
         [
           "VQX",
           "tag11:X"
+        ],
+        [
+          "VQXS",
+          "tag11:Q<script>document.write(\"X\")</script>S"
+        ],
+        [
+          "VQXST",
+          "tag11:T"
         ],
         [
           "VQXST<div id=\"local\">Local</div>",
@@ -1986,23 +2270,19 @@ window.expectedBehavior =
       ]
     }
   },
-  "test getElementById": {
+  "test simple style": {
     "tag0": {
       "calls": [
         [
-          "<div id=\"foo\"><div>bar</div></div>",
-          "tag0:<div id=\"foo\"><div>bar"
+          "<style type=\"text/css\">#test_style {background:blue;width:200px;height:300px;border: 2px solid red;}</style><div id=\"test_style\"><img src=\"http://lorempixel.com/100/80/sports/\"></div>",
+          "tag0:<style type=\"text/css\">#test_style {background:blue;width:200px;height:300px;border: 2px solid red;}</style><div id=\"test_style\"><img src=\"http://lorempixel.com/100/80/sports/\"/></div>"
         ],
         [
-          "<div id=\"foo\"><div>bar<i>bla</i></div><span>baz</span></div>",
-          "tag0:<i>bla</i></div>"
-        ],
-        [
-          "<div id=\"foo\"><div>bar<i>bla</i></div><span>baz</span></div>",
+          "<style type=\"text/css\">#test_style {background:blue;width:200px;height:300px;border: 2px solid red;}</style><div id=\"test_style\"><img src=\"http://lorempixel.com/100/80/sports/\"></div>",
           "tag0:Final InnerHtml"
         ],
         [
-          "<div id=\"foo\"><div>bar<i>bla</i></div><span>baz</span></div>",
+          "<style type=\"text/css\">#test_style {background:blue;width:200px;height:300px;border: 2px solid red;}</style><div id=\"test_style\"><img src=\"http://lorempixel.com/100/80/sports/\"></div>",
           "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
         ]
       ]
@@ -2367,326 +2647,6 @@ window.expectedBehavior =
         ],
         [
           "<textarea>&lt;script&gt;&lt;/script&gt;</textarea>",
-          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
-        ]
-      ]
-    }
-  },
-  "test wma: split mid-element": {
-    "tag0": {
-      "calls": [
-        [
-          "<img alt=\"foo\">",
-          "tag0:<img alt=\"foo\">"
-        ],
-        [
-          "foo"
-        ],
-        [
-          "<img alt=\"foo\">",
-          "tag0:Final InnerHtml"
-        ],
-        [
-          "<img alt=\"foo\">",
-          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
-        ]
-      ]
-    }
-  },
-  "test wma: split mid-attribute": {
-    "tag0": {
-      "calls": [
-        [
-          "<img alt=\"foo\">",
-          "tag0:<img alt=\"foo\">"
-        ],
-        [
-          "foo"
-        ],
-        [
-          "<img alt=\"foo\">",
-          "tag0:Final InnerHtml"
-        ],
-        [
-          "<img alt=\"foo\">",
-          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
-        ]
-      ]
-    }
-  },
-  "test wma: split mid-attribute-value": {
-    "tag0": {
-      "calls": [
-        [
-          "<img alt=\"foo\">",
-          "tag0:<img alt=\"foo\">"
-        ],
-        [
-          "foo"
-        ],
-        [
-          "<img alt=\"foo\">",
-          "tag0:Final InnerHtml"
-        ],
-        [
-          "<img alt=\"foo\">",
-          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
-        ]
-      ]
-    }
-  },
-  "test wma: empty strings": {
-    "tag0": {
-      "calls": [
-        [
-          "<img alt=\"foo\">",
-          "tag0:<img alt=\"foo\">"
-        ],
-        [
-          "foo"
-        ],
-        [
-          "<img alt=\"foo\">",
-          "tag0:Final InnerHtml"
-        ],
-        [
-          "<img alt=\"foo\">",
-          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
-        ]
-      ]
-    }
-  },
-  "test wma: docwrite outside parent of script": {
-    "tag0": {
-      "calls": [
-        [
-          "<div>AB</div>C",
-          "tag0:B</div>C"
-        ],
-        [
-          "<div>AB</div>CD",
-          "tag0:<div>A<script type=\"text/javascript\">\ndocument.write(\"B</div>C\");\n</script>D"
-        ],
-        [
-          "<div>AB</div>CD",
-          "tag0:Final InnerHtml"
-        ],
-        [
-          "<div>AB</div>CD",
-          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
-        ]
-      ]
-    }
-  },
-  "test wma: SW9": {
-    "tag0": {
-      "calls": [
-        [
-          "<div><i></i></div>foo<div>bar<i></i></div>",
-          "tag0:<div><i></i></div>foo<div>bar<i></i>"
-        ],
-        [
-          "<div><i></i></div>foo<div>bar<i></i></div>",
-          "tag0:Final InnerHtml"
-        ],
-        [
-          "<div><i></i></div>foo<div>bar<i></i></div>",
-          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
-        ]
-      ]
-    }
-  },
-  "test wma: SW10": {
-    "tag0": {
-      "calls": [
-        [
-          "<div><b><i></i></b></div>foo<div>bar<i></i>bla</div>",
-          "tag0:<div><b><i></i></b></div>foo<div>bar<i></i>bla"
-        ],
-        [
-          "<div><b><i></i></b></div>foo<div>bar<i></i>bla</div>",
-          "tag0:Final InnerHtml"
-        ],
-        [
-          "<div><b><i></i></b></div>foo<div>bar<i></i>bla</div>",
-          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
-        ]
-      ]
-    }
-  },
-  "test wma: TS2": {
-    "tag0": {
-      "calls": [
-        [
-          "<div><i><div>foo<div><i></i></div></div></i></div>",
-          "tag0:<div><i><div>foo<div><i>"
-        ],
-        [
-          "<div><i><div>foo<div><i></i></div></div></i></div>",
-          "tag0:Final InnerHtml"
-        ],
-        [
-          "<div><i><div>foo<div><i></i></div></div></i></div>",
-          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
-        ]
-      ]
-    }
-  },
-  "test wlma: split mid-element": {
-    "tag0": {
-      "calls": [
-        [
-          "<img alt=\"foo\">\n",
-          "tag0:<img alt=\"foo\">\n"
-        ],
-        [
-          "foo"
-        ],
-        [
-          "<img alt=\"foo\">\n",
-          "tag0:Final InnerHtml"
-        ],
-        [
-          "<img alt=\"foo\">\n",
-          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
-        ]
-      ]
-    }
-  },
-  "test wlma: split mid-attribute": {
-    "tag0": {
-      "calls": [
-        [
-          "<img alt=\"foo\">\n",
-          "tag0:<img alt=\"foo\">\n"
-        ],
-        [
-          "foo"
-        ],
-        [
-          "<img alt=\"foo\">\n",
-          "tag0:Final InnerHtml"
-        ],
-        [
-          "<img alt=\"foo\">\n",
-          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
-        ]
-      ]
-    }
-  },
-  "test wlma: split mid-attribute-value": {
-    "tag0": {
-      "calls": [
-        [
-          "<img alt=\"foo\">\n",
-          "tag0:<img alt=\"foo\">\n"
-        ],
-        [
-          "foo"
-        ],
-        [
-          "<img alt=\"foo\">\n",
-          "tag0:Final InnerHtml"
-        ],
-        [
-          "<img alt=\"foo\">\n",
-          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
-        ]
-      ]
-    }
-  },
-  "test wlma: empty strings": {
-    "tag0": {
-      "calls": [
-        [
-          "<img alt=\"foo\">\n",
-          "tag0:<img alt=\"foo\">\n"
-        ],
-        [
-          "foo"
-        ],
-        [
-          "<img alt=\"foo\">\n",
-          "tag0:Final InnerHtml"
-        ],
-        [
-          "<img alt=\"foo\">\n",
-          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
-        ]
-      ]
-    }
-  },
-  "test wlma: docwrite outside parent of script": {
-    "tag0": {
-      "calls": [
-        [
-          "<div>AB</div>C",
-          "tag0:B</div>C"
-        ],
-        [
-          "<div>AB</div>CD\n",
-          "tag0:<div>A<script type=\"text/javascript\">\ndocument.write(\"B</div>C\");\n</script>D\n"
-        ],
-        [
-          "<div>AB</div>CD\n",
-          "tag0:Final InnerHtml"
-        ],
-        [
-          "<div>AB</div>CD\n",
-          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
-        ]
-      ]
-    }
-  },
-  "test wlma: SW9": {
-    "tag0": {
-      "calls": [
-        [
-          "<div><i></i></div>foo<div>bar<i></i>\n</div>",
-          "tag0:<div><i></i></div>foo<div>bar<i></i>\n"
-        ],
-        [
-          "<div><i></i></div>foo<div>bar<i></i>\n</div>",
-          "tag0:Final InnerHtml"
-        ],
-        [
-          "<div><i></i></div>foo<div>bar<i></i>\n</div>",
-          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
-        ]
-      ]
-    }
-  },
-  "test wlma: SW10": {
-    "tag0": {
-      "calls": [
-        [
-          "<div><b><i></i></b></div>foo<div>bar<i></i>bla\n</div>",
-          "tag0:<div><b><i></i></b></div>foo<div>bar<i></i>bla\n"
-        ],
-        [
-          "<div><b><i></i></b></div>foo<div>bar<i></i>bla\n</div>",
-          "tag0:Final InnerHtml"
-        ],
-        [
-          "<div><b><i></i></b></div>foo<div>bar<i></i>bla\n</div>",
-          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
-        ]
-      ]
-    }
-  },
-  "test wlma: TS2": {
-    "tag0": {
-      "calls": [
-        [
-          "<div><i><div>foo<div><i>\n</i></div></div></i></div>",
-          "tag0:<div><i><div>foo<div><i>\n"
-        ],
-        [
-          "<div><i><div>foo<div><i>\n</i></div></div></i></div>",
-          "tag0:Final InnerHtml"
-        ],
-        [
-          "<div><i><div>foo<div><i>\n</i></div></div></i></div>",
           "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
         ]
       ]

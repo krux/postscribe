@@ -1,11 +1,8 @@
 // final innerHTML behaves like buffered innerHTML and not like streamed document.write
 // That is acceptable.
 
-if (/generate_expected=1/.test(location.href)) {
-  window.expectedBehavior = false;
-}
 
-if (/wait=1/.test(location.href)) {
+if (/wait=1/.test(location.href) || window.wait) {
   // wait before running tests.
   test('waiting', stop);
 }
@@ -278,8 +275,8 @@ var execute = function(name, tags, options) {
 
       var expectCalls;
 
-      if (expectedBehavior) {
-        expectCalls = expectedBehavior['test ' + name][tag.id].calls;
+      if (window.expectedBehavior) {
+        expectCalls = window.expectedBehavior['test ' + name][tag.id].calls;
       } else {
         expectCalls = [].slice.call(tag.nativeCtx.calls);
       }
@@ -296,7 +293,7 @@ var execute = function(name, tags, options) {
       self.eq = function(val, msg) {
         var args = expectCalls.shift();
 
-        if (args && expectedBehavior) {
+        if (args && window.expectedBehavior) {
           // run it through innerHTML to get rid of browser inconsistencies
           work.innerHTML = args[0];
           args[0] = innerHtml(work);
@@ -319,7 +316,7 @@ var execute = function(name, tags, options) {
       self.eqPrefix = function(val, msg) {
         var args = expectCalls.shift();
 
-        if (args && expectedBehavior) {
+        if (args && window.expectedBehavior) {
           // run it through innerHTML to get rid of browser inconsistencies
           work.innerHTML = args[0];
           args[0] = innerHtml(work);
@@ -499,16 +496,19 @@ var testWrite = function(name) {
   var options = testOptions;
 
   test(name + (window.JSON ? JSON.stringify(options) : ''), function() {
-    execute(name, tags, options);
+    try {
+      execute(name, tags, options);
 
-    if (GENERATE_EXPECTED && window.JSON && JSON.stringify) {
-      clearTimeout(nativeTimeout);
-      nativeTimeout = setTimeout(function() {
-        console.log('Native behavior:');
-        console.log(JSON.stringify(nativeBehavior));
-      }, 2000);
+      if (GENERATE_EXPECTED && window.JSON && JSON.stringify) {
+        clearTimeout(nativeTimeout);
+        nativeTimeout = setTimeout(function() {
+          console.log('Native behavior:');
+          console.log(JSON.stringify(nativeBehavior));
+        }, 2000);
+      }
+    } catch (e) {
+      console.error(e);
     }
-
   });
 };
 

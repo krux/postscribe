@@ -2,7 +2,7 @@
 import * as path from 'path';
 
 export default {
-  entry: 'postscribe',
+  entry: 'main',
   resolve: {
     root: path.resolve('./src')
   },

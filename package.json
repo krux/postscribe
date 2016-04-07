@@ -115,6 +115,7 @@
     "release": "gulp build && gulp release",
     "watch": "gulp watch",
     "test": "gulp test",
+    "test:gen-expected": "gulp build && phantomjs test/generate_expected.phantom.js test/test.html test/expected.js",
     "test:pre-release": "gulp test:pre-release",
     "tdd": "gulp tdd"
   }

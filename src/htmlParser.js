@@ -4,7 +4,7 @@
 // Based on http://ejohn.org/blog/pure-javascript-html-parser/
 
 const supports = (function() {
-  const supports = {};
+  const target = {};
 
   let html;
   const work = window.document.createElement('div');
@@ -12,19 +12,19 @@ const supports = (function() {
   try {
     html = '<P><I></P></I>';
     work.innerHTML = html;
-    supports.tagSoup = work.innerHTML !== html;
+    target.tagSoup = work.innerHTML !== html;
   } catch (e) {
-    supports.tagSoup = false;
+    target.tagSoup = false;
   }
 
   try {
     work.innerHTML = '<P><i><P></P></i></P>';
-    supports.selfClose = work.childNodes.length === 2;
+    target.selfClose = work.childNodes.length === 2;
   } catch (e) {
-    supports.selfClose = false;
+    target.selfClose = false;
   }
 
-  return supports;
+  return target;
 }());
 
 // Regular Expressions for parsing tags and attributes
@@ -70,7 +70,6 @@ export default function htmlParser(stream, options) {
 
   // Detection has already happened when a reader is called.
   const reader = {
-
     comment: () => {
       const index = stream.indexOf('-->');
       if (index >= 0) {
@@ -114,7 +113,6 @@ export default function htmlParser(stream, options) {
     },
 
     startTag: () => {
-
       const endTagIndex = stream.indexOf('>');
       if (endTagIndex === -1) {
         return null; // avoid the match statement if there will be no match
@@ -161,7 +159,6 @@ export default function htmlParser(stream, options) {
   };
 
   function readToken() {
-
     // Enumerate detects in order
     for (let type in detect) {
       if (detect[type].test(stream)) {

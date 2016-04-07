@@ -115,7 +115,7 @@ function runStream(el, html, options) {
   return active;
 }
 
-export function postscribe(el, html, options) {
+export default function postscribe(el, html, options) {
   if (utils.isFunction(options)) {
     options = {done: options};
   } else if (options === 'clear') {
