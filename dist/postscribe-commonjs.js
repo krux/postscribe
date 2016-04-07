@@ -1,4 +1,4 @@
-/*! Asynchronously write javascript, even with document.write., v2.0.3 https://krux.github.io/postscribe
+/*! Asynchronously write javascript, even with document.write., v2.0.4 https://krux.github.io/postscribe
 Copyright (c) 2016 Derek Brans, MIT license https://github.com/krux/postscribe/blob/master/LICENSE */
 module.exports =
 /******/ (function(modules) { // webpackBootstrap
@@ -779,30 +779,6 @@ module.exports =
 	    }
 	  }
 
-	  var unescapeURLs = function(html) {
-	    if ( (typeof html === 'string') && (html.indexOf('&') !== -1) ) {
-	      html = html.replace('amp;', '').replace(/(&#\d{1,4};)/gm, function(match){
-	          var code = match.substring(2,match.length-1);
-	          return String.fromCharCode(code);
-	        });
-	    }
-	    return encodeURI(html);
-	  };
-
-	  // Cache div element for unescaping html entities
-	  var el = document.createElement('div');
-
-	  var unescapeHTMLEntities = function(html) {
-	    if ( (typeof html === 'string') && (html.indexOf('&') !== -1) ) {
-	      el.innerHTML = html;
-	      // ie and ff differ
-	      return el.textContent || el.innerText || html;
-	    }
-	    else {
-	      return html;
-	    }
-	  };
-
 	  var append = function(str) {
 	    stream += str;
 	  };
@@ -889,7 +865,7 @@ module.exports =
 	          } else {
 	            var value = arguments[2] || arguments[3] || arguments[4] ||
 	              fillAttr.test(name) && name || '';
-	            attrs[name] = (name === 'src') ? unescapeURLs(value) : unescapeHTMLEntities(value);
+	            attrs[name] = value;
 	          }
 	          rest = rest.replace(matched, '');
 	        });
