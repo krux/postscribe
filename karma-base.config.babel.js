@@ -1,7 +1,4 @@
 /* eslint-env node */
-import pkg from './package.json';
-import webpackConfig from './webpack.config.babel.js';
-
 export default {
   basePath: '',
 
@@ -27,13 +24,7 @@ export default {
 
   exclude: [],
 
-  preprocessors: {
-    // 'test/**/*.js': ['webpack']
-  },
-
-  babelPreprocessor: {
-    options: pkg.babel
-  },
+  preprocessors: {},
 
   reporters: [
     'progress'
@@ -43,7 +34,7 @@ export default {
 
   colors: true,
 
-  logLevel: 'info',
+  logLevel: 'debug',
 
   autoWatch: false,
 
@@ -52,12 +43,6 @@ export default {
   ],
 
   singleRun: true,
-
-  webpack: webpackConfig,
-
-  webpackMiddleware: {
-    noInfo: true
-  },
 
   concurrency: Infinity
 };

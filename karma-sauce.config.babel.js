@@ -9,7 +9,7 @@ module.exports = (config) => {
   ];
 
   baseConfig.sauceLabs = {
-    testName: 'Postscribe Tests'
+    testName: 'PostScribe Tests'
   };
 
   baseConfig.customLaunchers = customLaunchers;

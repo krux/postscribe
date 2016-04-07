@@ -7,7 +7,6 @@ gulpfile.babel.js
 karma-base.config.babel.js
 karma-sauce.config.babel.js
 karma.config.babel.js
-make_expected.sh
 saucelabs.config.babel.js
 webpack.config.babel.js
 

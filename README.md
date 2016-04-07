@@ -41,7 +41,9 @@ In a browser:
 With an AMD loader:
 
 ```javascript
-require(['postscribe'], function(postscribe) {});
+define(['postscribe'], function(postscribe) {
+
+});
 ```
 
 If using CommonJS, first `npm install --save postscribe`, then:

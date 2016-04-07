@@ -495,7 +495,7 @@ var testWrite = function(name) {
   // TEST OPTIONS
   var options = testOptions;
 
-  test(name + (window.JSON ? JSON.stringify(options) : ''), function() {
+  test(name + (window.JSON ? ' ' + JSON.stringify(options) : ''), function() {
     try {
       execute(name, tags, options);
 

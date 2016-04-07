@@ -9,7 +9,7 @@
 
 # NPM artifacts
 node_modules/
-npm-debug.log
+npm-*.log
 
 # Generated files
 .idea/

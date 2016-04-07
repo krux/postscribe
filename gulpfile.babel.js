@@ -96,9 +96,9 @@ gulp.task('serve', ['clean', 'build'], done => {
   });
 });
 
-function karma(confFile, failOnError = true) {
+function karma(configName, failOnError = true) {
   return done => new Karma({
-    configFile: path.resolve(`./${confFile}.config.babel.js`)
+    configFile: path.resolve(`./${configName}.config.babel.js`)
   }, err => {
     if (err) {
       gutil.log('[test]', 'Tests failed');
@@ -120,7 +120,7 @@ gulp.task('tdd', ['test:tdd'], () => {
   gulp.watch(['*.js', 'src/**', 'test/**'], ['test:tdd']);
 });
 
-gulp.task('release', done => {
+gulp.task('release', ['default'], done => {
   git.exec({args: `tag ${pkg.version}`}, err => {
     if (err) {
       throw err;
