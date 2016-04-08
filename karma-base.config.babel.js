@@ -24,11 +24,15 @@ export default {
 
   exclude: [],
 
-  preprocessors: {},
-
   reporters: [
     'progress'
   ],
+
+  // generate_expected breaks the path a bit b/c it's writing relative to itself.
+  // remap it here to avoid 404s
+  proxies: {
+    '/remote/': '/base/test/remote/'
+  },
 
   port: 9876,
 
@@ -43,6 +47,5 @@ export default {
   ],
 
   singleRun: true,
-
   concurrency: Infinity
 };

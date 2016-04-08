@@ -13,3 +13,5 @@ npm-*.log
 
 # Generated files
 .idea/
+
+dist/
