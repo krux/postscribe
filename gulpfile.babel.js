@@ -7,6 +7,7 @@ import git from 'gulp-git';
 import del from 'del';
 import gutil from 'gulp-util';
 import rename from 'gulp-rename';
+import replace from 'gulp-replace';
 import uglify from 'gulp-uglify';
 import stripDebug from 'gulp-strip-debug';
 import webpack from 'webpack';
@@ -54,6 +55,7 @@ gulp.task('lint', ['eslint', 'jscs']);
 
 function build(config) {
   return () => webpackStream(config)
+    .pipe(replace('Object.defineProperty', '(function(t, k, d) {return t[k] = d.value;})'))
     .pipe(gulp.dest(DEST))
     .pipe(rename({extname: '.min.js'}))
     .pipe(stripDebug())
