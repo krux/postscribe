@@ -1,9 +1,9 @@
-import htmlParser from './htmlParser';
+import HtmlParser from './htmlParser';
 import postscribe from './postscribe';
 
 export default postscribe;
 
 export {
-    htmlParser,
+    HtmlParser,
     postscribe
 };
