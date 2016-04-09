@@ -8,7 +8,7 @@ Copyright (c) 2015 Derek Brans, MIT license https://github.com/krux/postscribe/b
     var supports = {};
 
     var html;
-    var work = this.document.createElement('div');
+    var work = window.document.createElement('div');
 
     html = '<P><I></P></I>';
     work.innerHTML = html;
@@ -86,7 +86,7 @@ Copyright (c) 2015 Derek Brans, MIT license https://github.com/krux/postscribe/b
         var index = stream.indexOf('-->');
         if ( index >= 0 ) {
           return {
-            content: stream.substr(4, index),
+            content: stream.substr(4, index-1),
             length: index + 3
           };
         }
@@ -1113,4 +1113,12 @@ Copyright (c) 2015 Derek Brans, MIT license https://github.com/krux/postscribe/b
       WriteStream: WriteStream
     });
   }());
+
+  // In addition to the global, also export postscribe as an AMD module
+  if (typeof define === 'function' && define.amd) {
+    define('postscribe', [], function() {
+      return global.postscribe;
+    });
+  }
+
 }());
