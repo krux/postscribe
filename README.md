@@ -18,10 +18,8 @@ behaves just like the browser would, without convoluted parsing or hacks.
 
 For more information:
 
-* [Presentation at HTML5devconf](http://youtu.be/ClzeilKwX10) by the author, Derek Brans
+* [Presentation at HTML5devconf](http://youtu.be/ClzeilKwX10) by the original author, Derek Brans
 * [Interactive Demo](http://run.plnkr.co/plunks/e8MJAx/) with side by side comparisons of other tag writers
-* [Documentation](https://github.com/krux/postscribe/tree/master/doc)
-* Browse the [raw](https://github.com/krux/postscribe/blob/master/postscribe.js) or [annotated](http://krux.github.com/postscribe/doc/postscribe.html) source code.
 
 # Getting Started
 
