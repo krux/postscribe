@@ -1,4 +1,4 @@
-import htmlParser from './htmlParser';
+import HtmlParser from './htmlParser';
 import * as utils from './utils';
 
 // Turn on to debug how each chunk affected the DOM.
@@ -63,7 +63,7 @@ export default class WriteStream {
 
       doc,
 
-      parser: htmlParser('', {autoFix: options.autoFix}),
+      parser: new HtmlParser('', {autoFix: options.autoFix}),
 
       // Actual elements by id.
       actuals: [root],
@@ -178,7 +178,7 @@ export default class WriteStream {
 
     utils.each(tokens, function(tok) {
 
-      const tokenRaw = htmlParser.tokenToString(tok);
+      const tokenRaw = HtmlParser.tokenToString(tok);
 
       raw.push(tokenRaw);
 
