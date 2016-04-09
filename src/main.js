@@ -1,55 +1,91 @@
 import WriteStream from './WriteStream';
 import * as utils from './utils';
 
-// A function that intentionally does nothing.
+/**
+ * A function that intentionally does nothing.
+ */
 function doNothing() {
 }
 
-// Available options and defaults.
+/**
+ * Available options and defaults.
+ *
+ * @type {Object}
+ */
 const OPTIONS = {
-  // Called when an async script has loaded.
+  /**
+   * Called when an async script has loaded.
+   */
   afterAsync: doNothing,
-  // Called immediately before removing from the write queue.
+
+  /**
+   * Called immediately before removing from the write queue.
+   */
   afterDequeue: doNothing,
-  // Called sync after a stream's first thread release.
+
+  /**
+   * Called sync after a stream's first thread release.
+   */
   afterStreamStart: doNothing,
-  // Called after writing buffered document.write calls.
+
+  /**
+   * Called after writing buffered document.write calls.
+   */
   afterWrite: doNothing,
-  // Allows disabling the autoFix feature of htmlParser
+
+  /**
+   * Allows disabling the autoFix feature of htmlParser
+   */
   autoFix: true,
-  // Called immediately before adding to the write queue.
+
+  /**
+   * Called immediately before adding to the write queue.
+   */
   beforeEnqueue: doNothing,
-  // Called before writing a token.
-  beforeWriteToken: function(tok) {
-    return tok;
-  },
-  // Called before writing buffered document.write calls.
-  beforeWrite: function(str) {
-    return str;
-  },
-  // Called when evaluation is finished.
+
+  /**
+   * Called before writing a token.
+   *
+   * @param {Object} tok The token
+   */
+  beforeWriteToken: tok => tok,
+
+  /**
+   * Called before writing buffered document.write calls.
+   *
+   * @param {String} str The string
+   */
+  beforeWrite: str => str,
+
+  /**
+   * Called when evaluation is finished.
+   */
   done: doNothing,
-  // Called when a write results in an error.
-  error: function(e) {
-    throw e;
-  },
-  // Whether to let scripts w/ async attribute set fall out of the queue.
+
+  /**
+   * Called when a write results in an error.
+   *
+   * @param {Error} e The error
+   */
+  error: e => { throw e; },
+
+  /**
+   * Whether to let scripts w/ async attribute set fall out of the queue.
+   */
   releaseAsync: false
 };
 
-// Public-facing interface and queuing
 let nextId = 0;
-
 let queue = [];
-
 let active = null;
 
 function nextStream() {
   const args = queue.shift();
   if (args) {
     const options = utils.last(args);
+
     options.afterDequeue();
-    args.stream = runStream.apply(null, args);
+    args.stream = runStream(...args);
     options.afterStreamStart();
   }
 }
@@ -81,12 +117,8 @@ function runStream(el, html, options) {
   Object.assign(doc, {
     close: doNothing,
     open: doNothing,
-    write: function() {
-      return write(utils.toArray(arguments).join(''));
-    },
-    writeln: function() {
-      return write(utils.toArray(arguments).join('') + '\n');
-    }
+    write: (...str) => write(str.join('')),
+    writeln: (...str) => write(str.join('') + '\n')
   });
 
   // Override window.onerror
@@ -94,13 +126,13 @@ function runStream(el, html, options) {
 
   // This works together with the try/catch around WriteStream::insertScript
   // In modern browsers, exceptions in tag scripts go directly to top level
-  active.win.onerror = function(msg, url, line) {
-    options.error({msg: msg + ' - ' + url + ':' + line});
-    oldOnError.apply(active.win, arguments);
+  active.win.onerror = (msg, url, line) => {
+    options.error({msg: `${msg} - ${url}: ${line}`});
+    oldOnError.apply(active.win, [msg, url, line]);
   };
 
   // Write to the stream
-  active.write(html, function streamDone() {
+  active.write(html, () => {
     // restore document.write
     Object.assign(doc, stash);
 
@@ -115,7 +147,7 @@ function runStream(el, html, options) {
   return active;
 }
 
-export default function postscribe(el, html, options) {
+function postscribe(el, html, options) {
   if (utils.isFunction(options)) {
     options = {done: options};
   } else if (options === 'clear') {
@@ -164,3 +196,10 @@ Object.assign(postscribe, {
   // Expose internal classes.
   WriteStream
 });
+
+export default postscribe;
+
+export {
+  postscribe
+};
+

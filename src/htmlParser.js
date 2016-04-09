@@ -1,40 +1,4 @@
-/* jscs:disable requireCamelCaseOrUpperCaseIdentifiers */
-
-// An html parser written in JavaScript
-// Based on http://ejohn.org/blog/pure-javascript-html-parser/
-
-const DEBUG = false;
-const debugLog = (() => {
-  if (DEBUG) {
-    return console.debug; // eslint-disable-line no-console
-  } else {
-    return () => {};
-  }
-})();
-
-const supports = (function() {
-  const target = {};
-
-  let html;
-  const work = window.document.createElement('div');
-
-  try {
-    html = '<P><I></P></I>';
-    work.innerHTML = html;
-    target.tagSoup = work.innerHTML !== html;
-  } catch (e) {
-    target.tagSoup = false;
-  }
-
-  try {
-    work.innerHTML = '<P><i><P></P></i></P>';
-    target.selfClose = work.childNodes.length === 2;
-  } catch (e) {
-    target.selfClose = false;
-  }
-
-  return target;
-}());
+import supports from './supports';
 
 // Regular Expressions for parsing tags and attributes
 const startTag = /^<([\-A-Za-z0-9_]+)((?:\s+[\w\-]+(?:\s*=?\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)>/;
@@ -171,7 +135,6 @@ function fixedReadTokenFactory(parser, options, readTokenImpl) {
 
   function correct(tok) {
     if (tok && tok.type === 'startTag') {
-      // unary
       tok.unary = EMPTY.test(tok.tagName) || tok.unary;
       tok.html5Unary = !(/\/>$/).test(tok.text);
     }
@@ -195,16 +158,16 @@ function fixedReadTokenFactory(parser, options, readTokenImpl) {
   const handlers = {
     startTag: tok => {
       const tagName = tok.tagName;
-      // Fix tbody
+
       if (tagName.toUpperCase() === 'TR' && stack.lastTagNameEq('TABLE')) {
         parser.prepend('<TBODY>');
         prepareNextToken();
-      } else if (options.fix_selfClose && CLOSESELF.test(tagName) &&
+      } else if (options.selfCloseFix && CLOSESELF.test(tagName) &&
           stack.containsTagName(tagName)) {
         if (stack.lastTagNameEq(tagName)) {
           closeLast();
         } else {
-          parser.prepend('</' + tok.tagName + '>');
+          parser.prepend(`</${tok.tagName}>`);
           prepareNextToken();
         }
       } else if (!tok.unary) {
@@ -215,13 +178,13 @@ function fixedReadTokenFactory(parser, options, readTokenImpl) {
     endTag: tok => {
       const last = stack.last();
       if (last) {
-        if (options.fix_tagSoup && !stack.lastTagNameEq(tok.tagName)) {
+        if (options.tagSoupFix && !stack.lastTagNameEq(tok.tagName)) {
           // cleanup tag soup
           closeLast();
         } else {
           stack.pop();
         }
-      } else if (options.fix_tagSoup) {
+      } else if (options.tagSoupFix) {
         // cleanup tag soup part 2: skip this token
         skipToken();
       }
@@ -229,7 +192,6 @@ function fixedReadTokenFactory(parser, options, readTokenImpl) {
   };
 
   function skipToken() {
-    // shift the next token
     readTokenImpl();
     prepareNextToken();
   }
@@ -254,9 +216,9 @@ export default class HtmlParser {
     for (let key in supports) {
       if (supports.hasOwnProperty(key)) {
         if (options.autoFix) {
-          options[`fix_${key}`] = true; // !supports[key];
+          options[`${key}Fix`] = true; // !supports[key];
         }
-        options.fix = options.fix || options[`fix_${key}`];
+        options.fix = options.fix || options[`${key}Fix`];
       }
     }
 
@@ -277,12 +239,8 @@ export default class HtmlParser {
     // Enumerate detects in order
     for (let type in detect) {
       if (detect[type].test(this.stream)) {
-        debugLog(`suspected ${type}`);
-
         const token = reader[type](this.stream);
         if (token) {
-          debugLog(`parsed ${type}`, token);
-
           // Type
           token.type = token.type || type;
           // Entire text
@@ -339,21 +297,18 @@ HtmlParser.tokenToString = tok => {
     },
 
     atomicTag: tok => {
-      debugLog(tok);
-
       return handler.startTag(tok) + tok.content + handler.endTag(tok);
     },
 
     startTag: tok => {
-      let str = '<' + tok.tagName;
+      let str = `<${tok.tagName}`;
       for (let key in tok.attrs) {
         if (tok.attrs.hasOwnProperty(key)) {
-          str += ' ' + key;
+          str += ` ${key}`;
 
           const val = tok.attrs[key];
           if (typeof tok.booleanAttrs == 'undefined' || typeof tok.booleanAttrs[key] == 'undefined') {
-            // escape quotes
-            str += '="' + (val ? val.replace(/(^|[^\\])"/g, '$1\\\"') : '') + '"';
+            str += `="${escapeQuotes(val)}"`;
           }
         }
       }
@@ -378,8 +333,7 @@ HtmlParser.escapeAttributes = attrs => {
 
   for (let name in attrs) {
     if (attrs.hasOwnProperty(name)) {
-      const value = attrs[name];
-      escapedAttrs[name] = value && value.replace(/(^|[^\\])"/g, '$1\\\"');
+      escapedAttrs[name] = escapeQuotes(attrs[name], null);
     }
   }
   return escapedAttrs;
@@ -389,4 +343,8 @@ for (let key in supports) {
   if (supports.hasOwnProperty(key)) {
     HtmlParser.browserHasFlaw = HtmlParser.browserHasFlaw || (!supports[key]) && key;
   }
+}
+
+function escapeQuotes(value, defaultValue = '') {
+  return value ? value.replace(/(^|[^\\])"/g, '$1\\\"') : defaultValue;
 }

@@ -1,5 +1,3 @@
-const UNDEFINED = void 0;
-
 /**
  * Determine if the thing is not undefined and not null.
  *
@@ -7,7 +5,7 @@ const UNDEFINED = void 0;
  * @returns {boolean} True if the thing is not undefined and not null.
  */
 export function existy(thing) {
-  return thing !== UNDEFINED && thing !== null;
+  return thing !== void 0 && thing !== null;
 }
 
 /**
@@ -25,13 +23,13 @@ export function isFunction(x) {
  *
  * @param {Array<*>} arr The array to loop over
  * @param {Function} fn The function to call
- * @param {?Object} _this The object to bind to the function
+ * @param {?Object} target The object to bind to the function
  */
-export function each(arr, fn, _this) {
+export function each(arr, fn, target) {
   let i;
   const len = (arr && arr.length) || 0;
   for (i = 0; i < len; i++) {
-    fn.call(_this, arr[i], i);
+    fn.call(target, arr[i], i);
   }
 }
 
@@ -40,12 +38,12 @@ export function each(arr, fn, _this) {
  *
  * @param {Object} obj The object
  * @param {Function} fn The function to call
- * @param {?Object} _this The object to bind to the function
+ * @param {?Object} target The object to bind to the function
  */
-export function eachKey(obj, fn, _this) {
+export function eachKey(obj, fn, target) {
   for (let key in obj) {
     if (obj.hasOwnProperty(key)) {
-      fn.call(_this, key, obj[key]);
+      fn.call(target, key, obj[key]);
     }
   }
 }
@@ -70,7 +68,7 @@ export function defaults(options, _defaults) {
 /**
  * Convert value (e.g., a NodeList) to an array.
  *
- * @param {Object} obj The object
+ * @param {*} obj The object
  * @returns {Array<*>}
  */
 export function toArray(obj) {
@@ -99,10 +97,22 @@ export function last(array) {
  * Test if token is a script tag.
  *
  * @param {Object} tok The token
+ * @param {String} tag The tag name
+ * @returns {boolean} True if the token is a script tag
+ */
+export function isTag(tok, tag) {
+  return !tok || !('tagName' in tok) ? !1 :
+    !!~tok.tagName.toLowerCase().indexOf(tag);
+}
+
+/**
+ * Test if token is a script tag.
+ *
+ * @param {Object} tok The token
  * @returns {boolean} True if the token is a script tag
  */
 export function isScript(tok) {
-  return !tok || !('tagName' in tok) ? !1 : !!~tok.tagName.toLowerCase().indexOf('script');
+  return isTag(tok, 'script');
 }
 
 /**
@@ -112,5 +122,5 @@ export function isScript(tok) {
  * @returns {boolean} True if the token is a style tag
  */
 export function isStyle(tok) {
-  return !tok || !('tagName' in tok) ? !1 : !!~tok.tagName.toLowerCase().indexOf('style');
+  return isTag(tok, 'style');
 }

@@ -1,27 +1,59 @@
 import HtmlParser from './htmlParser';
 import * as utils from './utils';
 
-// Turn on to debug how each chunk affected the DOM.
+/**
+ * Turn on to debug how each chunk affected the DOM.
+ * @type {boolean}
+ */
 const DEBUG_CHUNK = false;
 
-// Prefix for data attributes on DOM elements.
+/**
+ * Prefix for data attributes on DOM elements.
+ * @type {string}
+ */
 const BASEATTR = 'data-ps-';
 
-// get / set data attributes
-function data(el, name, value) {
+/**
+ * ID for the style proxy
+ * @type {string}
+ */
+const PROXY_STYLE = 'ps-style';
+
+/**
+ * ID for the script proxy
+ * @type {string}
+ */
+const PROXY_SCRIPT = 'ps-script';
+
+/**
+ * Get data attributes
+ *
+ * @param {Object} el The DOM element.
+ * @param {String} name The attribute name.
+ * @returns {String}
+ */
+function getData(el, name) {
   const attr = BASEATTR + name;
 
-  if (arguments.length === 2) {
-    // Get
-    const val = el.getAttribute(attr);
+  const val = el.getAttribute(attr);
 
-    // IE 8 returns a number if it's a number
-    return !utils.existy(val) ? val : String(val);
-  } else if (utils.existy(value) && value !== '') {
-    // Set
+  // IE 8 returns a number if it's a number
+  return !utils.existy(val) ? val : String(val);
+}
+
+/**
+ * Set data attributes
+ *
+ * @param {Object} el The DOM element.
+ * @param {String} name The attribute name.
+ * @param {null|*} value The attribute value.
+ */
+function setData(el, name, value = null) {
+  const attr = BASEATTR + name;
+
+  if (utils.existy(value) && value !== '') {
     el.setAttribute(attr, value);
   } else {
-    // Remove
     el.removeAttribute(attr);
   }
 }
@@ -50,41 +82,42 @@ function data(el, name, value) {
  *
  */
 export default class WriteStream {
+  /**
+   * Constructor.
+   *
+   * @param {Object} root The root element
+   * @param {?Object} options The options
+   */
+  constructor(root, options = {}) {
+    this.root = root;
+    this.options = options;
+    this.doc = root.ownerDocument;
+    this.win = this.doc.defaultView || this.doc.parentWindow;
+    this.parser = new HtmlParser('', {autoFix: options.autoFix});
 
-  constructor(root, options) {
-    const doc = root.ownerDocument;
+    // Actual elements by id.
+    this.actuals = [root];
 
-    Object.assign(this, {
-      root,
+    // Embodies the "structure" of what's been written so far,
+    // devoid of attributes.
+    this.proxyHistory = '';
 
-      options,
+    // Create a proxy of the root element.
+    this.proxyRoot = this.doc.createElement(root.nodeName);
 
-      win: doc.defaultView || doc.parentWindow,
+    this.scriptStack = [];
+    this.writeQueue = [];
 
-      doc,
-
-      parser: new HtmlParser('', {autoFix: options.autoFix}),
-
-      // Actual elements by id.
-      actuals: [root],
-
-      // Embodies the "structure" of what's been written so far,
-      // devoid of attributes.
-      proxyHistory: '',
-
-      // Create a proxy of the root element.
-      proxyRoot: doc.createElement(root.nodeName),
-
-      scriptStack: [],
-
-      writeQueue: []
-    });
-
-    data(this.proxyRoot, 'proxyof', 0);
+    setData(this.proxyRoot, 'proxyof', 0);
   }
 
-  write() {
-    [].push.apply(this.writeQueue, arguments);
+  /**
+   * Writes the given strings.
+   *
+   * @param {...String} str The strings to write
+   */
+  write(...str) {
+    [].push.apply(this.writeQueue, str);
 
     // Process writes
     // When new script gets pushed or pending this will stop
@@ -93,27 +126,39 @@ export default class WriteStream {
       const arg = this.writeQueue.shift();
 
       if (utils.isFunction(arg)) {
-        this.callFunction(arg);
+        this._callFunction(arg);
       } else {
-        this.writeImpl(arg);
+        this._writeImpl(arg);
       }
     }
   }
 
-  callFunction(fn) {
+  /**
+   * Calls the given function.
+   *
+   * @param {Function} fn The function to call
+   * @private
+   */
+  _callFunction(fn) {
     const tok = {type: 'function', value: fn.name || fn.toString()};
-    this.onScriptStart(tok);
+    this._onScriptStart(tok);
     fn.call(this.win, this.doc);
-    this.onScriptDone(tok);
+    this._onScriptDone(tok);
   }
 
-  writeImpl(html) {
+  /**
+   * The write implementation
+   *
+   * @param {String} html The HTML to write.
+   * @private
+   */
+  _writeImpl(html) {
     this.parser.append(html);
 
     let tok;
-    const tokens = [];
     let script;
     let style;
+    const tokens = [];
 
     // stop if we see a script token
     while ((tok = this.parser.readToken()) &&
@@ -126,26 +171,32 @@ export default class WriteStream {
       }
     }
 
-    this.writeStaticTokens(tokens);
+    this._writeStaticTokens(tokens);
 
     if (script) {
-      this.handleScriptToken(tok);
+      this._handleScriptToken(tok);
     }
 
     if (style) {
-      this.handleStyleToken(tok);
+      this._handleStyleToken(tok);
     }
   }
 
-  // ## Contiguous non-script tokens (a chunk)
-  writeStaticTokens(tokens) {
-
-    const chunk = this.buildChunk(tokens);
+  /**
+   * Write a contiguous non-script tokens (a chunk)
+   *
+   * @param {Array<Object>} tokens The tokens
+   * @returns {{tokens, raw, actual, proxy}|null}
+   * @private
+   */
+  _writeStaticTokens(tokens) {
+    const chunk = this._buildChunk(tokens);
 
     if (!chunk.actual) {
       // e.g., no tokens, or a noscript that got ignored
-      return;
+      return null;
     }
+
     chunk.html = this.proxyHistory + chunk.actual;
     this.proxyHistory += chunk.proxy;
 
@@ -155,16 +206,23 @@ export default class WriteStream {
       chunk.proxyInnerHTML = this.proxyRoot.innerHTML;
     }
 
-    this.walkChunk();
+    this._walkChunk();
 
     if (DEBUG_CHUNK) {
-      chunk.actualInnerHTML = this.root.innerHTML; // root
+      chunk.actualInnerHTML = this.root.innerHTML;
     }
 
     return chunk;
   }
 
-  buildChunk(tokens) {
+  /**
+   * Build a chunk.
+   *
+   * @param {Array<Object>} tokens The tokens to use.
+   * @returns {{tokens: *, raw: string, actual: string, proxy: string}}
+   * @private
+   */
+  _buildChunk(tokens) {
     let nextId = this.actuals.length;
 
     // The raw html of this chunk.
@@ -176,8 +234,7 @@ export default class WriteStream {
     // Html that can later be used to proxy the nodes in the tokens.
     const proxy = [];
 
-    utils.each(tokens, function(tok) {
-
+    for (let tok of tokens) {
       const tokenRaw = HtmlParser.tokenToString(tok);
 
       raw.push(tokenRaw);
@@ -191,16 +248,15 @@ export default class WriteStream {
           actual.push(tokenRaw.replace(/(\/?>)/, ` ${BASEATTR}id=${id} $1`));
 
           // Don't proxy scripts: they have no bearing on DOM structure.
-          if (tok.attrs.id !== 'ps-script' && tok.attrs.id !== 'ps-style') {
+          if (tok.attrs.id !== PROXY_SCRIPT && tok.attrs.id !== PROXY_STYLE) {
             // Proxy: strip all attributes and inject proxyof attribute
             proxy.push(
-                // ignore atomic tags (e.g., style): they have no "structural" effect
-                tok.type === 'atomicTag' ? '' :
-                `<${tok.tagName} ${BASEATTR}proxyof=${id}` + (tok.unary ? ' />' : '>')
+              // ignore atomic tags (e.g., style): they have no "structural" effect
+              tok.type === 'atomicTag' ? '' :
+              `<${tok.tagName} ${BASEATTR}proxyof=${id}` + (tok.unary ? ' />' : '>')
             );
           }
         }
-
       } else {
         // Visit any other type of token
         // Actual: append.
@@ -209,7 +265,7 @@ export default class WriteStream {
         // Proxy: append endTags. Ignore everything else.
         proxy.push(tok.type === 'endTag' ? tokenRaw : '');
       }
-    });
+    }
 
     return {
       tokens,
@@ -219,7 +275,12 @@ export default class WriteStream {
     };
   }
 
-  walkChunk() {
+  /**
+   * Walk the chunks.
+   *
+   * @private
+   */
+  _walkChunk() {
     let node;
     const stack = [this.proxyRoot];
 
@@ -227,24 +288,25 @@ export default class WriteStream {
 
     while (utils.existy(node = stack.shift())) {
       const isElement = node.nodeType === 1;
-      const isProxy = isElement && data(node, 'proxyof');
+      const isProxy = isElement && getData(node, 'proxyof');
 
       // Ignore proxies
       if (!isProxy) {
         if (isElement) {
           // New actual element: register it and remove the the id attr.
-          this.actuals[data(node, 'id')] = node;
-          data(node, 'id', null);
+          this.actuals[getData(node, 'id')] = node;
+          setData(node, 'id');
         }
 
         // Is node's parent a proxy?
         const parentIsProxyOf = node.parentNode &&
-          data(node.parentNode, 'proxyof');
+          getData(node.parentNode, 'proxyof');
         if (parentIsProxyOf) {
           // Move node under actual parent.
           this.actuals[parentIsProxyOf].appendChild(node);
         }
       }
+
       // prepend childNodes to stack
       stack.unshift.apply(stack, utils.toArray(node.childNodes));
     }
@@ -253,9 +315,9 @@ export default class WriteStream {
   /**
    * Handles Script tokens
    *
-   * @param {*} tok
+   * @param {Object} tok The token
    */
-  handleScriptToken(tok) {
+  _handleScriptToken(tok) {
     const remainder = this.parser.clear();
 
     if (remainder) {
@@ -266,7 +328,6 @@ export default class WriteStream {
     tok.src = tok.attrs.src || tok.attrs.SRC;
 
     tok = this.options.beforeWriteToken(tok);
-
     if (!tok) {
       // User has removed this token
       return;
@@ -278,22 +339,21 @@ export default class WriteStream {
       // scriptStack is empty.
       this.deferredRemote = tok;
     } else {
-      this.onScriptStart(tok);
+      this._onScriptStart(tok);
     }
 
     // Put the script node in the DOM.
-    this.writeScriptToken(tok, () => {
-      this.onScriptDone(tok);
+    this._writeScriptToken(tok, () => {
+      this._onScriptDone(tok);
     });
-
   }
 
   /**
-   * Handles Style tokens
+   * Handles style tokens
    *
-   * @param {*} tok
+   * @param {Object} tok The token
    */
-  handleStyleToken(tok) {
+  _handleStyleToken(tok) {
     const remainder = this.parser.clear();
 
     if (remainder) {
@@ -307,7 +367,7 @@ export default class WriteStream {
 
     if (tok) {
       // Put the style node in the DOM.
-      this.writeStyleToken(tok);
+      this._writeStyleToken(tok);
     }
 
     if (remainder) {
@@ -318,12 +378,12 @@ export default class WriteStream {
   /**
    * Build a style and insert it into the DOM.
    *
-   * @param {*} tok
+   * @param {Object} tok The token
    */
-  writeStyleToken(tok) {
-    const el = this.buildStyle(tok);
+  _writeStyleToken(tok) {
+    const el = this._buildStyle(tok);
 
-    this.insertStyle(el);
+    this._insertStyle(el);
 
     // Set content
     if (tok.content) {
@@ -338,10 +398,10 @@ export default class WriteStream {
   /**
    * Build a style element from an atomic style token.
    *
-   * @param {*} tok
+   * @param {Object} tok The token
    * @returns {Element}
    */
-  buildStyle(tok) {
+  _buildStyle(tok) {
     const el = this.doc.createElement(tok.tagName);
 
     el.setAttribute('type', tok.type);
@@ -355,17 +415,26 @@ export default class WriteStream {
   }
 
   /**
-   * Insert style into DOM where it would naturally be written.
+   * Append a span to the stream. That span will act as a cursor
+   * (i.e. insertion point) for the style.
    *
-   * @param {*} el
+   * @param {String} id The ID of the span.
+   * @private
    */
-  insertStyle(el) {
-    // Append a span to the stream. That span will act as a cursor
-    // (i.e. insertion point) for the style.
-    this.writeImpl('<span id="ps-style"/>');
+  _insertSpan(id) {
+    this._writeImpl(`<span id="${id}"/>`);
 
     // Grab that span from the DOM.
-    const cursor = this.doc.getElementById('ps-style');
+    return this.doc.getElementById(id);
+  }
+
+  /**
+   * Insert style into DOM where it would naturally be written.
+   *
+   * @param {Object} el The element
+   */
+  _insertStyle(el) {
+    const cursor = this._insertSpan(PROXY_STYLE);
 
     // Replace cursor with style.
     if (cursor) {
@@ -373,18 +442,45 @@ export default class WriteStream {
     }
   }
 
-  onScriptStart(tok) {
+  /**
+   * Insert script into DOM where it would naturally be written.
+   *
+   * @param {Object} el The element
+   */
+  _insertScript(el) {
+    const cursor = this._insertSpan(PROXY_SCRIPT);
+
+    // Replace cursor with script.
+    if (cursor) {
+      cursor.parentNode.replaceChild(el, cursor);
+    }
+  }
+
+  /**
+   * Called when a script is started.
+   *
+   * @param {Object} tok The token
+   * @private
+   */
+  _onScriptStart(tok) {
     tok.outerWrites = this.writeQueue;
     this.writeQueue = [];
     this.scriptStack.unshift(tok);
   }
 
-  onScriptDone(tok) {
+  /**
+   * Called when a script is done.
+   *
+   * @param {Object} tok The token
+   * @private
+   */
+  _onScriptDone(tok) {
     // Pop script and check nesting.
     if (tok !== this.scriptStack[0]) {
       this.options.error({message: 'Bad script nesting or script finished twice'});
       return;
     }
+
     this.scriptStack.shift();
 
     // Append outer writes to queue and process them.
@@ -396,7 +492,7 @@ export default class WriteStream {
     // the we notice remote_script1 finishes before remote_script2 starts.
     // I think this is equivalent to assumption 1
     if (!this.scriptStack.length && this.deferredRemote) {
-      this.onScriptStart(this.deferredRemote);
+      this._onScriptStart(this.deferredRemote);
       this.deferredRemote = null;
     }
   }
@@ -405,25 +501,25 @@ export default class WriteStream {
    * Build a script and insert it into the DOM.
    * Done is called once script has executed.
    *
-   * @param {*} tok
-   * @param {Function} done
+   * @param {Object} tok The token
+   * @param {Function} done The callback when complete
    */
-  writeScriptToken(tok, done) {
-    const el = this.buildScript(tok);
-    const asyncRelease = this.shouldRelease(el);
+  _writeScriptToken(tok, done) {
+    const el = this._buildScript(tok);
+    const asyncRelease = this._shouldRelease(el);
     const afterAsync = this.options.afterAsync;
 
     if (tok.src) {
       // Fix for attribute "SRC" (capitalized). IE does not recognize it.
       el.src = tok.src;
-      this.scriptLoadHandler(el, !asyncRelease ? () => {
+      this._scriptLoadHandler(el, !asyncRelease ? () => {
         done();
         afterAsync();
       } : afterAsync);
     }
 
     try {
-      this.insertScript(el);
+      this._insertScript(el);
       if (!tok.src || asyncRelease) {
         done();
       }
@@ -436,10 +532,10 @@ export default class WriteStream {
   /**
    * Build a script element from an atomic script token.
    *
-   * @param {*} tok
+   * @param {Object} tok The token
    * @returns {Element}
    */
-  buildScript(tok) {
+  _buildScript(tok) {
     const el = this.doc.createElement(tok.tagName);
 
     // Set attributes
@@ -456,27 +552,13 @@ export default class WriteStream {
   }
 
   /**
-   * Insert script into DOM where it would naturally be written.
+   * Setup the script load handler on an element.
    *
-   * @param {*} el
+   * @param {Object} el The element
+   * @param {Function} done The callback
+   * @private
    */
-  insertScript(el) {
-    const id = 'ps-script';
-
-    // Append a span to the stream. That span will act as a cursor
-    // (i.e. insertion point) for the script.
-    this.writeImpl(`<span id="${id}"/>`);
-
-    // Grab that span from the DOM.
-    const cursor = this.doc.getElementById(id);
-
-    // Replace cursor with script.
-    if (cursor) {
-      cursor.parentNode.replaceChild(el, cursor);
-    }
-  }
-
-  scriptLoadHandler(el, done) {
+  _scriptLoadHandler(el, done) {
     function cleanup() {
       el = el.onload = el.onreadystatechange = el.onerror = null;
     }
@@ -508,7 +590,14 @@ export default class WriteStream {
     });
   }
 
-  shouldRelease(el) {
+  /**
+   * Determines whether to release.
+   *
+   * @param {Object} el The element
+   * @returns {boolean}
+   * @private
+   */
+  _shouldRelease(el) {
     const isScript = (/^script$/i).test(el.nodeName);
     return !isScript || !!(this.options.releaseAsync && el.src && el.hasAttribute('async'));
   }
