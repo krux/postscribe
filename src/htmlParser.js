@@ -261,7 +261,7 @@ export default class HtmlParser {
     }
 
     if (options.fix) {
-      this._fixedReadToken = fixedReadTokenFactory(this, options, () => {return this._readTokenImpl();});
+      this._fixedReadToken = fixedReadTokenFactory(this, options, () => this._readTokenImpl());
     }
   }
 
