@@ -97,5 +97,15 @@ $(document).ready(function() {
     ctx.write('<span><p>foo&amp;&#47;&#x00024;</p></span>');
   });
 
+  testWrite('remote with params then write (use network observer)', function(ctx) {
+    ctx.writeRemote('remote/write-div.js?id=1234&section=test');
+    ctx.write('<div id="local">Local</div>');
+  });
+
+  testWrite('remote then remote then write with params (use network observer)', function(ctx) {
+    ctx.writeRemote('remote/write-remote-script-with-params.js?id=1234&section=test');
+    ctx.write('<div id="local">Local</div>');
+  });
+
 });
 

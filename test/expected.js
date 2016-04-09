@@ -898,6 +898,70 @@ window.expectedBehavior =
       ]
     }
   },
+  "test remote with params then write (use network observer)": {
+    "tag0": {
+      "calls": [
+        [
+          "",
+          "tag0:<script src=\"remote/write-div.js?id=1234&section=test\"></script>"
+        ],
+        [
+          "",
+          "tag0:<div id=\"local\">Local</div>"
+        ],
+        [
+          "",
+          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
+        ],
+        [
+          "<div id=\"remote\">remote</div>",
+          "tag0:<div id=\"remote\">remote</div>"
+        ],
+        [
+          "<div id=\"remote\">remote</div><div id=\"local\">Local</div>",
+          "tag0:Final InnerHtml"
+        ]
+      ]
+    }
+  },
+  "test remote then remote then write with params (use network observer)": {
+    "tag0": {
+      "calls": [
+        [
+          "",
+          "tag0:<script src=\"remote/write-remote-script-with-params.js?id=1234&section=test\"></script>"
+        ],
+        [
+          "",
+          "tag0:<div id=\"local\">Local</div>"
+        ],
+        [
+          "",
+          "tag0:<script class=\"test_helper\">cb_1();//Rendering Complete</script>"
+        ],
+        [
+          "V",
+          "tag0:V"
+        ],
+        [
+          "VQ",
+          "tag0:Q<script src=\"remote/write-div.js?id=1234&section=test\"></script>S"
+        ],
+        [
+          "VQ",
+          "tag0:T"
+        ],
+        [
+          "VQ<div id=\"remote\">remote</div>",
+          "tag0:<div id=\"remote\">remote</div>"
+        ],
+        [
+          "VQ<div id=\"remote\">remote</div>ST<div id=\"local\">Local</div>",
+          "tag0:Final InnerHtml"
+        ]
+      ]
+    }
+  },
   "test wlma: split mid-element": {
     "tag0": {
       "calls": [
