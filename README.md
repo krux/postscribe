@@ -40,15 +40,18 @@ If you just want to use the script without installing anything, use the followin
 You can include `postscribe` using *npm*:
 
 ```console
-npm install --save-dev postscribe
+npm install --save postscribe
 ```
+
+Postscribe runs in browsers, so this assumes you're using a module bundler like [webpack](https://webpack.github.io/),
+[Browserify](http://browserify.org/), [JSPM](http://jspm.io/) or [Rollup](http://rollupjs.org/) to consume CommonJS modules.
 
 ### Bower
 
 You can include `postscribe` using *bower*:
 
 ```console
-bower install --save-dev postscribe
+bower install --save postscribe
 ```
 
 ## Accessing
@@ -56,7 +59,7 @@ bower install --save-dev postscribe
 ### ES6/ES2015
 
 ```javascript
-import {postscribe} from 'postscribe';
+import postscribe from 'postscribe';
 ```
 
 ### AMD
