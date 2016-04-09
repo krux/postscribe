@@ -45,7 +45,7 @@
     }
   ],
   "main": "dist/postscribe.js",
-  "browser": "dist/postscribe.min.js",
+  "browser": "dist/postscribe.js",
   "dependencies": {},
   "devDependencies": {
     "babel-core": "6.7.4",
