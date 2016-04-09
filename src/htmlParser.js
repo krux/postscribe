@@ -141,7 +141,7 @@ const reader = {
   }
 };
 
-function fixedReadTokenFactory(parser, options) {
+function fixedReadTokenFactory(parser, options, readTokenImpl) {
   // Empty Elements - HTML 4.01
   const EMPTY = /^(AREA|BASE|BASEFONT|BR|COL|FRAME|HR|IMG|INPUT|ISINDEX|LINK|META|PARAM|EMBED)$/i;
 
@@ -180,7 +180,7 @@ function fixedReadTokenFactory(parser, options) {
 
   function peekToken() {
     const tmp = parser.stream;
-    const tok = correct(parser._readTokenImpl());
+    const tok = correct(readTokenImpl());
     parser.stream = tmp;
     return tok;
   }
@@ -230,7 +230,7 @@ function fixedReadTokenFactory(parser, options) {
 
   function skipToken() {
     // shift the next token
-    parser._readTokenImpl();
+    readTokenImpl();
     prepareNextToken();
   }
 
@@ -243,7 +243,7 @@ function fixedReadTokenFactory(parser, options) {
 
   return () => {
     prepareNextToken();
-    return correct(parser._readTokenImpl());
+    return correct(readTokenImpl());
   };
 }
 
@@ -261,7 +261,7 @@ export default class HtmlParser {
     }
 
     if (options.fix) {
-      this._fixedReadToken = fixedReadTokenFactory(this, options);
+      this._fixedReadToken = fixedReadTokenFactory(this, options, () => {return this._readTokenImpl();});
     }
   }
 
