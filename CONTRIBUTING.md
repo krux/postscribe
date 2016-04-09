@@ -67,9 +67,12 @@ a ticket number.
 
 ## Submitting Changes
 
-* Sign the [Contributor License Agreement](CLA.md).
+* Sign the [Contributor License Agreement](CLA.md).  By opening a Pull Request,
+  we will assume you have signed the CLA.
 * Push your changes to a topic branch in your fork of the repository.
-* Submit a pull request to the repository in the krux organization.
+  If this is your first contribution and your name is not in [CONTRIBUTORS](./CONTRIBUTORS),
+  please add your name and GitHub URL (same format as AUTHORS).
+* Submit a pull request to the repository in the Krux organization.
 * Update your ticket to mark that you have submitted code and are ready for 
   it to be reviewed (Status: Ready for Merge).
   * Include a link to the pull request in the ticket.

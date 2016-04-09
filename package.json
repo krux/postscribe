@@ -102,7 +102,7 @@
     "plugins": [
       "transform-es3-member-expression-literals",
       "transform-es3-property-literals",
-      "babel-plugin-transform-object-assign"
+      "transform-object-assign"
     ],
     "comments": true,
     "compact": false
