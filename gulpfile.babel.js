@@ -98,10 +98,10 @@ gulp.task('serve', ['clean', 'build'], done => {
   });
 });
 
-function karma(configName, failOnError = true) {
-  return done => new Karma({
+function karma(configName, failOnError = true, karmaOptions = {}) {
+  return done => new Karma(Object.assign({
     configFile: path.resolve(`./${configName}.config.babel.js`)
-  }, err => {
+  }, karmaOptions), err => {
     if (err) {
       gutil.log('[test]', 'Tests failed');
       if (failOnError) {
@@ -116,6 +116,7 @@ gulp.task('test', karma('karma'));
 
 gulp.task('test:cross-browser', karma('karma-sauce'));
 
+gulp.task('test:debug', karma('karma', false, {singleRun: false}));
 gulp.task('test:tdd', karma('karma', false));
 
 gulp.task('tdd', ['test:tdd'], () => {
