@@ -221,7 +221,7 @@ function execute(name, tags, options) {
         // do nothing
       };
 
-      var parser = htmlParser('', {
+      var parser = new Prescribe('', {
         autoFix: true
       });
 

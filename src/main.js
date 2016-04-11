@@ -34,7 +34,7 @@ const OPTIONS = {
   afterWrite: doNothing,
 
   /**
-   * Allows disabling the autoFix feature of htmlParser
+   * Allows disabling the autoFix feature of prescribe
    */
   autoFix: true,
 
