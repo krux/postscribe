@@ -5,11 +5,13 @@
 .idea/
 .*.swp
 .*.un~
+*.iml
 
 # NPM artifacts
 node_modules/
-npm-debug.log
+npm-*.log
 
 # Generated files
-test/expected.js
 .idea/
+
+dist/
