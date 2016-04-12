@@ -9,9 +9,7 @@
 
 # NPM artifacts
 node_modules/
-npm-*.log
+npm-*
 
 # Generated files
-.idea/
-
 dist/
