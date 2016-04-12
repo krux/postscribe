@@ -46,7 +46,9 @@
   ],
   "main": "dist/postscribe.js",
   "browser": "dist/postscribe.js",
-  "dependencies": {},
+  "dependencies": {
+    "prescribe": "^1.0.0"
+  },
   "devDependencies": {
     "babel-core": "6.7.4",
     "babel-eslint": "6.0.2",
