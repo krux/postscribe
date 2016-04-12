@@ -116,6 +116,7 @@
     "tdd": "gulp tdd",
     "test": "gulp test",
     "test:cross-browser": "gulp test:cross-browser",
+    "test:debug": "gulp test:debug",
     "test:gen-expected": "gulp build && rm test/expected.js && touch test/expected.js && phantomjs test/generate_expected.phantom.js test/test.html test/expected.js",
     "test:pre-release": "gulp test:pre-release",
     "watch": "gulp watch"
