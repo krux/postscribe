@@ -1,6 +1,10 @@
 # Overview
 
+[![Version](https://img.shields.io/npm/v/postscribe.svg)](http://npmjs.com/package/postscribe)
+[![License](https://img.shields.io/npm/l/postscribe.svg)](http://npmjs.com/package/postscribe)
 [![Build Status](https://travis-ci.org/krux/postscribe.svg?branch=master)](https://travis-ci.org/krux/postscribe)
+[![Code Climate](https://img.shields.io/codeclimate/github/krux/postscribe.svg)](https://codeclimate.com/github/krux/postscribe)
+[![Coverage](https://img.shields.io/coveralls/krux/postscribe.svg)](https://coveralls.io/github/krux/postscribe)
 
 Remote scripts, especially ads, block the page from doing anything else while they load. They contribute a large % to load times which
 [affects your bottom line](http://devnet.kentico.com/Blogs/Thomas-Robbins/September-2012/How-loading-time-affects-your-bottom-line-Infograp.aspx).
