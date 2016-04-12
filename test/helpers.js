@@ -1,4 +1,4 @@
-/* global $,postscribe,test,ok,equal,start,stop,random,htmlParser */
+/* global $,postscribe,test,ok,equal,start,stop,random,Prescribe */
 /* eslint-disable no-var,no-console,consistent-this,no-cond-assign,new-cap,no-unused-vars */
 
 if (/wait=1/.test(location.href) || window.wait) {
@@ -221,7 +221,7 @@ function execute(name, tags, options) {
         // do nothing
       };
 
-      var parser = htmlParser('', {
+      var parser = new Prescribe('', {
         autoFix: true
       });
 

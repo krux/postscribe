@@ -1,4 +1,4 @@
-import HtmlParser from './htmlParser';
+import HtmlParser from 'prescribe';
 import * as utils from './utils';
 
 /**
