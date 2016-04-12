@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.0.0 - UNRELEASED
+### Changed
+- Porting to ES6, Gulp, Karma and Webpack
+- Rearrange source files
+- Pull in some fixes from various PRs and downstream forks
+- Publish as a UMD module
+- Extracted htmlParser out as a new module called `prescribe`
+
 ## 1.4.0 - 2015-04-25
 ### Fixed
 - Fix incomplete tags blocking UI thread
