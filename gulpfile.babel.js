@@ -1,5 +1,6 @@
 /* eslint-env node */
 import process from 'process';
+import childProcess from 'child_process';
 import gulp from 'gulp';
 import pkg from './package.json';
 import {Server as Karma} from 'karma';
@@ -8,6 +9,7 @@ import del from 'del';
 import gutil from 'gulp-util';
 import rename from 'gulp-rename';
 import uglify from 'gulp-uglify';
+import filter from 'gulp-filter';
 import stripDebug from 'gulp-strip-debug';
 import webpack from 'webpack';
 import webpackStream from 'webpack-stream';
@@ -54,13 +56,26 @@ gulp.task('jscs', () => {
 
 gulp.task('lint', ['eslint', 'jscs']);
 
+const basename = path.basename(webpackConfig.output.filename, path.extname(webpackConfig.output.filename));
+
 function build(config) {
+  const jsOnly = filter(['**/*.js'], {restore: true});
+  const mapOnly = filter(['**/*.map']);
+
   return () => webpackStream(config)
+    .pipe(jsOnly)
+    .pipe(header(banner))
+    .pipe(rename({basename: basename, extname: '.max.js'}))
     .pipe(gulp.dest(DEST))
-    .pipe(rename({extname: '.min.js'}))
     .pipe(stripDebug())
+    .pipe(rename({basename: basename, extname: '.js'}))
+    .pipe(gulp.dest(DEST))
     .pipe(uglify())
     .pipe(header(banner))
+    .pipe(rename({basename: basename, extname: '.min.js'}))
+    .pipe(gulp.dest(DEST))
+    .pipe(jsOnly.restore)
+    .pipe(mapOnly)
     .pipe(gulp.dest(DEST));
 }
 
@@ -98,10 +113,10 @@ gulp.task('serve', ['clean', 'build'], done => {
   });
 });
 
-function karma(configName, failOnError = true) {
-  return done => new Karma({
+function karma(configName, failOnError = true, karmaOptions = {}) {
+  return done => new Karma(Object.assign({
     configFile: path.resolve(`./${configName}.config.babel.js`)
-  }, err => {
+  }, karmaOptions), err => {
     if (err) {
       gutil.log('[test]', 'Tests failed');
       if (failOnError) {
@@ -118,22 +133,35 @@ gulp.task('test:cross-browser', karma('karma-sauce'));
 
 gulp.task('test:ci', karma('karma-ci'));
 
+gulp.task('test:debug', karma('karma', true, {singleRun: false}));
+
 gulp.task('test:tdd', karma('karma', false));
 
 gulp.task('tdd', ['test:tdd'], () => {
-  gulp.watch(['*.js', 'src/**', 'test/**'], ['test:tdd']);
+  gulp.watch(['src/**', 'test/**'], ['test:tdd']);
 });
 
 gulp.task('release', ['default'], done => {
-  git.exec({args: `tag ${pkg.version}`}, err => {
+  git.exec({args: `tag v${pkg.version}`}, err => {
     if (err) {
       throw err;
     }
+
     git.exec({args: 'push origin master --tags'}, err => {
       if (err) {
         throw err;
       }
-      done();
+
+      childProcess.exec('npm publish', (err, stdout, stderr) => {
+        console.log(`stdout: ${stdout}`);
+        console.log(`stderr: ${stderr}`);
+
+        if (err) {
+          throw err;
+        }
+
+        done();
+      });
     });
   });
 });
