@@ -225,7 +225,7 @@ npm install
 To build the code, run
 
 ```console
-npm build
+npm run build
 ```
 
 ### Linting
