@@ -1,13 +1,14 @@
 /* global $,postscribe,test,ok,start */
 /* eslint-disable no-var */
+import postscribe from '../../src/postscribe';
 
-$(document).ready(function() {
+$(document).ready(() => {
 
   module('vbscript');
 
   if (window.supportsVbscript) {
-    test('vbscript', function() {
-      var div = document.createElement('div');
+    test('vbscript', () => {
+      const div = document.createElement('div');
       div.id = 'vbscript-test';
       document.body.appendChild(div);
       postscribe('#vbscript-test', '<script type="text/vbscript">canWriteVbscriptTags = true</script>');
@@ -15,7 +16,7 @@ $(document).ready(function() {
 
       stop();
       postscribe('#vbscript-test', '<script type="text/vbscript" src="remote/set-global.vb"></script>', {
-        done: function() {
+        done: () => {
           ok(window.remoteVbscriptGlobal, 'wrote remote vbscript tag');
           start();
         }

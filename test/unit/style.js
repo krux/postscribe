@@ -1,12 +1,13 @@
 /* global $,testWrite,setOptions */
 /* eslint-disable no-var */
+import postscribe from '../../src/postscribe';
 
-$(document).ready(function() {
+$(document).ready(() => {
 
   module('style');
   setOptions({});
 
-  testWrite('simple style', function(ctx) {
+  testWrite('simple style', ctx => {
     ctx.write('<style type="text/css">#test_style {' +
       'background:blue;' +
       'width:200px;' +

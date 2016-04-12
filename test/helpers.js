@@ -1,24 +1,25 @@
 /* global $,postscribe,test,ok,equal,start,stop,random,Prescribe */
 /* eslint-disable no-var,no-console,consistent-this,no-cond-assign,new-cap,no-unused-vars */
+import postscribe from '../src/postscribe';
 
 if (/wait=1/.test(location.href) || window.wait) {
   // wait before running tests.
   test('waiting', stop);
 }
 
-var GENERATE_EXPECTED = !window.expectedBehavior;
+const GENERATE_EXPECTED = !window.expectedBehavior;
 
-var testOptions = {};
+let testOptions = {};
 
-var ignoreScripts = (function() {
+const ignoreScripts = (function() {
   var div = document.createElement('div');
   var html = '<SCRIPT TYPE="text/javascript" SRC="remote/write-div.js"></SCRIPT>';
   div.innerHTML = html;
   return div.innerHTML.indexOf(html) === -1;
 }());
 
-function innerHtml(el) {
-  var html = el.innerHTML
+const innerHtml = el => {
+  const html = el.innerHTML
     .replace(/\.js\?0\.\d+/g, '.js')
     // The contents of iframes gets doubly-escaped because we pass the expected value through innerHTML.
     // So we ignore it.
@@ -31,29 +32,26 @@ function innerHtml(el) {
     // only remove helper scripts
     // Webkit, IE9
     html.replace(/<script class="test_helper">.*?<\/script>/g, '');
-}
+};
 
 window.nativeBehavior = {};
 
 if (!window.console) {
   window.console = {
-    log: function() {}
+    log: () => {
+    }
   };
 }
 
-function getDoc(iframe) {
-  return iframe.contentWindow.document;
-}
+let getDoc = iframe => iframe.contentWindow.document;
 
-var qunitEqual = window.equal;
-window.equal = function(x, y, msg) {
-  return qunitEqual(y, x, msg);
-};
+let qunitEqual = window.equal;
+window.equal = (x, y, msg) => qunitEqual(y, x, msg);
 
-var ifrId = 0;
+let ifrId = 0;
 
-function IFrame(id) {
-  var ifr = document.createElement('iframe');
+const IFrame = id => {
+  const ifr = document.createElement('iframe');
 
   ifr.setAttribute('id', 'ifr' + (ifrId++));
 
@@ -67,59 +65,57 @@ function IFrame(id) {
   ifr.doc._write = ifr.doc.write;
   ifr.doc._writeln = ifr.doc.writeln;
 
-  ifr.doc.write = function() {
-    ifr.doc._write.apply(ifr.doc, [].slice.call(arguments));
-  };
+  ifr.doc.write = () => ifr.doc._write.apply(ifr.doc, [].slice.call(arguments));
 
-  ifr.doc.writeln = function() {
-    var args = [].slice.call(arguments);
+  ifr.doc.writeln = () => {
+    const args = [].slice.call(arguments);
     args.push('\n');
     ifr.doc.write.apply(ifr.doc, args);
   };
 
-  ifr.doc.writeInline = function(js) {
+  ifr.doc.writeInline = js => {
     this.write('<script>' + js + '</script>');
   };
 
-  ifr.doc.writeRemote = function(url) {
+  ifr.doc.writeRemote = url => {
     this.write('<script src="' + url + '"></script>');
   };
 
   ifr.doc.callbackId = 0;
-  ifr.doc.writeCallback = function(fn, msg) {
+  ifr.doc.writeCallback = (fn, msg) => {
     ifr.doc.callbackId++;
-    var cbName = 'cb_' + ifr.doc.callbackId;
+    const cbName = 'cb_' + ifr.doc.callbackId;
     ifr.contentWindow[cbName] = fn;
     ifr.doc.write('<script class="test_helper">' + cbName + '();//' + msg + '</script>');
   };
 
   return ifr;
-}
+};
 
-function PauseMonitor(done) {
-  var timeout;
-  var self = {
+const PauseMonitor = done => {
+  let timeout;
+  const self = {
 
     contexts: [],
 
     // ctx's interface: resume method + paused boolean attribute.
-    add: function(ctx) {
+    add: ctx => {
       self.contexts.push(ctx);
 
       // override ctx's resume method
       var resume = ctx.resume;
-      ctx.resume = function() {
+      ctx.resume = () => {
         // call ctx's old resume method
         resume.apply(ctx, arguments);
         self.checkDone();
       };
     },
 
-    checkDone: function() {
+    checkDone: () => {
       clearTimeout(timeout);
       // check if we're done on next tick.
-      timeout = setTimeout(function() {
-        for (var i = 0, ctx; ctx = self.contexts[i]; i++) {
+      timeout = setTimeout(() => {
+        for (let i = 0, ctx; ctx = self.contexts[i]; i++) {
           if (ctx.paused) {
             return;
           }
@@ -132,25 +128,25 @@ function PauseMonitor(done) {
   };
 
   return self;
-}
+};
 
 // a tag is a function that takes a document context
-function execute(name, tags, options) {
+const execute = (name, tags, options) => {
   random.reset();
 
-  for (var i = 0, tag; tag = tags[i]; i++) {
+  for (let i = 0, tag; tag = tags[i]; i++) {
     tag.id = 'tag' + i;
   }
 
-  var ifr;
-  var mode;
-  var pauseMonitor;
+  let ifr;
+  let mode;
+  let pauseMonitor;
 
-  var Context = {
+  const Context = {
     common: function(tag) {
-      var doc = getDoc(ifr);
+      const doc = getDoc(ifr);
 
-      var self = tag[mode + 'Ctx'] = {
+      const self = tag[mode + 'Ctx'] = {
 
         tag: tag,
 
@@ -162,40 +158,40 @@ function execute(name, tags, options) {
 
         written: '',
 
-        pause: function() {
+        pause: () => {
           self.paused = true;
         },
 
-        resume: function() {
+        resume: () => {
           self.paused = false;
         },
 
-        onFinished: function() {
+        onFinished: () => {
           self.eq(innerHtml(self.div), tag.id + ':Final InnerHtml');
         },
 
-        render: function renderTest() {
+        render: () => {
           self.tag.render(self);
           self.pause();
-          self.writeCallback(function() {
+          self.writeCallback(() => {
             self.onFinished();
             self.resume();
           }, 'Rendering Complete');
         },
 
-        compareInnerHtml: function() {
-          self.eqPrefix(innerHtml(self.div), tag.id + ':' + [].slice.call(arguments).join(''));
+        compareInnerHtml: (...args) => {
+          self.eqPrefix(innerHtml(self.div), tag.id + ':' + args.join(''));
         }
       };
 
-      function delegateMethod(method) {
-        self[method] = function() {
+      const delegateMethod = method => {
+        self[method] = () => {
           return doc[method].apply(doc, arguments);
         };
-      }
+      };
 
-      var method;
-      var methods = 'write writeln writeInline writeRemote writeCallback'.split(' ');
+      let method;
+      const methods = 'write writeln writeInline writeRemote writeCallback'.split(' ');
       while (method = methods.pop()) {
         delegateMethod(method);
       }
@@ -203,33 +199,31 @@ function execute(name, tags, options) {
       return self;
     },
 
-    'native': function(tag) {
+    native: tag => {
 
-      var self = Context.common(tag);
+      const self = Context.common(tag);
 
       self.calls = [];
 
-      self.eq = function() {
-        self.calls.push([].slice.call(arguments));
+      self.eq = (...args) => {
+        self.calls.push(args);
       };
 
-      self.eqPrefix = function() {
-        self.calls.push([].slice.call(arguments));
+      self.eqPrefix = (...args) => {
+        self.calls.push(args);
       };
 
-      self.expect = function() {
+      self.expect = () => {
         // do nothing
       };
 
-      var parser = new Prescribe('', {
+      const parser = new Prescribe('', {
         autoFix: true
       });
 
-      self.doc.write = function() {
-        var args = [].slice.call(arguments);
-
+      self.doc.write = function(...args) {
         if (parser) {
-          $.each(args, function(index, value) {
+          $.each(args, (index, value) => {
             parser.append(value);
           });
           args = (function() {
@@ -241,9 +235,7 @@ function execute(name, tags, options) {
           }());
         }
 
-        $.each(args, function(index, value) {
-          self.written = self.written + value;
-        });
+        $.each(args, (index, value) => self.written = self.written + value);
 
         if (options.useInnerHtml) {
           self.div.innerHTML = self.written;
@@ -256,12 +248,11 @@ function execute(name, tags, options) {
       return self;
     },
 
-    writer: function(tag) {
+    writer: tag => {
+      const self = Context.common(tag);
+      const work = self.doc.createElement('div');
 
-      var self = Context.common(tag);
-      var work = self.doc.createElement('div');
-
-      var expectCalls;
+      let expectCalls;
 
       if (window.expectedBehavior) {
         expectCalls = window.expectedBehavior['test ' + name][tag.id].calls;
@@ -269,17 +260,15 @@ function execute(name, tags, options) {
         expectCalls = [].slice.call(tag.nativeCtx.calls);
       }
 
-      self.expect = function(expects) {
-
-      };
+      self.expect = (expects) => {};
 
       // Remove first \r\n from actual (needed for IE7-8)
-      function clipRN(str) {
+      let clipRN = str => {
         return str.replace(/^\r\n/, '');
-      }
+      };
 
-      self.eq = function(val, msg) {
-        var args = expectCalls.shift();
+      self.eq = (val, msg) => {
+        let args = expectCalls.shift();
 
         if (args && window.expectedBehavior) {
           // run it through innerHTML to get rid of browser inconsistencies
@@ -301,8 +290,8 @@ function execute(name, tags, options) {
       };
 
       // writer should have at least what native has.
-      self.eqPrefix = function(val, msg) {
-        var args = expectCalls.shift();
+      self.eqPrefix = (val, msg) => {
+        let args = expectCalls.shift();
 
         if (args && window.expectedBehavior) {
           // run it through innerHTML to get rid of browser inconsistencies
@@ -330,16 +319,16 @@ function execute(name, tags, options) {
     }
   };
 
-  function renderTag(tag) {
-    var ctx = Context[mode](tag, ifr.doc);
+  const renderTag = tag => {
+    const ctx = Context[mode](tag, ifr.doc);
     pauseMonitor.add(ctx);
     ctx.render();
-  }
+  };
 
   // pause the qunit test
   stop();
 
-  var queue = [
+  const queue = [
 
     function NATIVE_MODE(done) {
       if (window.expectedBehavior) {
@@ -354,10 +343,9 @@ function execute(name, tags, options) {
 
       pauseMonitor = PauseMonitor(done);
 
-      ifr.contentWindow.renderTag = function(i) {
-        renderTag(tags[i]);
-      };
+      ifr.contentWindow.renderTag = i => renderTag(tags[i]);
 
+      let tag;
       for (var i = 0; tag = tags[i]; i++) {
 
         ifr.doc._write('<div class=tag id=' + tag.id + '>');
@@ -370,12 +358,12 @@ function execute(name, tags, options) {
       pauseMonitor.checkDone();
     },
 
-    function intermission(done) {
+    done => {
       if (GENERATE_EXPECTED) {
-        var testBehavior = window.nativeBehavior['test ' + name] = {};
+        const testBehavior = window.nativeBehavior['test ' + name] = {};
 
         // spit out native
-        for (var i = 0; tag = tags[i]; i++) {
+        for (let i = 0; tag = tags[i]; i++) {
           testBehavior[tag.id] = {
             calls: tag.nativeCtx.calls
           };
@@ -384,14 +372,14 @@ function execute(name, tags, options) {
       done();
     },
 
-    function WRITER_MODE(done) {
+    done => {
       ifr = IFrame('[ACTUAL]' + name);
 
-      ifr.doc.write = function() {
+      ifr.doc.write = () => {
         ok(false, ifr.doc.currentTag.id + ' - document.write outside: ' + [].slice.call(arguments).join(''));
       };
 
-      for (var i = 0; tag = tags[i]; i++) {
+      for (let i = 0; tag = tags[i]; i++) {
         ifr.doc._write('<div class=tag id=' + tag.id + '></div>');
       }
 
@@ -401,65 +389,61 @@ function execute(name, tags, options) {
 
       pauseMonitor = PauseMonitor(done);
 
-      var shuffledTags = random.shuffle(tags);
+      const shuffledTags = random.shuffle(tags);
 
-      ifr.contentWindow.renderTag = function(i) {
-        var ctx = shuffledTags[i].ctx;
+      ifr.contentWindow.renderTag = i => {
+        const ctx = shuffledTags[i].ctx;
         ctx.doc.currentTag = tag;
         ctx.render();
       };
 
-      function tryShuffledTag(tag, i) {
-        var ctx = Context[mode](tag, ifr.doc);
+      const tryShuffledTag = (tag, i) => {
+        const ctx = Context[mode](tag, ifr.doc);
         pauseMonitor.add(ctx);
         tag.ctx = ctx;
         ctx.writer = postscribe(ctx.div, '<script class="test_helper">renderTag(' + i + ')</script>', {
           name: tag.id,
-          beforeWrite: function(str) {
-            return str;
-          },
-          afterWrite: function(str) {
+          beforeWrite: str => str,
+          afterWrite: str => {
             ctx.written += str;
             ctx.compareInnerHtml(str);
           },
-          error: function(e) {
-            throw e;
-          }
+          error: e => {throw e;}
         });
-      }
+      };
 
-      for (i = 0; i < shuffledTags.length; i++) {
+      for (let i = 0; i < shuffledTags.length; i++) {
         tryShuffledTag(shuffledTags[i], i);
       }
 
       pauseMonitor.checkDone();
     },
 
-    function finishedTest(done) {
+    done => {
       start();
       done();
     }
   ];
 
-  function next() {
-    var fn = queue.shift();
+  const next = () => {
+    const fn = queue.shift();
     if (fn) {
       fn(next);
     }
-  }
+  };
 
   next();
-}
+};
 
 // innerHTML is sync under FF3.6. document.write is not.
 // We only care about this for testing. On a live site htmlWrite
 // behaves correctly because it's using innerHTML and not document.write
-var supports = {
+const supports = {
   docwriteSync: false
 };
 
 var nativeTimeout;
-function testWrite(name) {
+export let testWrite = name => {
   var fns = [].slice.call(arguments, 1);
 
   function Tag(render) {
@@ -477,13 +461,13 @@ function testWrite(name) {
   // TEST OPTIONS
   var options = testOptions;
 
-  test(name + (window.JSON ? ' ' + JSON.stringify(options) : ''), function() {
+  test(name + (window.JSON ? ' ' + JSON.stringify(options) : ''), () => {
     try {
       execute(name, tags, options);
 
       if (GENERATE_EXPECTED && window.JSON && JSON.stringify) {
         clearTimeout(nativeTimeout);
-        nativeTimeout = setTimeout(function() {
+        nativeTimeout = setTimeout(() => {
           console.log('Native behavior:');
           console.log(JSON.stringify(window.nativeBehavior));
         }, 2000);
@@ -492,9 +476,9 @@ function testWrite(name) {
       console.error(e);
     }
   });
-}
+};
 
-function setOptions(options) {
+export function setOptions(options) {
   options.useExpected = true;
   if (!supports.docwriteSync && !options.useExpected) {
     options.useInnerHtml = true;
@@ -506,9 +490,7 @@ function setOptions(options) {
   testOptions = options;
 }
 
-function skip() {
-  return function() {};
-}
+export let skip = () => () => {};
 
 document.write([
   '<script type="text/vbscript">',

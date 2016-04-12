@@ -1,20 +1,45 @@
 /* eslint-env node */
+import pkg from './package.json';
+import webpackConfig from './webpack.config.babel.js';
+import webpack from 'webpack';
+
+webpackConfig.plugins = [
+  new webpack.optimize.UglifyJsPlugin({
+    mangle: true,
+    compress: {
+      warnings: false
+    }
+  })
+];
+
 export default {
+  autoWatch: false,
+
+  babelPreprocessor: {
+    options: pkg.babel
+  },
+
   basePath: '',
 
   browserDisconnectTimeout: 20000, // ms
 
   browserDisconnectTolerance: 2, // times
 
+  browsers: [
+    'PhantomJS'
+  ],
+
   browserNoActivityTimeout: 60000, // ms
 
-  frameworks: [
-    'qunit'
-  ],
+  colors: true,
+
+  concurrency: Infinity,
+
+  exclude: [],
 
   files: [
     'node_modules/jquery/dist/jquery.js',
-    'dist/postscribe.js',
+    {pattern: 'src/**/*.js', watched: true, included: false, served: true},
     'test/random.js',
     'test/expected.js',
     'test/helpers.js',
@@ -22,11 +47,17 @@ export default {
     {pattern: 'test/remote/*.js', watched: true, included: false, served: true}
   ],
 
-  exclude: [],
-
-  reporters: [
-    'progress'
+  frameworks: [
+    'qunit'
   ],
+
+  logLevel: 'debug',
+
+  port: 9876,
+
+  preprocessors: {
+    'test/**/*.js': ['webpack']
+  },
 
   // generate_expected breaks the path a bit b/c it's writing relative to itself.
   // remap it here to avoid 404s
@@ -34,18 +65,15 @@ export default {
     '/remote/': '/base/test/remote/'
   },
 
-  port: 9876,
-
-  colors: true,
-
-  logLevel: 'debug',
-
-  autoWatch: false,
-
-  browsers: [
-    'PhantomJS'
+  reporters: [
+    'progress'
   ],
 
   singleRun: true,
-  concurrency: Infinity
+
+  webpack: webpackConfig,
+
+  webpackMiddleware: {
+    noInfo: true
+  }
 };

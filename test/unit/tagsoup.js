@@ -1,74 +1,75 @@
 /* global $,postscribe,test,ok,start,testWrite,setOptions */
 /* eslint-disable no-var */
+import postscribe from '../../src/postscribe';
 
-$(document).ready(function() {
+$(document).ready(() => {
 
   module('Tag Soup');
   setOptions({});
 
-  testWrite('TS1', function(ctx) {
+  testWrite('TS1', ctx => {
     ctx.write('<div><i></div>');
     ctx.write('foo');
   });
 
-  testWrite('TS2', function(ctx) {
+  testWrite('TS2', ctx => {
     ctx.write('<div><i>');
     ctx.write('<div>foo');
     ctx.write('<div><i>');
   });
 
-  testWrite('foo should be italicized', function(ctx) {
+  testWrite('foo should be italicized', ctx => {
     ctx.write('<div><i>');
     ctx.write('<div>foo');
   });
 
-  testWrite('inside-out i/p', function(ctx) {
+  testWrite('inside-out i/p', ctx => {
     ctx.write('<div><i></div>');
     ctx.write('<div>foo');
   });
 
-  testWrite('TS5', function(ctx) {
+  testWrite('TS5', ctx => {
     ctx.write('<div><i></div>');
   });
 
-  testWrite('TS6', function(ctx) {
+  testWrite('TS6', ctx => {
     ctx.write('<div><i></div>');
     ctx.write('<div>foo<i>');
     ctx.write('</div>bar');
   });
 
-  testWrite('character placeholders', function(ctx) {
+  testWrite('character placeholders', ctx => {
     ctx.write('<div><div><i></div>');
     ctx.write('foo');
     ctx.write('<div>bar</div>');
   });
 
-  testWrite('just a close tag', function(ctx) {
+  testWrite('just a close tag', ctx => {
     ctx.write('</i>');
   });
 
-  testWrite('TS9', function(ctx) {
+  testWrite('TS9', ctx => {
     ctx.write('<div><i></div>');
     ctx.write('foo');
     ctx.write('<div>');
     ctx.write('</i>');
   });
 
-  testWrite('TS10', function(ctx) {
+  testWrite('TS10', ctx => {
     ctx.write('<div><i></div>');
     ctx.write('foo');
     ctx.write('<div>bar');
     ctx.write('</i>');
   });
 
-  testWrite('TS11', function(ctx) {
+  testWrite('TS11', ctx => {
     ctx.write('<div><b><i></div>');
     ctx.write('foo');
     ctx.write('<div>bar<i>');
     ctx.write('</b>bla');
   });
 
-  testWrite('random stuff', function(ctx) {
+  testWrite('random stuff', ctx => {
     ctx.write('<div>hey<i');
     ctx.write('>there<div>Continue </i>outside');
     ctx.write('<div>Not<b> italics<i></div>');
@@ -80,16 +81,16 @@ $(document).ready(function() {
     ctx.write('>there</div>Continue </i>outside<b>please</b>');
   });
 
-  testWrite('iframe with script content', function(ctx) {
+  testWrite('iframe with script content', ctx => {
     ctx.writeInline('document.write("<iframe><script><\\/script></iframe>")');
   });
 
-  testWrite('textarea with script content', function(ctx) {
+  testWrite('textarea with script content', ctx => {
     ctx.writeInline('document.write("<textarea><script><\\/script></textarea>")');
   });
 
-  test('naked remote write', function() {
-    var div = document.createElement('div');
+  test('naked remote write', () => {
+    const div = document.createElement('div');
     div.id = 'naked-remote-write';
     document.body.appendChild(div);
     stop();

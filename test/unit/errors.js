@@ -1,24 +1,25 @@
 /* global $,postscribe,test,ok,start */
 /* eslint-disable no-var */
+import postscribe from '../../src/postscribe';
 
 $(document).ready(function() {
 
   module('errors');
 
-  function testError(name, html) {
-    test(name, function() {
-      var oldOnError = window.onerror;
+  const testError = (name, html) => {
+    test(name, () => {
+      let oldOnError = window.onerror;
       window.onerror = null;
-      var div = document.createElement('div');
+      const div = document.createElement('div');
       div.id = name.replace(/\s/g, '-');
       document.body.appendChild(div);
-      var error;
+      let error;
       stop();
       postscribe(div, html, {
-        error: function(e) {
+        error: e => {
           error = e;
         },
-        done: function() {
+        done: () => {
           ok(error);
           window.onerror = oldOnError;
           start();

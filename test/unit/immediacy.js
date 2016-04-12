@@ -1,18 +1,18 @@
 /* global $,testWrite,setOptions,supports */
 /* eslint-disable no-var */
+import postscribe from '../../src/postscribe';
 
-$(document).ready(function() {
+$(document).ready(() => {
 
   module('immediacy');
   setOptions({
     useExpected: !supports.docwriteSync
   });
 
-  testWrite('getElementById', function(ctx) {
+  testWrite('getElementById', ctx => {
     ctx.write('<div id="foo"><div>bar');
 
-    var span;
-    span = ctx.doc.createElement('span');
+    let span = ctx.doc.createElement('span');
     span.innerHTML = 'baz';
     ctx.doc.getElementById('foo').appendChild(span);
 

@@ -11,7 +11,8 @@ export default {
       {
         test: /\.js$/,
         include: [
-          path.resolve('./src')
+          path.resolve('./src'),
+          path.resolve('./test')
         ],
         loaders: ['babel']
       }

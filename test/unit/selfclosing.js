@@ -1,12 +1,13 @@
 /* global $,testWrite,setOptions */
 /* eslint-disable no-var */
+import postscribe from '../../src/postscribe';
 
-$(document).ready(function() {
+$(document).ready(() => {
 
   module('Self Closing');
   setOptions({});
 
-  testWrite('Handles closed self-closing tags that\'re closed.', function(ctx) {
+  testWrite('Handles closed self-closing tags that\'re closed.', ctx => {
     ctx.writeln(
       '<div id="first" style="background: red; padding: 5px">' +
       '<embed></embed>' +
@@ -15,7 +16,7 @@ $(document).ready(function() {
     );
   });
 
-  testWrite('Handles closed self-closing tags that\'re closed w/ a slash.', function(ctx) {
+  testWrite('Handles closed self-closing tags that\'re closed w/ a slash.', ctx => {
     ctx.writeln(
       '<div><object><param name="allowFullScreen" value="true" /><param></param></object></div>'
     );

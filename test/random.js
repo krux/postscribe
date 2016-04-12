@@ -1,4 +1,6 @@
 /* eslint-disable no-var */
+import postscribe from '../src/postscribe';
+
 (function() {
   // Random number generation from http://stackoverflow.com/questions/424292/how-to-create-my-own-javascript-random-number-generator-that-i-can-also-set-the
   function nextRandomNumber() {
@@ -21,7 +23,6 @@
     this.Q = this.M / this.A;
     this.R = this.M % this.A;
     this.oneOverM = 1.0 / this.M;
-    this.next = nextRandomNumber;
     return this;
   }
 
