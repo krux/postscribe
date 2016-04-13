@@ -57,7 +57,7 @@
     "grunt-contrib-uglify": "0.2.7",
     "grunt-contrib-watch": "0.5.3",
     "jquery": "^1.11.1",
-    "lodash": "2.4.1",
+    "lodash": "4.11.0",
     "phantomjs": "1.9.20",
     "qunit": "^0.7.5",
     "testem": "0.6.22"
