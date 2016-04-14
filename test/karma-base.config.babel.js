@@ -13,13 +13,13 @@ export default {
   ],
 
   files: [
-    'node_modules/jquery/dist/jquery.js',
-    'dist/postscribe.js',
-    'test/random.js',
-    'test/expected.js',
-    'test/helpers.js',
-    {pattern: 'test/unit/*.js', watched: true, included: true},
-    {pattern: 'test/remote/*.js', watched: true, included: false, served: true}
+    '../node_modules/jquery/dist/jquery.js',
+    '../dist/postscribe.js',
+    'random.js',
+    'expected.js',
+    'helpers.js',
+    {pattern: 'unit/*.js', watched: true, included: true},
+    {pattern: 'remote/*.js', watched: true, included: false, served: true}
   ],
 
   exclude: [],
@@ -31,7 +31,7 @@ export default {
   // generate_expected breaks the path a bit b/c it's writing relative to itself.
   // remap it here to avoid 404s
   proxies: {
-    '/remote/': '/base/test/remote/'
+    '/remote/': '/base/remote/'
   },
 
   port: 9876,
