@@ -2,7 +2,7 @@
 import baseConfig from './karma-base.config.babel.js';
 import customLaunchers from './saucelabs.config.babel.js';
 
-module.exports = (config) => {
+module.exports = config => {
   baseConfig.reporters = [
     'dots',
     'saucelabs'
