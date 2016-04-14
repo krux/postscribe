@@ -61,7 +61,7 @@ export default {
     'PhantomJS'
   ],
 
-  singleRun: true,
+  singleRun: false,
 
   webpack: Object.assign(webpackConfig, {
     devtool: 'inline-source-map'

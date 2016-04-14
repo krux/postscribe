@@ -4,7 +4,7 @@ import postscribe from '../../src/postscribe';
 
 $(document).ready(() => {
 
-  module('Self Closing');
+  QUnit.module('Self Closing');
   setOptions({});
 
   testWrite('Handles closed self-closing tags that\'re closed.', ctx => {

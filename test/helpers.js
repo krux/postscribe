@@ -1,6 +1,7 @@
 /* global $,postscribe,test,ok,equal,start,stop,random,Prescribe */
 /* eslint-disable no-var,no-console,consistent-this,no-cond-assign,new-cap,no-unused-vars */
 import postscribe from '../src/postscribe';
+import $ from 'jquery';
 
 if (/wait=1/.test(location.href) || window.wait) {
   // wait before running tests.
@@ -50,45 +51,17 @@ window.equal = (x, y, msg) => qunitEqual(y, x, msg);
 
 let ifrId = 0;
 
-const IFrame = id => {
+export const IFrame = (id, ready) => {
   const ifr = document.createElement('iframe');
 
   ifr.setAttribute('id', 'ifr' + (ifrId++));
 
+  ifr.addEventListener('load', () => {
+    ready(ifr.contentDocument);
+  });
+
   // append it to dom so we can get the document
   document.body.appendChild(ifr);
-  ifr.doc = getDoc(ifr);
-
-  // write a content div
-  ifr.doc.write('<html><body><h3>' + id + '</h3>');
-
-  ifr.doc._write = ifr.doc.write;
-  ifr.doc._writeln = ifr.doc.writeln;
-
-  ifr.doc.write = () => ifr.doc._write.apply(ifr.doc, [].slice.call(arguments));
-
-  ifr.doc.writeln = () => {
-    const args = [].slice.call(arguments);
-    args.push('\n');
-    ifr.doc.write.apply(ifr.doc, args);
-  };
-
-  ifr.doc.writeInline = js => {
-    this.write('<script>' + js + '</script>');
-  };
-
-  ifr.doc.writeRemote = url => {
-    this.write('<script src="' + url + '"></script>');
-  };
-
-  ifr.doc.callbackId = 0;
-  ifr.doc.writeCallback = (fn, msg) => {
-    ifr.doc.callbackId++;
-    const cbName = 'cb_' + ifr.doc.callbackId;
-    ifr.contentWindow[cbName] = fn;
-    ifr.doc.write('<script class="test_helper">' + cbName + '();//' + msg + '</script>');
-  };
-
   return ifr;
 };
 
@@ -260,7 +233,8 @@ const execute = (name, tags, options) => {
         expectCalls = [].slice.call(tag.nativeCtx.calls);
       }
 
-      self.expect = (expects) => {};
+      self.expect = (expects) => {
+      };
 
       // Remove first \r\n from actual (needed for IE7-8)
       let clipRN = str => {
@@ -408,7 +382,9 @@ const execute = (name, tags, options) => {
             ctx.written += str;
             ctx.compareInnerHtml(str);
           },
-          error: e => {throw e;}
+          error: e => {
+            throw e;
+          }
         });
       };
 
@@ -490,7 +466,8 @@ export function setOptions(options) {
   testOptions = options;
 }
 
-export let skip = () => () => {};
+export let skip = () => () => {
+};
 
 document.write([
   '<script type="text/vbscript">',

@@ -1,22 +1,19 @@
-AUTHORS
-CHANGELOG.md
 CLA.md
 CONTRIBUTING.md
 bower.json
 gulpfile.babel.js
-karma-base.config.babel.js
-karma-sauce.config.babel.js
-karma.config.babel.js
+karma*.config.babel.js
 saucelabs.config.babel.js
 webpack.config.babel.js
 
 test/**
 src/**
 
+.codeclimate.yml
 .editorconfig
 .eslint*
 .idea/**
 .jscsrc
-.travis.yml
 .npmignore
+.travis.yml
 *.iml

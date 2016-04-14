@@ -4,7 +4,7 @@ import postscribe from '../../src/postscribe';
 
 $(document).ready(() => {
 
-  module('Tag Soup');
+  QUnit.module('Tag Soup');
   setOptions({});
 
   testWrite('TS1', ctx => {

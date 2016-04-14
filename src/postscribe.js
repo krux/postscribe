@@ -78,7 +78,7 @@ function runStream(el, html, options) {
     options.afterWrite(str);
   }
 
-  utils.set(doc, {
+  Object.assign(doc, {
     close: doNothing,
     open: doNothing,
     write: function() {
@@ -102,7 +102,7 @@ function runStream(el, html, options) {
   // Write to the stream
   active.write(html, function streamDone() {
     // restore document.write
-    utils.set(doc, stash);
+    Object.assign(doc, stash);
 
     // restore window.onerror
     active.win.onerror = oldOnError;
@@ -157,7 +157,7 @@ export default function postscribe(el, html, options) {
   return el.postscribe;
 }
 
-utils.set(postscribe, {
+Object.assign(postscribe, {
   // Streams by name.
   streams: {},
   // Queue of streams.

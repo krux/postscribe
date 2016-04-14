@@ -4,7 +4,7 @@ import postscribe from '../../src/postscribe';
 
 $(document).ready(() => {
 
-  module('token processing');
+  QUnit.module('token processing');
   setOptions({});
 
   const testBeforeWriteTokenCalled = (name, html, type, expectedAmount) => {

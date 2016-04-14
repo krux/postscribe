@@ -4,7 +4,7 @@ import postscribe from '../../src/postscribe';
 
 $(document).ready(() => {
 
-  module('Simple writes');
+  QUnit.module('Simple writes');
   setOptions({});
 
   testWrite('empty tag', ctx => {

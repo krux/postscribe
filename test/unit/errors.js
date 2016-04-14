@@ -4,7 +4,7 @@ import postscribe from '../../src/postscribe';
 
 $(document).ready(function() {
 
-  module('errors');
+  QUnit.module('errors');
 
   const testError = (name, html) => {
     test(name, () => {

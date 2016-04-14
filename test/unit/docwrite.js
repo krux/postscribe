@@ -4,8 +4,6 @@ import postscribe from '../../src/postscribe';
 
 $(document).ready(() => {
 
-  module('document.write');
-
   testWrite('remainder', ctx => {
     ctx.writeRemote('remote/write-remote-and-inline-script.js');
     ctx.write('A<script src="remote/write-remote-and-inline-script.js">');

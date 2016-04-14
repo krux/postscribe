@@ -4,7 +4,7 @@ import postscribe from '../../src/postscribe';
 
 $(document).ready(() => {
 
-  module('style');
+  QUnit.module('style');
   setOptions({});
 
   testWrite('simple style', ctx => {

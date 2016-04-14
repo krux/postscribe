@@ -4,7 +4,7 @@ import postscribe from '../../src/postscribe';
 
 $(document).ready(() => {
 
-  module('multiple');
+  QUnit.module('multiple');
 
   testWrite('MULT1',
     ctx => {

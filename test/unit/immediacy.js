@@ -4,7 +4,7 @@ import postscribe from '../../src/postscribe';
 
 $(document).ready(() => {
 
-  module('immediacy');
+  QUnit.module('immediacy');
   setOptions({
     useExpected: !supports.docwriteSync
   });

@@ -4,7 +4,7 @@ import postscribe from '../../src/postscribe';
 
 $(document).ready(() => {
 
-  module('writeln with multiple arguments');
+  QUnit.module('writeln with multiple arguments');
   setOptions({});
 
   testWrite('wlma: split mid-element', ctx => {

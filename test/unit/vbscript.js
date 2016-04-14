@@ -4,7 +4,7 @@ import postscribe from '../../src/postscribe';
 
 $(document).ready(() => {
 
-  module('vbscript');
+  QUnit.module('vbscript');
 
   if (window.supportsVbscript) {
     test('vbscript', () => {

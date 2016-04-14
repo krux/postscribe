@@ -4,7 +4,7 @@ import postscribe from '../../src/postscribe';
 
 $(document).ready(() => {
 
-  module('document.write overwriting.');
+  QUnit.module('document.write overwriting.');
 
   const readNativeDocumentMethodString = method => {
     // Cache because this takes a long time.
