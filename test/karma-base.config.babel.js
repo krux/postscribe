@@ -12,12 +12,6 @@ export default {
 
   browserNoActivityTimeout: 60000, // ms
 
-  client: {
-    mocha: {
-      timeout: 6000
-    }
-  },
-
   frameworks: [
     'mocha',
     'sinon',
@@ -25,35 +19,33 @@ export default {
   ],
 
   files: [
-    'node_modules/jquery/dist/jquery.js',
-    'test/**/*.spec.js',
-    {pattern: 'test/remote/*.js', watched: true, included: false, served: true}
+    '../node_modules/jquery/dist/jquery.js',
+    '**/*.spec.js',
+    {pattern: 'remote/*.js', watched: true, included: false, served: true}
   ],
 
   exclude: [],
 
   preprocessors: {
-    'test/*.js': ['webpack', 'sourcemap'],
-    'test/unit/**/*.js': ['webpack', 'sourcemap']
+    '*.js': ['webpack', 'sourcemap'],
+    'unit/**/*.js': ['webpack', 'sourcemap']
   },
 
-  babelPreprocessor: {
-    options: pkg.babel
-  },
-
+  // generate_expected breaks the path a bit b/c it's writing relative to itself.
+  // remap it here to avoid 404s
   proxies: {
-    '/remote/': '/base/test/remote/'
+    '/remote/': '/base/remote/'
   },
 
   reporters: [
-    'mocha'
+    'dots'
   ],
 
   port: 9876,
 
   colors: true,
 
-  logLevel: 'info',
+  logLevel: 'debug',
 
   autoWatch: false,
 

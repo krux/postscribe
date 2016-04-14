@@ -5,16 +5,10 @@ module.exports = {
     'ecmaVersion': 6,
     'sourceType': 'module'
   },
-  'globals': {
-    'self': false,
-    'window': true,
-    'document': true
-  },
   'env': {
     'browser': true,
     'commonjs': true,
-    'es6': true,
-    'node': true
+    'es6': true
   },
   'rules': {
     'comma-dangle': [

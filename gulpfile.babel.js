@@ -21,78 +21,78 @@ import header from 'gulp-header';
 import esdoc from 'gulp-esdoc';
 import path from 'path';
 
-const DEST = 'dist';
-const banner = [
+const DIST = 'dist';
+
+const BANNER = [
   '/**',
   ` * @file ${pkg.name}`,
   ` * @description ${pkg.description}`,
   ` * @version v${pkg.version}`,
   ` * @see {@link ${pkg.homepage}}`,
-  ' * @license MIT',
+  ` * @license ${pkg.license}`,
   ` * @author ${pkg.author.name}`,
   ` * @copyright ${new Date().getFullYear()} Krux Digital, Inc`,
   ' */',
   ''
 ].join('\n');
 
-gulp.task('clean', () => {
-  return del.sync([`${DEST}/**`]);
-});
-
 const LINTABLE_PATTERN = ['*.js', 'src/**/*.js', 'test/random.js', 'test/helpers.js', 'test/generate_expected.phantom.js', 'test/unit/**.js'];
 
-gulp.task('eslint', () => {
+function build(config) {
+  const basename = path.basename(config.output.filename, path.extname(config.output.filename));
+  const jsOnly = filter(['**/*.js'], {restore: true});
+  const mapOnly = filter(['**/*.map']);
+
+  return () => webpackStream(config)
+    .pipe(jsOnly)
+    .pipe(header(BANNER))
+    .pipe(rename({basename: basename, extname: '.max.js'}))
+    .pipe(gulp.dest(DIST))
+    .pipe(stripDebug())
+    .pipe(rename({basename: basename, extname: '.js'}))
+    .pipe(gulp.dest(DIST))
+    .pipe(uglify())
+    .pipe(header(BANNER))
+    .pipe(rename({basename: basename, extname: '.min.js'}))
+    .pipe(gulp.dest(DIST))
+    .pipe(jsOnly.restore)
+    .pipe(mapOnly)
+    .pipe(gulp.dest(DIST));
+}
+
+gulp.task('build', build(webpackConfig));
+
+gulp.task('doc', () => {
+  return gulp.src('./src')
+    .pipe(esdoc({
+      destination: './doc'
+    }));
+});
+
+gulp.task('lint', ['lint:eslint', 'lint:jscs']);
+
+gulp.task('lint:eslint', () => {
   return gulp.src(LINTABLE_PATTERN)
     .pipe(eslint())
     .pipe(eslint.format())
     .pipe(eslint.failAfterError());
 });
 
-gulp.task('jscs', () => {
+gulp.task('lint:jscs', () => {
   return gulp.src(LINTABLE_PATTERN)
     .pipe(jscs())
     .pipe(jscs.reporter());
 });
 
-gulp.task('lint', ['eslint', 'jscs']);
-
-const basename = path.basename(webpackConfig.output.filename, path.extname(webpackConfig.output.filename));
-
-function build(config) {
-  const jsOnly = filter(['**/*.js'], {restore: true});
-  const mapOnly = filter(['**/*.map']);
-
-  return () => webpackStream(config)
-    .pipe(jsOnly)
-    .pipe(header(banner))
-    .pipe(rename({basename: basename, extname: '.max.js'}))
-    .pipe(gulp.dest(DEST))
-    .pipe(stripDebug())
-    .pipe(rename({basename: basename, extname: '.js'}))
-    .pipe(gulp.dest(DEST))
-    .pipe(uglify())
-    .pipe(header(banner))
-    .pipe(rename({basename: basename, extname: '.min.js'}))
-    .pipe(gulp.dest(DEST))
-    .pipe(jsOnly.restore)
-    .pipe(mapOnly)
-    .pipe(gulp.dest(DEST));
-}
-
-gulp.task('build', build(webpackConfig));
-
-gulp.task('watch', () => {
-  gulp.watch('src/**/*.js', ['build']);
-});
-
-gulp.task('serve', ['clean', 'build'], done => {
+gulp.task('serve', ['clean'], done => {
   const devConfig = Object.create(webpackConfig);
   devConfig.devtool = 'eval';
   devConfig.debug = true;
 
   gutil.log('[serve]', `http://localhost:${pkg.config.ports.cdn}/`);
+
   new WebpackDevServer(webpack(devConfig), {
-    contentBase: DEST,
+    contentBase: DIST,
     hot: true,
     quiet: false,
     stats: {
@@ -113,34 +113,19 @@ gulp.task('serve', ['clean', 'build'], done => {
   });
 });
 
-function karma(configName, failOnError = true, karmaOptions = {}) {
-  return done => new Karma(Object.assign({
-    configFile: path.resolve(`./${configName}.config.babel.js`)
-  }, karmaOptions), err => {
-    if (err) {
-      gutil.log('[test]', 'Tests failed');
-      if (failOnError) {
-        process.exit(err);
-      }
-    }
-    done();
-  }).start();
-}
+gulp.task('test', test('coverage'));
+gulp.task('test:ci', test('ci'));
+gulp.task('test:coverage', test('coverage', false));
+gulp.task('test:cross-browser', test('sauce'));
+gulp.task('test:debug', test('coverage', true, {singleRun: false}));
+gulp.task('test:nocoverage', test('nocoverage', false));
 
-gulp.task('test', karma('karma'));
+gulp.task('tdd', ['test:nocoverage'], () => {
+  gulp.watch(['src/**', 'test/**'], ['test:nocoverage']);
+});
 
-gulp.task('test:cross-browser', karma('karma-sauce'));
-
-gulp.task('test:ci', karma('karma-ci'));
-
-gulp.task('test:debug', karma('karma-debug', true));
-
-gulp.task('test:tdd', karma('karma', false));
-
-gulp.task('test:debug', karma('karma', true, {singleRun: false}));
-
-gulp.task('tdd', ['test:tdd'], () => {
-  gulp.watch(['src/**', 'test/**'], ['test:tdd']);
+gulp.task('tdd:coverage', ['test:coverage'], () => {
+  gulp.watch(['src/**', 'test/**'], ['test:coverage']);
 });
 
 gulp.task('release', ['default'], done => {
@@ -155,8 +140,8 @@ gulp.task('release', ['default'], done => {
       }
 
       childProcess.exec('npm publish', (err, stdout, stderr) => {
-        console.log(`stdout: ${stdout}`);
-        console.log(`stderr: ${stderr}`);
+        gutil.log('[release]', `stdout: ${stdout}`);
+        gutil.log('[release]', `stderr: ${stderr}`);
 
         if (err) {
           throw err;
@@ -167,13 +152,4 @@ gulp.task('release', ['default'], done => {
     });
   });
 });
-
-gulp.task('doc', () => {
-  return gulp.src('./src')
-    .pipe(esdoc({
-      destination: './doc'
-    }));
-});
-
-gulp.task('default', ['clean', 'lint', 'build', 'test']);
 
