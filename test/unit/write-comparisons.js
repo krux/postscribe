@@ -5,12 +5,12 @@ import {Html, Js, Uri} from './write-thunks'
  */
 export default {
   attr: {
-    //'string double quote': new Html('<img alt="foo">'),
-    //'string single quote': new Html("<img alt='foo'>"),
-    //'string unquoted': new Html('<img alt=foo>'),
-    //'empty string': new Html('<img alt="">'),
-    //'no value': new Html('<input type="checkbox" checked>'),
-    //'self closing': new Html('<div class="foo"/>')
+    'string double quote': new Html('<img alt="foo">'),
+    'string single quote': new Html("<img alt='foo'>"),
+    'string unquoted': new Html('<img alt=foo>'),
+    'empty string': new Html('<img alt="">'),
+    'no value': new Html('<input type="checkbox" checked>'),
+    'self closing': new Html('<div class="foo"/>')
   },
   docwrite: {
     remainder: [
@@ -25,7 +25,7 @@ export default {
     'capital script@SRC': new Html('<SCRIPT TYPE="text/javascript" SRC="remote/write-div.js"></SCRIPT>'),
     'inline': new Html('A<script type="text/javascript">document.write("B");</script>C'),
     'nested document.write': (() => {
-      const inner = "B<script type='text/javascript'>document.write('C');<\\/script>D";
+      const inner = "B<script type='text/javascript'>document.write('C');</script>D";
       return 'A<script type="text/javascript">document.write(" + inner + ");</script>E';
     })(),
     'globals': new Html('<script>var XQWER = "foo";</script><script>document.write("" + window.XQWER + (this === window) + (window === top));</script>'),
@@ -76,13 +76,34 @@ export default {
   },
   'writeln with multiple arguments': {
     'wlma: split mid-element': [
-      new Html('<i', true), new Html('mg alt="foo">')
+      new Html('<i', 'mg alt="foo">').asWriteln()
     ],
     'wlma: split mid-attribute': [
-      new Html('<img a', true), new Html('lt="foo">')
+      new Html('<img a', 'lt="foo">').asWriteln()
     ],
     'wlma: split mid-attribute-value': [
-      new Html('<img alt="f', true), new Html('oo">', true)
+      new Html('<img alt="f', 'oo">').asWriteln()
+    ],
+    'wlma: empty strings': [
+      new Html('', '<im', '', 'g ', '', 'al', '', 't="f', '', 'oo">', '').asWriteln()
+    ],
+    'wlma: docwrite outside parent of script': [
+      new Html('<div>A<script type="', 'text/javascript">\n', 'doc', 'ument.write("B</div>C");\n</script>D').asWriteln()
+    ],
+    'wlma: SW9': [
+      new Html('<div><i></i></div>', 'foo', '<div>bar', '<i></i>').asWriteln()
+    ],
+    'wlma: SW10': [
+      new Html('<div><b><i></i></b></div>', 'foo', '<div>bar<i>', '</i>bla').asWriteln()
+    ],
+    'wlma: TS2': [
+      new Html('<div><i>', '<div>foo', '<div><i>').asWriteln()
+    ]
+  },
+  multiple: {
+    'MULT1': [
+      new Uri('remote/write-remote-script.js'),
+      new Html('<div id="local">Local</div>')
     ]
   }
 };

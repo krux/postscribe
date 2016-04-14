@@ -1,7 +1,12 @@
 export class Html {
-  constructor(value, writeln = false) {
-    this.writeln = writeln;
+  constructor(...value) {
     this.value = value;
+    this.writeln = false;
+  }
+
+  asWriteln() {
+    this.writeln = true;
+    return this;
   }
 }
 

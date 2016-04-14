@@ -37,7 +37,7 @@ export default class WriteComparor {
       doc.open();
       _.forEach(def, d => {
         if (d instanceof Html) {
-          doc[d.writeln ? 'writeln' : 'write'](d.value);
+          doc[d.writeln ? 'writeln' : 'write'](...d.value);
         } else if (d instanceof Uri) {
           doc.write(`<script src="${d.value}"></script>`);
         } else if (d instanceof Js) {
@@ -50,6 +50,7 @@ export default class WriteComparor {
   }
 
   postscribeResults(...def) {
+    const HELPER_CLASS_NAME = 'ps-writer';
     const el = $('<div id="postscribe-write-target" />').get(0);
     $(document.body).append(el);
     return Q.all(_.map(def, (d) => {
@@ -60,17 +61,28 @@ export default class WriteComparor {
         }
       };
       if (d instanceof Html) {
-        postscribe(el, d.value, opts);
+        const tmpls = this.templatize(d.value).join(', ');
+        postscribe(el, `<script class="${HELPER_CLASS_NAME}">console.trace();document.write(${tmpls});<\/script>`, opts);
       } else if (d instanceof Uri) {
         postscribe(el, `<script src="${d.value}"></script>`, opts);
       } else if (d instanceof Js) {
         postscribe(el, `<script>${d.value}</script>`, opts);
       }
       return dfd.promise;
-    })).then(() => el.innerHTML);
+    })).then(() => {
+      $(`.${HELPER_CLASS_NAME}`, el).remove();
+      return el.innerHTML;
+    });
   }
 
   transform(result, fns) {
     return _.reduce(fns, (acc, f) => f(acc), result)
+  }
+
+  templatize(vals) {
+    return _.map(vals, (v) => {
+      // Wrap in a function that self removes to avoid quirky encoding in the template string.
+      return `String(function(){/*&${v.replace('</script>', '<\/script>')}&*/}).replace(/^[^&]+&/, '').replace(/&[^&]+$/, '')`
+    })
   }
 }

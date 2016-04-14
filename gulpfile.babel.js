@@ -60,6 +60,26 @@ function build(config) {
     .pipe(gulp.dest(DIST));
 }
 
+function test(configName, failOnError = true, karmaOptions = {}) {
+  return done => new Karma(Object.assign({
+    configFile: path.resolve(`test/karma-${configName}.config.babel.js`)
+  }, karmaOptions), err => {
+    if (err) {
+      gutil.log('[test]', 'Tests failed');
+      if (failOnError) {
+        process.exit(err);
+      }
+    }
+    done();
+  }).start();
+}
+
+gulp.task('default', ['clean', 'lint', 'build', 'doc', 'test']);
+
+gulp.task('clean', () => {
+  return del.sync([`${DIST}/**`]);
+});
+
 gulp.task('build', build(webpackConfig));
 
 gulp.task('doc', () => {
@@ -117,7 +137,7 @@ gulp.task('test', test('coverage'));
 gulp.task('test:ci', test('ci'));
 gulp.task('test:coverage', test('coverage', false));
 gulp.task('test:cross-browser', test('sauce'));
-gulp.task('test:debug', test('coverage', true, {singleRun: false}));
+gulp.task('test:debug', test('nocoverage', true, {singleRun: false}));
 gulp.task('test:nocoverage', test('nocoverage', false));
 
 gulp.task('tdd', ['test:nocoverage'], () => {

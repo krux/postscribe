@@ -1,6 +1,6 @@
 /* eslint-env node */
-import pkg from './package.json';
-import webpackConfig from './webpack.config.babel.js';
+import pkg from '../package.json';
+import webpackConfig from '../webpack.config.babel.js';
 import webpack from 'webpack';
 
 export default {
