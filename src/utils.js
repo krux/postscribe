@@ -101,8 +101,9 @@ export function last(array) {
  * @returns {boolean} True if the token is a script tag
  */
 export function isTag(tok, tag) {
-  return !tok || !('tagName' in tok) ? !1 :
-    !!~tok.tagName.toLowerCase().indexOf(tag);
+  return !tok ||
+    !(tok.type === 'startTag' || tok.type === 'atomicTag') ||
+    !('tagName' in tok) ? !1 : !!~tok.tagName.toLowerCase().indexOf(tag);
 }
 
 /**
