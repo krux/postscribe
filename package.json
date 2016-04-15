@@ -60,6 +60,7 @@
     "babel-preset-es2015-loose": "7.0.0",
     "babel-register": "6.7.2",
     "babelify": "7.2.0",
+    "cz-conventional-changelog": "1.1.5",
     "del": "2.2.0",
     "eslint": "2.7.0",
     "gulp": "3.9.1",
@@ -96,6 +97,9 @@
   "config": {
     "ports": {
       "cdn": "8080"
+    },
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
     }
   },
   "babel": {
