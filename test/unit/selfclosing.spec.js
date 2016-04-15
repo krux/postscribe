@@ -1,6 +1,6 @@
 import postscribe from '../../dist/postscribe';
-import WriteComparor from './write-comparor';
-import {Html} from './write-thunks';
+import WriteComparor from '../helpers/write-comparor';
+import {Html} from '../helpers/write-thunks';
 
 
 describe('Self Closing', function() {

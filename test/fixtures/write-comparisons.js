@@ -1,4 +1,4 @@
-import {Html, Js, Uri} from './write-thunks'
+import {Html, Js, Uri} from '../helpers/write-thunks'
 
 /**
  * A map between description and HTML to compare. Each entry will be run through both document.write and postscribe.

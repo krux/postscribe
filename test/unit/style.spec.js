@@ -1,7 +1,7 @@
 /* global $,testWrite,setOptions */
 /* eslint-disable no-var */
 import postscribe from '../../dist/postscribe';
-import WriteComparor from './write-comparor';
+import WriteComparor from '../helpers/write-comparor';
 
 
 describe('style', function() {

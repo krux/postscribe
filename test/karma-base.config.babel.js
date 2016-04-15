@@ -57,9 +57,7 @@ export default {
 
   singleRun: true,
 
-  webpack: Object.assign(webpackConfig, {
-    //devtool: 'inline-source-map'
-  }),
+  webpack: webpackConfig,
 
   webpackMiddleware: {
     noInfo: true

@@ -2,8 +2,8 @@
 import _ from 'lodash';
 import Q from 'q';
 
-import descriptions from './write-comparisons';
-import WriteComparor from './write-comparor';
+import descriptions from '../fixtures/write-comparisons';
+import WriteComparor from '../helpers/write-comparor';
 
 
 describe('writes the same as document.write', function() {
