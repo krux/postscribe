@@ -18,7 +18,7 @@ export function compare(def) {
     const tp = transform(p, transforms.postscribeToNative);
 
     if (tp !== td) {
-      console.warn('Unmatched\n\npostscribe:', tp,'\n\ndoc.write', td)
+      console.warn('Unmatched\n\npostscribe:', tp, '\n\ndoc.write', td)
     }
     return tp === td;
   });
@@ -28,7 +28,6 @@ function docWriteResults(...def) {
   return iframe().then(win => {
     const doc = win.document;
     const dfd = Q.defer();
-    console.info(doc.body);
     _.forEach(def, d => {
       if (d instanceof Uri) {
         doc.write(`<script src="${d.value}"><\/script>`);
@@ -40,16 +39,17 @@ function docWriteResults(...def) {
         doc.write(d);
       }
     });
-    console.info(doc.body);
-    doc.close();
+
     if (doc.body) {
-      return doc.body.innerHTML;
+      dfd.resolve(removeScripts(doc.body).innerHTML);
     } else {
       win.addEventListener('load', () => {
-        dfd.resolve(win.document.body.innerHTML);
+        dfd.resolve(removeScripts(win.document.body).innerHTML);
       });
-      return dfd.promise;
     }
+
+    doc.close();
+    return dfd.promise;
   });
 }
 
@@ -67,6 +67,7 @@ function postscribeResults(...def) {
       },
 
       done() {
+        removeScripts(el);
         dfd.resolve();
       }
     };
@@ -76,7 +77,6 @@ function postscribeResults(...def) {
     } else if (d instanceof Js) {
       postscribe(el, `<script>${d.value}</script>`, opts);
     } else if (d instanceof Html) {
-      console.debug(`<script class="${HELPER_CLASS_NAME}">console.trace();document.write(${d.toArgs()});<\/script>`);
       postscribe(el, `<script class="${HELPER_CLASS_NAME}">console.trace();document.write(${d.toArgs()});<\/script>`, opts);
     } else {
       //console.debug(`<script class="${HELPER_CLASS_NAME}">console.trace();document.write('${d}');<\/script>`);
@@ -84,12 +84,14 @@ function postscribeResults(...def) {
     }
 
     return dfd.promise;
-  })).then(() => {
-    $(`.${HELPER_CLASS_NAME}`, el).remove();
-    return el.innerHTML;
-  });
+  })).then(() => el.innerHTML);
 }
 
 function transform(result, fns) {
   return _.reduce(fns, (acc, f) => f(acc), result);
+}
+
+function removeScripts(node) {
+  _.forEach(_.toArray(node.getElementsByTagName('script')), n => n.parentNode.removeChild(n));
+  return node;
 }

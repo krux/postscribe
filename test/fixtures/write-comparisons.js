@@ -1,4 +1,5 @@
-import {Html, Js, Uri} from '../helpers/write-thunks'
+import {Html, Js, Uri} from '../helpers/write-thunks';
+
 
 /**
  * A map between description and HTML to compare. Each entry will be run through both document.write and postscribe.
@@ -16,7 +17,7 @@ export default {
     remainder: [
       new Uri('remote/write-remote-and-inline-script.js'),
       new Html('A<script src="remote/write-remote-and-inline-script.js">'),
-      new Html('<\/script>B').escape(),
+      new Html('</script>B'),
       new Uri('remote/write-remote-and-inline-script.js')
     ],
     'docwrite outside parent of script': new Html(`<div>A<script type="text/javascript">document.write("B</div>C");<\/script>D`),
@@ -24,10 +25,7 @@ export default {
     'different case script': new Html('A<SCRIPT type="text/javascript">document.write("B");</script>C'),
     'capital script@SRC': new Html('<SCRIPT TYPE="text/javascript" SRC="remote/write-div.js"></SCRIPT>'),
     'inline': new Html('A<script type="text/javascript">document.write("B");</script>C'),
-    'nested document.write': (() => {
-      const inner = "B<script type='text/javascript'>document.write('C');</script>D";
-      return 'A<script type="text/javascript">document.write(" + inner + ");</script>E';
-    })(),
+    'nested document.write': new Html(`A<script type="text/javascript">console.trace();document.write("B<script type='text/javascript'>document.write('C');<\\/script>D");</script>E`),
     'globals': new Html('<script>var XQWER = "foo";</script><script>document.write("" + window.XQWER + (this === window) + (window === top));</script>'),
     'partial script': [
       new Html('<script>var QWVES = 1'),
@@ -88,7 +86,7 @@ export default {
       new Html('', '<im', '', 'g ', '', 'al', '', 't="f', '', 'oo">', '').asWriteln()
     ],
     'wlma: docwrite outside parent of script': [
-      new Html('<div>A<script type="', 'text/javascript">\n', 'doc', 'ument.write("B</div>C");\n</script>D').asWriteln()
+      new Html('<div>A<script data-remove type="', 'text/javascript">\n', 'doc', 'ument.write("B</div>C");\n</script>D').asWriteln()
     ],
     'wlma: SW9': [
       new Html('<div><i></i></div>', 'foo', '<div>bar', '<i></i>').asWriteln()

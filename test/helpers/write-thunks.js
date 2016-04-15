@@ -22,14 +22,14 @@ export class Html {
   }
 
   toArgs() {
-    return !this.escaped ? `'${this.hideSlash().join("', '")}'` : _.map(this.hideSlash(), v => {
+    return !this.escaped ? `'${this.escapeSlashes().join("', '")}'` : _.map(this.escapeSlashes(), v => {
       // Wrap in a function that self removes to avoid quirky encoding in the template string.
-      return `String(function(){/*&"${v}"&*/}).replace(/^[^&]+&/, '').replace(/&[^&]+$/, '')`;
+      return `String(function(){/*&${v}&*/}).replace(/^[^&]+&/, '').replace(/&[^&]+$/, '')`;
     }).join(', ');
   }
 
-  hideSlash() {
-    return _.map(this.value, v => v.replace('</script>', '<\\/script>'));
+  escapeSlashes() {
+    return _.map(this.value, v => v.replace(new RegExp('</(script)>', 'i'), '<\\/$1>').replace('\n', '\\n'));
   }
 }
 
