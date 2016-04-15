@@ -2,18 +2,13 @@
 /* eslint-disable no-var */
 import postscribe from '../../src/postscribe';
 
-$(document).ready(() => {
-
-  QUnit.module('token processing');
-  setOptions({});
-
+describe('token processing', function() {
   const testBeforeWriteTokenCalled = (name, html, type, expectedAmount) => {
-    test(name, () => {
+    it(name, done => {
       let amount = 0;
       const div = document.createElement('div');
       div.id = name.replace(/\s/g, '-');
       document.body.appendChild(div);
-      stop();
       postscribe(div, html, {
         beforeWriteToken: tok => {
           if (tok.tagName === type && tok.type !== 'endTag') {
@@ -22,8 +17,8 @@ $(document).ready(() => {
           return tok;
         },
         done: () => {
-          ok(amount === expectedAmount);
-          start();
+          expect(amount === expectedAmount).to.be.ok();
+          done();
         }
       });
     });
@@ -34,11 +29,10 @@ $(document).ready(() => {
   testBeforeWriteTokenCalled('beforeWriteToken is called for style', '<style>#test { }</style>', 'style', 1);
   testBeforeWriteTokenCalled('beforeWriteToken is called for nested scripts', '<script src="remote/write-inline-script.js"></script>', 'script', 2);
 
-  test('alter script src', () => {
+  it('alters script src', done => {
     const div = document.createElement('div');
     div.id = 'alter-script-src';
     document.body.appendChild(div);
-    stop();
     postscribe(div, '<script src="remote/write-inline-script.js"></script>', {
       beforeWriteToken: tok => {
         if (tok.tagName && tok.tagName === 'script') {
@@ -47,17 +41,16 @@ $(document).ready(() => {
         return tok;
       },
       done: () => {
-        ok(div.firstChild.src.indexOf('write-div.js') > -1);
-        start();
+        expect(div.firstChild.src.indexOf('write-div.js') > -1).to.be.ok();
+        done();
       }
     });
   });
 
-  test('alter img src', () => {
+  it('alter img src', done => {
     const div = document.createElement('div');
     div.id = 'alter-img-src';
     document.body.appendChild(div);
-    stop();
     postscribe(div, '<img src="https://lorempixel.com/100/80/sports/" alt="">', {
       beforeWriteToken: tok => {
         if (tok.tagName && tok.tagName === 'img' && tok.attrs && tok.attrs.src) {
@@ -66,22 +59,21 @@ $(document).ready(() => {
         return tok;
       },
       done: () => {
-        ok(div.firstChild.src.indexOf('http://') === 0);
-        start();
+        expect(div.firstChild.src.indexOf('http://') === 0).to.be.ok();
+        done();
       }
     });
   });
 
-  test('skip scripts from http sources', () => {
+  it('skip scripts from http sources', done => {
     let amount = 0;
     const div = document.createElement('div');
     div.id = 'skip-scripts-from-http-sources';
     document.body.appendChild(div);
-    stop();
-    postscribe(div,
-      '<script src="http://domain.com/example.js"></script>' +
-      '<script src="remote/write-remote-and-inline-script.js"></script>' +
-      '<script src="http://domain2.com/example2.js"></script>',
+    postscribe(div, `
+      <script src="http://domain.com/example.js"></script>
+      <script src="remote/write-remote-and-inline-script.js"></script>
+      <script src="http://domain2.com/example2.js"></script>`,
       {
         beforeWriteToken: tok => {
           if (tok.tagName && tok.tagName === 'script') {
@@ -94,18 +86,17 @@ $(document).ready(() => {
           return tok;
         },
         done: () => {
-          ok(amount === 10 && div.innerHTML.indexOf('<script src="http://') === -1);
-          start();
+          expect(amount === 10 && div.innerHTML.indexOf('<script src="http://') === -1).to.be.ok();
+          done();
         }
       }
     );
   });
 
-  test('skip all style declarations', () => {
+  it('skip all style declarations', done => {
     const div = document.createElement('div');
     div.id = 'skip-all-style-declarations';
     document.body.appendChild(div);
-    stop();
     postscribe(div,
       '<style type="text/css">body { background-color: green; }</style>' +
       '<STYLE type="text/css">img { border: 1px solid red; }</STYLE>',
@@ -117,8 +108,8 @@ $(document).ready(() => {
           return tok;
         },
         done: () => {
-          ok(div.innerHTML.indexOf('<style') === -1);
-          start();
+          expect(div.innerHTML.indexOf('<style') === -1).to.be.ok();
+          done();
         }
       }
     );

@@ -1,13 +1,8 @@
-/* global $,postscribe,test,ok,start */
-/* eslint-disable no-var */
 import postscribe from '../../src/postscribe';
 
-$(document).ready(function() {
-
-  QUnit.module('errors');
-
+describe('errors', function() {
   const testError = (name, html) => {
-    test(name, () => {
+    it(name, () => {
       let oldOnError = window.onerror;
       window.onerror = null;
       const div = document.createElement('div');
@@ -38,4 +33,3 @@ $(document).ready(function() {
   testError('remote script 404', '<script src="http://cdn.krxd.net/not_found"></script>');
 
 });
-

@@ -38,14 +38,14 @@ export default {
   },
 
   reporters: [
-    'dots'
+    'progress'
   ],
 
   port: 9876,
 
   colors: true,
 
-  logLevel: 'debug',
+  logLevel: 'info',
 
   autoWatch: false,
 
@@ -56,7 +56,7 @@ export default {
   singleRun: true,
 
   webpack: Object.assign(webpackConfig, {
-    devtool: 'inline-source-map'
+    //devtool: 'inline-source-map'
   }),
 
   webpackMiddleware: {

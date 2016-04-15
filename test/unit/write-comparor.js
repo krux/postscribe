@@ -18,16 +18,6 @@ export default class WriteComparor {
       const [d, p] = results;
       const td = this.transform(d, nativeToPostscribe);
       const tp = this.transform(p, postscribeToNative);
-
-      if (tp !== td) {
-        console.groupCollapsed(def);
-        console.error(tp, '\n\n\n', td);
-        console.trace();
-        console.groupEnd();
-      } else {
-        console.debug('Contents equal', tp, td);
-      }
-
       return tp === td;
     });
   }
@@ -36,16 +26,19 @@ export default class WriteComparor {
     return iframe().then(doc => {
       doc.open();
       _.forEach(def, d => {
-        if (d instanceof Html) {
-          doc[d.writeln ? 'writeln' : 'write'](...d.value);
-        } else if (d instanceof Uri) {
+        if (d instanceof Uri) {
           doc.write(`<script src="${d.value}"></script>`);
         } else if (d instanceof Js) {
           doc.write(`<script>${d.value}</script>`);
+        } else if (d instanceof Html) {
+          doc[d.writeln ? 'writeln' : 'write'](...d.value);
+        } else {
+          doc.write(d);
         }
       });
+      const result = doc.body.innerHTML;
       doc.close();
-      return doc.body.innerHTML;
+      return result;
     });
   }
 
@@ -60,13 +53,17 @@ export default class WriteComparor {
           dfd.resolve();
         }
       };
-      if (d instanceof Html) {
-        const tmpls = this.templatize(d.value).join(', ');
-        postscribe(el, `<script class="${HELPER_CLASS_NAME}">console.trace();document.write(${tmpls});<\/script>`, opts);
-      } else if (d instanceof Uri) {
+
+      if (d instanceof Uri) {
         postscribe(el, `<script src="${d.value}"></script>`, opts);
       } else if (d instanceof Js) {
         postscribe(el, `<script>${d.value}</script>`, opts);
+      } else if (d instanceof Html) {
+        const tmpls = this.templatize(d.value).join(', ');
+        postscribe(el, `<script class="${HELPER_CLASS_NAME}">console.trace();document.write(${tmpls});<\/script>`, opts);
+      } else {
+        const tmpls = this.templatize(d);
+        postscribe(el, `<script class="${HELPER_CLASS_NAME}">console.trace();document.write(${tmpls});<\/script>`, opts);
       }
       return dfd.promise;
     })).then(() => {

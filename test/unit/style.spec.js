@@ -1,14 +1,14 @@
 /* global $,testWrite,setOptions */
 /* eslint-disable no-var */
 import postscribe from '../../src/postscribe';
+import WriteComparor from './write-comparor';
 
-$(document).ready(() => {
 
-  QUnit.module('style');
-  setOptions({});
+describe('style', function() {
+  const wc = new WriteComparor();
 
-  testWrite('simple style', ctx => {
-    ctx.write('<style type="text/css">#test_style {' +
+  it('simple style', done => {
+    wc.compare('<style type="text/css">#test_style {' +
       'background:blue;' +
       'width:200px;' +
       'height:300px;' +
@@ -16,7 +16,7 @@ $(document).ready(() => {
       '}</style>' +
       '<div id="test_style">' +
       '<img src="http://lorempixel.com/100/80/sports/"/>' +
-      '</div>');
+      '</div>').then(r => expect(e).to.be.ok()).finally(done);
   });
 
 });

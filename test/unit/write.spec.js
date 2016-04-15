@@ -14,7 +14,7 @@ describe('writes the same as document.write', function() {
         it(name, function(done) {
           wc.compare(spec).then(r => {
             expect(r).to.be.ok();
-          }).finally(done);
+          }).catch(done).finally(done);
         });
       });
     });
