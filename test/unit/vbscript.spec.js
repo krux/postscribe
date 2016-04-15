@@ -1,27 +1,28 @@
 /* global $,postscribe,test,ok,start */
 /* eslint-disable no-var */
+import postscribe from '../../dist/postscribe';
 
-$(document).ready(function() {
-
-  module('vbscript');
+describe('vbscript', function() {
 
   if (window.supportsVbscript) {
-    test('vbscript', function() {
-      var div = document.createElement('div');
+    it('vbscript', done => {
+      const div = document.createElement('div');
       div.id = 'vbscript-test';
       document.body.appendChild(div);
       postscribe('#vbscript-test', '<script type="text/vbscript">canWriteVbscriptTags = true</script>');
-      ok(window.canWriteVbscriptTags, 'wrote vbscript tag');
+      expect(window.canWriteVbscriptTags).to.be.ok();
 
-      stop();
       postscribe('#vbscript-test', '<script type="text/vbscript" src="remote/set-global.vb"></script>', {
-        done: function() {
-          ok(window.remoteVbscriptGlobal, 'wrote remote vbscript tag');
-          start();
+        done: () => {
+          expect(window.remoteVbscriptGlobal, 'wrote remote vbscript tag').to.be.ok();
+          done();
         }
       });
     });
+  } else {
+    it('does not have vbscript', () => expect(1))
   }
+
 
 });
 
