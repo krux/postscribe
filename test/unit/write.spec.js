@@ -6,11 +6,17 @@ describe('write', () => {
   _.forEach(descriptions, (specs, desc) => {
     describe(desc, function() {
       _.forEach(specs, (spec, name) => {
-        it(name, done => {
+        const cb = done => {
           wc.compare(spec).then(r => {
             expect(r).to.be.ok();
           }).catch(done).finally(done);
-        });
+        };
+
+        if (name.indexOf('only:') === 0) {
+          it.only(name.replace('only:', ''), cb);
+        } else {
+          it(name, cb);
+        }
       });
     });
   });

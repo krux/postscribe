@@ -18,7 +18,7 @@ export function compare(def) {
     const tp = transform(p, transforms.postscribeToNative);
 
     if (tp !== td) {
-      console.warn('Unmatched\n\npostscribe:', tp, '\n\ndoc.write', td)
+      console.warn(`Unmatched\n\npostscribe: ${JSON.stringify(tp)}\n\ndoc.write ${JSON.stringify(td)}`);
     }
     return tp === td;
   });
@@ -63,7 +63,7 @@ function postscribeResults(...def) {
     const dfd = Q.defer();
     const opts = {
       error(err) {
-        console.warn(`Encountered ${err}`);
+        console.error(err.msg);
       },
 
       done() {
