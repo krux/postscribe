@@ -1,11 +1,7 @@
-import postscribe from '../../dist/postscribe';
-import WriteComparor from '../helpers/write-comparor';
+import * as wc from '../helpers/write-comparor';
 import {Html} from '../helpers/write-thunks';
 
-
-describe('Self Closing', function() {
-  const wc = new WriteComparor();
-
+describe('selfclosing', () => {
   xit('Handles closed self-closing tags that\'re closed.', done => {
     wc.compare(
       new Html(`
@@ -14,13 +10,13 @@ describe('Self Closing', function() {
           <div id="second" style="background: yellow">Should be yellow in red box, right?</div>
         </div>
       `)
-    ).then(r => expect(r).to.be.ok()).finally(done);
+    ).then(r => expect(r).to.be.ok())['finally'](done);
   });
 
   it('Handles closed self-closing tags that\'re closed w/ a slash.', done => {
     wc.compare(
       '<div><object><param name="allowFullScreen" value="true" /><param></param></object></div>'
-    ).then(r => expect(r).to.be.ok()).finally(done);
+    ).then(r => expect(r).to.be.ok())['finally'](done);
   });
 
 });

@@ -5,7 +5,7 @@ import _ from 'lodash';
  *
  * @type {Array<Function<String>>}
  */
-export const nativeToPostscribe = [_.trim];
+export const nativeToPostscribe = [_.trim, s => s.replace('\n', '')];
 
 /**
  * Functions to pass the results of postscribe through before comparing w/ document.write.

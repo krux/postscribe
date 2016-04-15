@@ -1,9 +1,6 @@
-/* global $,postscribe,test,ok,start */
-/* eslint-disable no-var */
-import postscribe from '../../dist/postscribe';
+import postscribe from '../../src/postscribe';
 
-describe('vbscript', function() {
-
+describe('vbscript', () => {
   if (window.supportsVbscript) {
     it('vbscript', done => {
       const div = document.createElement('div');
@@ -20,9 +17,7 @@ describe('vbscript', function() {
       });
     });
   } else {
-    it('does not have vbscript', () => expect(1))
+    it('does not have vbscript', () => expect(1));
   }
-
-
 });
 

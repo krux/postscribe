@@ -38,9 +38,7 @@ export default {
   },
 
   reporters: [
-    'dots',
-    'mocha',
-    'progress'
+    'mocha'
   ],
 
   port: 9876,

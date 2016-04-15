@@ -1,12 +1,6 @@
-/* global $,testWrite,setOptions */
-/* eslint-disable no-var */
-import postscribe from '../../dist/postscribe';
-import WriteComparor from '../helpers/write-comparor';
+import * as wc from '../helpers/write-comparor';
 
-
-describe('style', function() {
-  const wc = new WriteComparor();
-
+describe('style', () => {
   it('simple style', done => {
     wc.compare('<style type="text/css">#test_style {' +
       'background:blue;' +
@@ -16,8 +10,7 @@ describe('style', function() {
       '}</style>' +
       '<div id="test_style">' +
       '<img src="http://lorempixel.com/100/80/sports/"/>' +
-      '</div>').then(r => expect(e).to.be.ok()).finally(done);
+      '</div>').then(r => expect(r).to.be.ok())['finally'](done);
   });
-
 });
 

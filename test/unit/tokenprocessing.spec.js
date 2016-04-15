@@ -1,9 +1,7 @@
-/* global $,postscribe,test,ok,start,setOptions */
-/* eslint-disable no-var */
-import postscribe from '../../dist/postscribe';
+import postscribe from '../../src/postscribe';
 
-describe('token processing', function() {
-  const testBeforeWriteTokenCalled = (name, html, type, expectedAmount) => {
+describe('tokenprocessing', () => {
+  function testBeforeWriteTokenCalled(name, html, type, expectedAmount) {
     it(name, done => {
       let amount = 0;
       const div = document.createElement('div');
@@ -22,7 +20,7 @@ describe('token processing', function() {
         }
       });
     });
-  };
+  }
 
   testBeforeWriteTokenCalled('beforeWriteToken is called for div', '<div>Test</div>', 'div', 1);
   testBeforeWriteTokenCalled('beforeWriteToken is called for script', '<script>document.write("A");</script>', 'script', 1);

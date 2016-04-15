@@ -1,6 +1,6 @@
 /* global $,postscribe,test,ok,start,testWrite,setOptions */
 /* eslint-disable no-var */
-import postscribe from '../../dist/postscribe';
+import postscribe from '../../src/postscribe';
 
 $(document).ready(() => {
 

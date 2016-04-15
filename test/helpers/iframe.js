@@ -1,12 +1,13 @@
 import Q from 'q';
 import _ from 'lodash';
 
-export const iframe = () => {
+export default function iframe() {
   const ifr = document.createElement('iframe');
 
-  ifr.setAttribute('id', 'ifr' + (_.uniqueId()));
+  ifr.setAttribute('id', `ifr${_.uniqueId()}`);
 
   const dfd = Q.defer();
+
   ifr.addEventListener('load', () => {
     dfd.resolve(ifr.contentDocument);
   });
@@ -15,4 +16,4 @@ export const iframe = () => {
   document.body.appendChild(ifr);
 
   return dfd.promise;
-};
+}

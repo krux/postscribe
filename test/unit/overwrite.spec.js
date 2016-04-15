@@ -1,8 +1,7 @@
-import postscribe from '../../dist/postscribe';
+import postscribe from '../../src/postscribe';
 
-describe('document.write overwriting.', function() {
-
-  const readNativeDocumentMethodString = method => {
+describe('overwrite', () => {
+  function readNativeDocumentMethodString(method) {
     // Cache because this takes a long time.
     let cache = readNativeDocumentMethodString.cache;
     if (!cache) {
@@ -17,11 +16,11 @@ describe('document.write overwriting.', function() {
     result = cache[method] = String(iframe.contentDocument[method]);
     iframe.parentNode.removeChild(iframe);
     return result;
-  };
+  }
 
-  let isNative = method => {
+  function isNative(method) {
     return String(document[method]) === readNativeDocumentMethodString(method);
-  };
+  }
 
   // Must be async to avoid polluting doc.write for the next tests.
   it('overrides document.write for normal scripts.', done => {

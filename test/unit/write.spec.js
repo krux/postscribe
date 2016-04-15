@@ -1,20 +1,15 @@
-/* global describe,it */
 import _ from 'lodash';
-import Q from 'q';
-
 import descriptions from '../fixtures/write-comparisons';
-import WriteComparor from '../helpers/write-comparor';
+import * as wc from '../helpers/write-comparor';
 
-
-describe('writes the same as document.write', function() {
-  const wc = new WriteComparor();
+describe('write', () => {
   _.forEach(descriptions, (specs, desc) => {
-    describe(desc, function() {
+    describe(desc, () => {
       _.forEach(specs, (spec, name) => {
-        it(name, function(done) {
+        it(name, done => {
           wc.compare(spec).then(r => {
             expect(r).to.be.ok();
-          }).catch(done).finally(done);
+          })['catch'](done)['finally'](done);
         });
       });
     });
