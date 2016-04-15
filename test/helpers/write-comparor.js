@@ -16,45 +16,44 @@ export function compare(def) {
     const [d, p] = results;
     const td = transform(d, transforms.nativeToPostscribe);
     const tp = transform(p, transforms.postscribeToNative);
+
     if (tp !== td) {
-      console.debug(JSON.stringify(td), JSON.stringify(tp));
+      console.warn('Unmatched\n\npostscribe:', tp,'\n\ndoc.write', td)
     }
     return tp === td;
   });
 }
 
-export function docWriteResults(...def) {
-  return iframe().then(doc => {
-    doc.open();
-
+function docWriteResults(...def) {
+  return iframe().then(win => {
+    const doc = win.document;
+    const dfd = Q.defer();
+    console.info(doc.body);
     _.forEach(def, d => {
       if (d instanceof Uri) {
-        doc.write(`<script src="${d.value}"></script>`);
+        doc.write(`<script src="${d.value}"><\/script>`);
       } else if (d instanceof Js) {
-        doc.write(`<script>${d.value}</script>`);
+        doc.write(`<script>${d.value}<\/script>`);
       } else if (d instanceof Html) {
         doc[d.writeln ? 'writeln' : 'write'](...d.value);
       } else {
         doc.write(d);
       }
     });
-
+    console.info(doc.body);
     doc.close();
-    if (doc === null) {
-      console.error(`doc is null on ${JSON.stringify(def)}`);
+    if (doc.body) {
+      return doc.body.innerHTML;
+    } else {
+      win.addEventListener('load', () => {
+        dfd.resolve(win.document.body.innerHTML);
+      });
+      return dfd.promise;
     }
-    if (doc.body === null) {
-      console.error(`doc.body is null on ${JSON.stringify(def)}`);
-    }
-    if (doc.body.innerHTML === null) {
-      console.error(`doc.body.innerHTML is null on ${JSON.stringify(def)}`);
-    }
-
-    return doc.body.innerHTML;
   });
 }
 
-export function postscribeResults(...def) {
+function postscribeResults(...def) {
   const HELPER_CLASS_NAME = 'ps-writer';
   const el = $('<div id="postscribe-write-target" />').get(0);
 
@@ -63,6 +62,10 @@ export function postscribeResults(...def) {
   return Q.all(_.map(def, (d) => {
     const dfd = Q.defer();
     const opts = {
+      error(err) {
+        console.warn(`Encountered ${err}`);
+      },
+
       done() {
         dfd.resolve();
       }
@@ -73,13 +76,11 @@ export function postscribeResults(...def) {
     } else if (d instanceof Js) {
       postscribe(el, `<script>${d.value}</script>`, opts);
     } else if (d instanceof Html) {
-      const tmpls = templatize(d.value).join(', ');
-      console.debug(`<script class="${HELPER_CLASS_NAME}">console.trace();document.write(${tmpls});<\/script>`);
-      postscribe(el, `<script class="${HELPER_CLASS_NAME}">console.trace();document.write(${tmpls});<\/script>`, opts);
+      console.debug(`<script class="${HELPER_CLASS_NAME}">console.trace();document.write(${d.toArgs()});<\/script>`);
+      postscribe(el, `<script class="${HELPER_CLASS_NAME}">console.trace();document.write(${d.toArgs()});<\/script>`, opts);
     } else {
-      const tmpls = templatize([d]);
-      console.debug(`<script class="${HELPER_CLASS_NAME}">console.trace();document.write(${tmpls});<\/script>`);
-      postscribe(el, `<script class="${HELPER_CLASS_NAME}">console.trace();document.write(${tmpls});<\/script>`, opts);
+      //console.debug(`<script class="${HELPER_CLASS_NAME}">console.trace();document.write('${d}');<\/script>`);
+      postscribe(el, `<script class="${HELPER_CLASS_NAME}">console.trace();document.write('${d}');<\/script>`, opts);
     }
 
     return dfd.promise;
@@ -89,15 +90,6 @@ export function postscribeResults(...def) {
   });
 }
 
-export function transform(result, fns) {
+function transform(result, fns) {
   return _.reduce(fns, (acc, f) => f(acc), result);
-}
-
-export function templatize(vals) {
-  return _.map(vals, (v) => {
-    const vv = v.replace('</script>', '<\\/script>');
-
-    // Wrap in a function that self removes to avoid quirky encoding in the template string.
-    return `String(function(){/*!${vv}!*/}).replace(/^[^!]+!/, '').replace(/![^!]+$/, '')`;
-  });
 }

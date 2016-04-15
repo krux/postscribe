@@ -6,7 +6,7 @@ import {Html, Js, Uri} from '../helpers/write-thunks'
 export default {
   attr: {
     'string double quote': new Html('<img alt="foo">'),
-    'string single quote': new Html("<img alt='foo'>"),
+    'string single quote': new Html("<img alt='foo'>").escape(),
     'string unquoted': new Html('<img alt=foo>'),
     'empty string': new Html('<img alt="">'),
     'no value': new Html('<input type="checkbox" checked>'),
@@ -16,10 +16,10 @@ export default {
     remainder: [
       new Uri('remote/write-remote-and-inline-script.js'),
       new Html('A<script src="remote/write-remote-and-inline-script.js">'),
-      new Html('</script>B'),
+      new Html('<\/script>B').escape(),
       new Uri('remote/write-remote-and-inline-script.js')
     ],
-    'docwrite outside parent of script': new Html('<div>A<script type="text/javascript">document.write("B</div>C");</script>D'),
+    'docwrite outside parent of script': new Html(`<div>A<script type="text/javascript">document.write("B</div>C");<\/script>D`),
     'capital script': new Html('A<SCRIPT type="text/javascript">document.write("B");</SCRIPT>C'),
     'different case script': new Html('A<SCRIPT type="text/javascript">document.write("B");</script>C'),
     'capital script@SRC': new Html('<SCRIPT TYPE="text/javascript" SRC="remote/write-div.js"></SCRIPT>'),
