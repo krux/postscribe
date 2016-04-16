@@ -67,7 +67,7 @@ const OPTIONS = {
    *
    * @param {Error} e The error
    */
-  error: e => { throw e; },
+  error(e) { throw e; },
 
   /**
    * Whether to let scripts w/ async attribute set fall out of the queue.
