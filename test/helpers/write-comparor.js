@@ -79,8 +79,7 @@ function postscribeResults(...def) {
     } else if (d instanceof Html) {
       postscribe(el, `<script class="${HELPER_CLASS_NAME}">console.trace();document.write(${d.toArgs()});<\/script>`, opts);
     } else {
-      //console.debug(`<script class="${HELPER_CLASS_NAME}">console.trace();document.write('${d}');<\/script>`);
-      postscribe(el, `<script class="${HELPER_CLASS_NAME}">console.trace();document.write('${d}');<\/script>`, opts);
+      postscribe(el, d, opts);
     }
 
     return dfd.promise;

@@ -14,6 +14,8 @@ describe('write', () => {
 
         if (name.indexOf('only:') === 0) {
           it.only(name.replace('only:', ''), cb);
+        } else if (name.indexOf('skip:') === 0) {
+          xit(name.replace('skip:', ''), cb);
         } else {
           it(name, cb);
         }

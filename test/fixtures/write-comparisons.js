@@ -25,9 +25,9 @@ export default {
     'different case script': new Html('A<SCRIPT type="text/javascript">document.write("B");</script>C'),
     'capital script@SRC': new Html('<SCRIPT TYPE="text/javascript" SRC="remote/write-div.js"></SCRIPT>'),
     'inline': new Html('A<script type="text/javascript">document.write("B");</script>C'),
-    'nested document.write': new Html(`A<script type="text/javascript">console.trace();document.write("B<script type='text/javascript'>document.write('C');<\\/script>D");</script>E`),
-    'globals': new Html('<script>var XQWER = "foo";</script><script>document.write("" + window.XQWER + (this === window) + (window === top));</script>'),
-    'partial script': [
+    'nested document.write': `A<script type="text/javascript">console.trace();document.write("B<script type='text/javascript'>document.write('C');<\\/script>D");</script>E`,
+    'globals': '<script>console.trace();var XQWER = "foo";<\/script><script>console.trace();document.write("" + window.XQWER + (this === window));<\/script>',
+    'skip:partial script': [
       new Html('<script>var QWVES = 1'),
       new Html('7;</script>'),
       new Html('<script>document.write(QWVES);</script>')
@@ -60,7 +60,7 @@ export default {
       new Uri('remote/set-global1.js'),
       new Js('document.write(this.global1);')
     ],
-    'corrupt src': new Html('<img src"abc.jpg"><div>WORKS</div>'),
+    'skip:corrupt src': new Html('<img src"abc.jpg"><div>WORKS</div>').escape(),
     'Escaped HTML Entity script entity name': new Html('<script type="text/javascript" src="remote/write-using-query-string.js?k=1&k2=2"></script>'),
     'HTML entity text to write': new Html('<span><p>foo&amp;&#47;&#x00024;</p></span>'),
     'remote with params then write (use network observer)': [
