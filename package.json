@@ -138,7 +138,6 @@
     "test:ci": "gulp test:ci",
     "test:cross-browser": "gulp test:cross-browser",
     "test:debug": "gulp test:debug",
-    "test:gen-expected": "gulp build && rm test/expected.js && touch test/expected.js && phantomjs test/generate_expected.phantom.js test/test.html test/expected.js",
     "test:nocoverage": "gulp test:nocoverage"
   }
 }

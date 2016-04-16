@@ -37,6 +37,10 @@ export default {
     '/remote/': '/base/remote/'
   },
 
+  babelPreprocessor: {
+    options: pkg.babel
+  },
+
   reporters: [
     'mocha'
   ],
