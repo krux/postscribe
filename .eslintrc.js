@@ -42,7 +42,7 @@ module.exports = {
       2,
       'as-needed',
       {
-        'keywords': false,
+        'keywords': true,
         'unnecessary': false
       }
     ],
@@ -59,7 +59,7 @@ module.exports = {
     'dot-notation': [
       2,
       {
-        'allowKeywords': true
+        'allowKeywords': false
       }
     ],
     'eqeqeq': 0,
