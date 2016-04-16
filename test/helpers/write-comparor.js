@@ -77,7 +77,7 @@ function postscribeResults(...def) {
     } else if (d instanceof Js) {
       postscribe(el, `<script>${d.value}</script>`, opts);
     } else if (d instanceof Html) {
-      postscribe(el, `<script class="${HELPER_CLASS_NAME}">console.trace();document.write(${d.toArgs()});<\/script>`, opts);
+      postscribe(el, `<script class="${HELPER_CLASS_NAME}">document.write(${d.toArgs()});<\/script>`, opts);
     } else {
       postscribe(el, d, opts);
     }

@@ -25,8 +25,8 @@ export default {
     'different case script': new Html('A<SCRIPT type="text/javascript">document.write("B");</script>C'),
     'capital script@SRC': new Html('<SCRIPT TYPE="text/javascript" SRC="remote/write-div.js"></SCRIPT>'),
     'inline': new Html('A<script type="text/javascript">document.write("B");</script>C'),
-    'nested document.write': `A<script type="text/javascript">console.trace();document.write("B<script type='text/javascript'>document.write('C');<\\/script>D");</script>E`,
-    'globals': '<script>console.trace();var XQWER = "foo";<\/script><script>console.trace();document.write("" + window.XQWER + (this === window));<\/script>',
+    'nested document.write': `A<script type="text/javascript">document.write("B<script type='text/javascript'>document.write('C');<\\/script>D");</script>E`,
+    'globals': '<script>var XQWER = "foo";<\/script><script>document.write("" + window.XQWER + (this === window));<\/script>',
     'skip:partial script': [
       new Html('<script>var QWVES = 1'),
       new Html('7;</script>'),
