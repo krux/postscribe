@@ -16,8 +16,8 @@ export default {
   docwrite: {
     remainder: [
       new Uri('remote/write-remote-and-inline-script.js'),
-      new Html('A<script src="remote/write-remote-and-inline-script.js">'),
-      new Html('</script>B'),
+      'A<script src="remote/write-remote-and-inline-script.js">',
+      '</script>B',
       new Uri('remote/write-remote-and-inline-script.js')
     ],
     'docwrite outside parent of script': new Html(`<div>A<script type="text/javascript">document.write("B</div>C");<\/script>D`),
@@ -60,16 +60,16 @@ export default {
       new Uri('remote/set-global1.js'),
       new Js('document.write(this.global1);')
     ],
-    'skip:corrupt src': new Html('<img src"abc.jpg"><div>WORKS</div>').escape(),
+    'skip:corrupt src': '<img src"abc.jpg"><div>WORKS</div>',
     'Escaped HTML Entity script entity name': new Html('<script type="text/javascript" src="remote/write-using-query-string.js?k=1&k2=2"></script>'),
-    'HTML entity text to write': new Html('<span><p>foo&amp;&#47;&#x00024;</p></span>'),
+    'HTML entity text to write': '<span><p>foo&amp;&#47;&#x00024;</p></span>',
     'remote with params then write (use network observer)': [
       new Uri('remote/write-div.js?id=1234&section=test'),
-      new Html('<div id="local">Local</div>')
+      '<div id="local">Local</div>'
     ],
     'remote then remote then write with params (use network observer)': [
       new Uri('remote/write-remote-script-with-params.js?id=1234&section=test'),
-      new Html('<div id="local">Local</div>')
+      '<div id="local">Local</div>'
     ]
   },
   'writeln with multiple arguments': {
@@ -101,7 +101,7 @@ export default {
   multiple: {
     'MULT1': [
       new Uri('remote/write-remote-script.js'),
-      new Html('<div id="local">Local</div>')
+      '<div id="local">Local</div>'
     ]
   }
 };

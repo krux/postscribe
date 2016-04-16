@@ -14,7 +14,6 @@ export default {
 
   frameworks: [
     'mocha',
-    'sinon',
     'expect'
   ],
 

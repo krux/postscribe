@@ -1,3 +1,5 @@
+import sinon from 'sinon';
+
 import postscribe from '../../src/postscribe';
 
 describe('api', () => {

@@ -6,7 +6,7 @@ export default {
     base: 'SauceLabs',
     browserName: 'chrome',
     platform: 'Windows 10',
-    version: ''
+    version: '48'
   },
   win10_chrome_latest_1: {
     base: 'SauceLabs',
@@ -18,18 +18,18 @@ export default {
     base: 'SauceLabs',
     browserName: 'firefox',
     platform: 'Windows 10',
-    version: ''
+    version: '45'
   },
   win10_firefox_latest_1: {
     base: 'SauceLabs',
     browserName: 'firefox',
     platform: 'Windows 10',
-    version: '43'
+    version: '44'
   },
   win10_edge_latest: {
     base: 'SauceLabs',
     browserName: 'MicrosoftEdge',
-    version: ''
+    version: '13'
   },
   win10_ie_11: {
     base: 'SauceLabs',
@@ -59,7 +59,7 @@ export default {
     base: 'SauceLabs',
     browserName: 'opera',
     platform: 'Windows 7',
-    version: ''
+    version: '12'
   },
   win7_opera_latest_1: {
     base: 'SauceLabs',
@@ -70,7 +70,7 @@ export default {
   el_capitan_safari_latest: {
     base: 'SauceLabs',
     browserName: 'safari',
-    version: ''
+    version: '9'
   },
   el_capitan_safari_latest_1: {
     base: 'SauceLabs',

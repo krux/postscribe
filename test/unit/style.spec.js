@@ -10,7 +10,7 @@ describe('style', () => {
       '}</style>' +
       '<div id="test_style">' +
       '<img src="http://lorempixel.com/100/80/sports/"/>' +
-      '</div>').then(r => expect(r).to.be.ok())['finally'](done);
+      '</div>').then(r => expect(r).to.be.ok()).finally(done);
   });
 });
 
