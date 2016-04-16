@@ -13,8 +13,9 @@ export default {
   browserNoActivityTimeout: 60000, // ms
 
   frameworks: [
+    'expect',
     'mocha',
-    'expect'
+    'sinon'
   ],
 
   files: [
