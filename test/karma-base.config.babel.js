@@ -1,4 +1,8 @@
 /* eslint-env node */
+import pkg from '../package.json';
+import webpackConfig from '../webpack.config.babel.js';
+import webpack from 'webpack';
+
 export default {
   basePath: '',
 
@@ -9,24 +13,23 @@ export default {
   browserNoActivityTimeout: 60000, // ms
 
   frameworks: [
-    'qunit'
+    'expect',
+    'mocha',
+    'sinon'
   ],
 
   files: [
     '../node_modules/jquery/dist/jquery.js',
-    '../dist/postscribe.js',
-    'random.js',
-    'expected.js',
-    'helpers.js',
-    {pattern: 'unit/*.js', watched: true, included: true},
+    '**/*.spec.js',
     {pattern: 'remote/*.js', watched: true, included: false, served: true}
   ],
 
   exclude: [],
 
-  reporters: [
-    'progress'
-  ],
+  preprocessors: {
+    '*.js': ['webpack', 'sourcemap'],
+    'unit/**/*.js': ['webpack', 'sourcemap']
+  },
 
   // generate_expected breaks the path a bit b/c it's writing relative to itself.
   // remap it here to avoid 404s
@@ -34,11 +37,15 @@ export default {
     '/remote/': '/base/remote/'
   },
 
+  reporters: [
+    'mocha'
+  ],
+
   port: 9876,
 
   colors: true,
 
-  logLevel: 'debug',
+  logLevel: 'info',
 
   autoWatch: false,
 
@@ -47,5 +54,12 @@ export default {
   ],
 
   singleRun: true,
+
+  webpack: webpackConfig,
+
+  webpackMiddleware: {
+    noInfo: true
+  },
+
   concurrency: Infinity
 };

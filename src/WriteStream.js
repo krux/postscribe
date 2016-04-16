@@ -117,7 +117,7 @@ export default class WriteStream {
    * @param {...String} str The strings to write
    */
   write(...str) {
-    [].push.apply(this.writeQueue, str);
+    this.writeQueue.push(...str);
 
     // Process writes
     // When new script gets pushed or pending this will stop
@@ -171,7 +171,9 @@ export default class WriteStream {
       }
     }
 
-    this._writeStaticTokens(tokens);
+    if (tokens.length > 0) {
+      this._writeStaticTokens(tokens);
+    }
 
     if (script) {
       this._handleScriptToken(tok);
@@ -199,7 +201,6 @@ export default class WriteStream {
 
     chunk.html = this.proxyHistory + chunk.actual;
     this.proxyHistory += chunk.proxy;
-
     this.proxyRoot.innerHTML = chunk.html;
 
     if (DEBUG_CHUNK) {
@@ -235,7 +236,7 @@ export default class WriteStream {
     const proxy = [];
 
     for (let tok of tokens) {
-      const tokenRaw = HtmlParser.tokenToString(tok);
+      const tokenRaw = tok.toString();
 
       raw.push(tokenRaw);
 

@@ -12,7 +12,11 @@ export default {
       {
         test: /\.js$/,
         include: [
-          path.resolve('./src')
+          path.resolve('./src'),
+          path.resolve('./test')
+        ],
+        exclude: [
+          path.resolve('./test/remote')
         ],
         loaders: ['babel']
       }
