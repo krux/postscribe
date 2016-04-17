@@ -1,5 +1,3 @@
-import _ from 'lodash';
-import Q from 'q';
 import postscribe from '../../src/postscribe';
 import iframe from './iframe';
 import {Html, Js, Uri} from './write-thunks';
@@ -8,12 +6,11 @@ import * as transforms from './write-transforms';
 const $ = require('jquery');
 
 export function compare(def) {
-  if (!_.isArray(def)) {
+  if (!$.isArray(def)) {
     def = [def];
   }
 
-  return Q.all([docWriteResults(...def), postscribeResults(...def)]).then(results => {
-    const [d, p] = results;
+  return $.when(docWriteResults(...def), postscribeResults(...def)).then((d, p) => {
     const td = transform(d, transforms.nativeToPostscribe);
     const tp = transform(p, transforms.postscribeToNative);
 
@@ -25,32 +22,32 @@ export function compare(def) {
 }
 
 function docWriteResults(...def) {
-  return iframe().then(win => {
-    const doc = win.document;
-    const dfd = Q.defer();
-    _.forEach(def, d => {
-      if (d instanceof Uri) {
-        doc.write(`<script src="${d.value}"><\/script>`);
-      } else if (d instanceof Js) {
-        doc.write(`<script>${d.value}<\/script>`);
-      } else if (d instanceof Html) {
-        doc[d.writeln ? 'writeln' : 'write'](...d.value);
-      } else {
-        doc.write(d);
-      }
-    });
+  const win = iframe();
+  const doc = win.document;
+  const dfd = $.Deferred();
 
-    if (doc.body) {
-      dfd.resolve(removeScripts(doc.body).innerHTML);
+  $.map(def, d => {
+    if (d instanceof Uri) {
+      doc.write(`<script src="${d.value}"><\/script>`);
+    } else if (d instanceof Js) {
+      doc.write(`<script>${d.value}<\/script>`);
+    } else if (d instanceof Html) {
+      doc[d.writeln ? 'writeln' : 'write'](...d.value);
     } else {
-      win.addEventListener('load', () => {
-        dfd.resolve(removeScripts(win.document.body).innerHTML);
-      });
+      doc.write(d);
     }
-
-    doc.close();
-    return dfd.promise;
   });
+
+  if (doc.body) {
+    dfd.resolve(removeHiddenElements(doc.body).innerHTML);
+  } else {
+    $(win).on('load', () => {
+      dfd.resolve(removeHiddenElements(win.document.body).innerHTML);
+    });
+  }
+
+  doc.close();
+  return dfd.promise();
 }
 
 function postscribeResults(...def) {
@@ -59,15 +56,15 @@ function postscribeResults(...def) {
 
   $(document.body).append(el);
 
-  return Q.all(_.map(def, (d) => {
-    const dfd = Q.defer();
+  return $.when(...$.map(def, (d) => {
+    const dfd = $.Deferred();
     const opts = {
       error(err) {
         console.error(err.msg);
       },
 
       done() {
-        removeScripts(el);
+        removeHiddenElements(el);
         dfd.resolve();
       }
     };
@@ -82,15 +79,21 @@ function postscribeResults(...def) {
       postscribe(el, d, opts);
     }
 
-    return dfd.promise;
+    return dfd.promise();
   })).then(() => el.innerHTML);
 }
 
 function transform(result, fns) {
-  return _.reduce(fns, (acc, f) => f(acc), result);
+  let transformed = result;
+  $.map(fns, f => {
+    transformed = f(transformed)
+  });
+
+  return transformed;
 }
 
-function removeScripts(node) {
-  _.forEach(_.toArray(node.getElementsByTagName('script')), n => n.parentNode.removeChild(n));
+function removeHiddenElements(node) {
+  $('script', node).remove();
+  $('style', node).remove();
   return node;
 }
