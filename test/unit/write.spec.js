@@ -1,15 +1,15 @@
-import _ from 'lodash';
+const $ = require('jquery');
 import descriptions from '../fixtures/write-comparisons';
 import * as wc from '../helpers/write-comparor';
 
 describe('write', () => {
-  _.forEach(descriptions, (specs, desc) => {
+  $.map(descriptions, (specs, desc) => {
     describe(desc, function() {
-      _.forEach(specs, (spec, name) => {
+      $.map(specs, (spec, name) => {
         function cb(done) {
           wc.compare(spec).then(r => {
             expect(r).to.be.ok();
-          }).catch(done).finally(done);
+          }).fail(done).always(done);
         }
 
         if (name.indexOf('only:') === 0) {

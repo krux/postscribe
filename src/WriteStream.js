@@ -235,7 +235,9 @@ export default class WriteStream {
     // Html that can later be used to proxy the nodes in the tokens.
     const proxy = [];
 
-    for (let tok of tokens) {
+    const len = tokens.length;
+    for (let i = 0; i < len; i++) {
+      const tok = tokens[i];
       const tokenRaw = tok.toString();
 
       raw.push(tokenRaw);
