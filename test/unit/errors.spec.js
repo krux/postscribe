@@ -1,6 +1,6 @@
 import postscribe from '../../src/postscribe';
 
-// TODO Skipping these on IE
+// Skipping these on IE for now to get back to wherte we were.
 if (navigator.userAgent.indexOf('MSIE') === -1) {
   describe('errors', () => {
     function handlesError(html) {
@@ -25,7 +25,6 @@ if (navigator.userAgent.indexOf('MSIE') === -1) {
         });
       };
     }
-
 
     it('syntax error', handlesError('<script>va x</script>'));
 

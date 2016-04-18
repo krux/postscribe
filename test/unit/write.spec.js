@@ -8,10 +8,6 @@ describe('write', () => {
       $.map(specs, (spec, name) => {
         function cb(done) {
           wc.compare(spec).then(r => {
-            if (!r) {
-              console.warn(`${name} failed to match doc.write and postscribe`);
-              'trace' in console && console.trace();
-            }
             expect(r).to.be.ok();
           }).fail(done).always(done);
         }
