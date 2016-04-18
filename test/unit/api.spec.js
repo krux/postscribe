@@ -18,8 +18,4 @@ describe('api', () => {
   itCalls('beforeEnqueue');
   itCalls('afterDequeue');
   itCalls('afterStreamStart');
-
-  it('waits 400ms', done => {
-    setTimeout(done, 3500);
-  });
 });
