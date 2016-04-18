@@ -60,7 +60,7 @@ function postscribeResults(...def) {
     const dfd = $.Deferred();
     const opts = {
       error(err) {
-        console.error(err.msg);
+        console.error(JSON.stringify(err));
       },
 
       done() {

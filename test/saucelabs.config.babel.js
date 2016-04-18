@@ -34,38 +34,26 @@ export default {
   win10_ie_11: {
     base: 'SauceLabs',
     browserName: 'internet explorer',
-    platform: 'Windows 8.1',
-    version: '11.0'
+    platform: 'Windows 7',
+    version: '11'
   },
-  win8_ie_10: {
+  win7_ie_10: {
     base: 'SauceLabs',
     browserName: 'internet explorer',
-    platform: 'Windows 8',
-    version: '10.0'
+    platform: 'Windows 7',
+    version: '10'
   },
   win7_ie_9: {
     base: 'SauceLabs',
     browserName: 'internet explorer',
     platform: 'Windows 7',
-    version: '9.0'
+    version: '9'
   },
   win7_ie_8: {
     base: 'SauceLabs',
     browserName: 'internet explorer',
-    platform: 'Windows 7',
-    version: '8.0'
-  },
-  win7_opera_latest: {
-    base: 'SauceLabs',
-    browserName: 'opera',
-    platform: 'Windows 7',
-    version: '12'
-  },
-  win7_opera_latest_1: {
-    base: 'SauceLabs',
-    browserName: 'opera',
-    platform: 'Windows 7',
-    version: '11'
+    platform: 'Windows XP',
+    version: '8'
   },
   el_capitan_safari_latest: {
     base: 'SauceLabs',

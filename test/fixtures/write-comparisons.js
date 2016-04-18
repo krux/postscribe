@@ -14,7 +14,7 @@ export default {
     'self closing': new Html('<div class="foo"/>')
   },
   docwrite: {
-    remainder: [
+    'remainder': [
       new Uri('remote/write-remote-and-inline-script.js'),
       'A<script src="remote/write-remote-and-inline-script.js">',
       '</script>B',
@@ -61,7 +61,7 @@ export default {
       new Js('document.write(this.global1);')
     ],
     'skip:corrupt src': '<img src"abc.jpg"><div>WORKS</div>',
-    'Escaped HTML Entity script entity name': new Html('<script type="text/javascript" src="remote/write-using-query-string.js?k=1&k2=2"></script>'),
+    'Escaped HTML Entity script entity name': '<script type="text/javascript" src="remote/write-using-query-string.js?k=1&k2=2"></script>',
     'HTML entity text to write': '<span><p>foo&amp;&#47;&#x00024;</p></span>',
     'remote with params then write (use network observer)': [
       new Uri('remote/write-div.js?id=1234&section=test'),
@@ -103,5 +103,23 @@ export default {
       new Uri('remote/write-remote-script.js'),
       '<div id="local">Local</div>'
     ]
+  },
+  'nesting scripts': {
+    // Broken in IE10 see: https://github.com/krux/postscribe/issues/154
+    'skip:script written within another should complete': "<script>document.write('<script type=\"text/javascript\" src=\"remote/write-using-query-string.js?k=1&k2=2\"><\\/script>')<\/script>"
+  },
+  simplewrites: {
+    'empty tag': new Html('<span>A<input name="B">C</span>D'),
+    'SW1': new Html('<div>', '<i>foo'),
+    'SW2': new Html('<div><i', '>foo'),
+    'SW2-b': new Html('<div>foo', '<div>bar'),
+    'SW3': new Html('<div><i>foo', '</i><div>bar'),
+    'SW4': new Html('<div><i></i></div>', '<div>foo'),
+    'SW5': new Html('<div><i></i></div>foo'),
+    'SW6': new Html('<div><i></i></div>', '<div>foo<i', '></i></div>bar'),
+    'SW7': new Html('<div><div><i></i></div>', 'foo', '<div>bar</div>'),
+    'SW8': new Html('<div><i></i></div>', 'foo', '<div>', '<i></i>'),
+    'SW9': new Html('<div><i></i></div>', 'foo', '<div>bar', '<i></i>'),
+    'SW10': new Html('<div><b><i></i></b></div>', 'foo', '<div>bar<i>', '</i>bla')
   }
 };
