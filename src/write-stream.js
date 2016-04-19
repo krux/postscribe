@@ -523,7 +523,7 @@ export default class WriteStream {
 
     try {
       this._insertScript(el);
-      if (!tok.src || asyncRelease) {
+      if (!el.src || asyncRelease) {
         done();
       }
     } catch (e) {

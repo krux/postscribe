@@ -1,4 +1,4 @@
-import WriteStream from './WriteStream';
+import WriteStream from './write-stream';
 import * as utils from './utils';
 
 /**

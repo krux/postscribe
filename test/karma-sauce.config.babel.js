@@ -3,18 +3,32 @@ import baseConfig from './karma-base.config.babel.js';
 import customLaunchers from './saucelabs.config.babel.js';
 
 module.exports = config => {
-  baseConfig.reporters = [
-    'dots',
-    'saucelabs'
-  ];
+  Object.assign(baseConfig, {
+    client: {
+      mocha: {
+        timeout: 5000  // Wait around a long time to avoid slow hardware from failing tests.
+      }
+    },
 
-  baseConfig.sauceLabs = {
-    testName: 'PostScribe Tests'
-  };
+    customLaunchers,
 
-  baseConfig.customLaunchers = customLaunchers;
+    browsers: Object.keys(customLaunchers),
 
-  baseConfig.browsers = Object.keys(customLaunchers);
+    browserDisconnectTimeout: 60000, // ms
+
+    browserDisconnectTolerance: 3, // times
+
+    browserNoActivityTimeout: 300000, // ms
+
+    reporters: [
+      'dots',
+      'saucelabs'
+    ],
+
+    sauceLabs: {
+      testName: 'PostScribe Tests'
+    }
+  });
 
   config.set(baseConfig);
 };
