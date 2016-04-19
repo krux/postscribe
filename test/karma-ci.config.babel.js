@@ -30,12 +30,12 @@ module.exports = config => {
       }
     },
 
-    dir: 'dist/test-reports/coverage/',
+    dir: '../dist/test-reports/coverage/',
 
     reporters: [
       {type: 'text-summary'},
       {type: 'text'},
-      {type: 'lcov'}
+      {type: 'lcov', dir: '../dist/test-reports/coverage/'}
     ]
   };
 
