@@ -1,0 +1,13 @@
+.codeclimate.yml
+.editorconfig
+.eslint*
+.idea/**
+.jscsrc
+.travis.yml
+CLA.md
+CONTRIBUTING.md
+gulpfile.babel.js
+src/**
+test/**
+webpack.config.babel.js
+*.iml

@@ -2,13 +2,15 @@ sudo: false
 
 language: node_js
 
-# test on these node.js versions
 node_js:
-  - 0.10
+  - 5
 
 before_script:
-  # Run lint on every commit
+  - npm run build
   - npm run lint
+
+script:
+  - npm run test:ci
 
 notifications:
   email:
