@@ -104,7 +104,7 @@ gulp.task('lint:jscs', () => {
     .pipe(jscs.reporter());
 });
 
-gulp.task('serve', ['clean'], done => {
+gulp.task('serve', ['build'], done => {
   const devConfig = Object.create(webpackConfig);
   devConfig.devtool = 'eval';
   devConfig.debug = true;
@@ -148,7 +148,7 @@ gulp.task('tdd:coverage', ['test:coverage'], () => {
   gulp.watch(['src/**', 'test/**'], ['test:coverage']);
 });
 
-gulp.task('release', ['default'], done => {
+gulp.task('release', ['build'], done => {
   git.exec({args: `tag v${pkg.version}`}, err => {
     if (err) {
       throw err;
