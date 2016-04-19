@@ -20,7 +20,7 @@ module.exports = config => {
     },
 
     instrumenter: {
-      '../src/**/*.js': 'isparta'
+      'src/**/*.js': 'isparta'
     },
 
     instrumenterOptions: {
@@ -30,12 +30,11 @@ module.exports = config => {
       }
     },
 
-    dir: '../dist/test-reports/coverage/',
+    dir: 'dist/test-reports/coverage/',
 
     reporters: [
       {type: 'text-summary'},
       {type: 'text'},
-      {type: 'cobertura', subdir: '.', file: 'coverage.xml'},
       {type: 'lcov'}
     ]
   };
