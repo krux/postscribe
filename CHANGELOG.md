@@ -2,7 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## 2.0.0 - UNRELEASED
+## 2.0.1 - 2016-04-19
+### Fixed
+- Fixed race condition in release resulting in an empty package
+
+## 2.0.0 - 2016-04-18
 ### Changed
 - Porting to ES6, Gulp, Karma and Webpack
 - Rearrange source files

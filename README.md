@@ -183,9 +183,6 @@ that it works on every browser we can get our hands on. We expect it to work on 
 * Internet Explorer 8+
 * iPhone/iPad and other WebKit-based browsers
 
-Curious if a specific browser will work? [Run the tests yourself](http://krux.github.com/postscribe/test/test.html) and let us know if you see
-any failures.
-
 Note that we do not provide any support for Internet Explorer versions earlier than IE8.
 
 # Alternatives
@@ -244,19 +241,13 @@ npm run lint
 
 ### Testing
 
-Using [travis-ci](https://travis-ci.org), the [Qunit](http://qunitjs.com) unit tests are run on every commit using PhantomJS to run the tests
+Using [travis-ci](https://travis-ci.org), the unit tests are run on every commit using PhantomJS to run the tests
 with a real browser.
 
 To test the code locally, you can use:
 
 ```console
 npm test
-```
-
-Or, open the [test.html](./test/test.html) file in your web browser:
-
-```console
-open test/test.html
 ```
 
 To run tests in Test-Driven-Development mode, where the test will be run after every change, use:
