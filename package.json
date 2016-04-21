@@ -50,7 +50,7 @@
     "prescribe": "^1.0.0"
   },
   "devDependencies": {
-    "babel-core": "6.7.4",
+    "babel-core": "6.7.6",
     "babel-eslint": "6.0.2",
     "babel-loader": "6.2.4",
     "babel-plugin-transform-es3-member-expression-literals": "6.5.0",
