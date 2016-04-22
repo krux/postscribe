@@ -1,7 +1,7 @@
 {
   "name": "postscribe",
   "description": "Asynchronously write javascript, even with document.write.",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "homepage": "https://krux.github.io/postscribe",
   "bugs": "https://github.com/krux/postscribe/issues",
   "license": "MIT",
@@ -88,7 +88,7 @@
     "karma-expect": "1.1.2",
     "karma-firefox-launcher": "0.1.7",
     "karma-mocha": "0.2.2",
-    "karma-mocha-reporter": "2.0.0",
+    "karma-mocha-reporter": "2.0.2",
     "karma-phantomjs-launcher": "1.0.0",
     "karma-safari-launcher": "0.1.1",
     "karma-sauce-launcher": "0.3.1",
@@ -101,7 +101,7 @@
     "watchify": "3.7.0",
     "webpack": "1.12.14",
     "webpack-dev-server": "1.14.1",
-    "webpack-stream": "3.1.0"
+    "webpack-stream": "3.2.0"
   },
   "config": {
     "ports": {

@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.0.2 - 2016-04-22
+### Fixed
+- Fixed the export setup for browser-based
+
 ## 2.0.1 - 2016-04-19
 ### Fixed
 - Fixed race condition in release resulting in an empty package

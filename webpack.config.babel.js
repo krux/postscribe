@@ -24,6 +24,7 @@ export default {
   },
   output: {
     filename: `${pkg.name}.js`,
+    library: 'postscribe',
     libraryTarget: 'umd'
   }
 };
