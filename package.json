@@ -46,7 +46,7 @@
   "main": "dist/postscribe.js",
   "browser": "dist/postscribe.js",
   "dependencies": {
-    "prescribe": "^1.0.0"
+    "prescribe": ">=1.0.7"
   },
   "devDependencies": {
     "babel-core": "6.7.7",
@@ -59,7 +59,7 @@
     "babel-preset-es2015-loose": "7.0.0",
     "babel-register": "6.7.2",
     "babelify": "7.2.0",
-    "cz-conventional-changelog": "1.1.6",
+    "cz-conventional-changelog": "1.1.5",
     "del": "2.2.0",
     "eslint": "2.7.0",
     "expect.js": "0.3.1",
