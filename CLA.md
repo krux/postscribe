@@ -1,4 +1,4 @@
-Krux Digital, Inc.  
+Krux Digital, Inc.
 Contributor License Agreement ("Agreement") V1.0
 
 In order to clarify the intellectual property license granted with Contributions
@@ -19,7 +19,7 @@ your records.
 
 You accept and agree to the following terms and conditions for (i) UNLESS OTHERWISE
 GOVERNED BY A WRITTEN LICENSE AGREEMENT, ALL CONTRIBUTIONS THAT YOU MAY HAVE
-PREVIOUSLY SUBMITTED TO PUPPET LABS and (ii) Your present and future Contributions
+PREVIOUSLY SUBMITTED TO KRUX and (ii) Your present and future Contributions
 submitted to Krux. Except for the license granted herein to Krux
 and recipients of software distributed by Krux, You reserve all right,
 title, and interest in and to Your Contributions.
@@ -81,7 +81,7 @@ title, and interest in and to Your Contributions.
     that You have received permission to make Contributions on behalf of that employer,
     that Your employer has waived such rights for Your Contributions to Krux,
     or that Your employer has executed a separate Corporate CLA with Krux.
-  
+
   b. If You are entering this Agreement on behalf of an Entity, You represent that
     You are legally entitled to grant the above license. You represent further that
     each employee of the Entity that submits Contributions is authorized to submit
