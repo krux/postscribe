@@ -28,7 +28,7 @@
   "main": "dist/postscribe.js",
   "browser": "dist/postscribe.js",
   "dependencies": {
-    "prescribe": ">=1.0.7"
+    "prescribe": ">=1.0.8"
   },
   "devDependencies": {
     "babel-core": "6.7.7",
@@ -109,7 +109,7 @@
     "clean": "gulp clean",
     "doc": "gulp doc",
     "lint": "gulp lint",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post",
+    "semantic-release": "semantic-release pre && gulp build && npm publish && semantic-release post",
     "start": "gulp serve",
     "tdd": "gulp tdd",
     "tdd:coverage": "gulp tdd:coverage",
