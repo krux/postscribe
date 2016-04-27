@@ -11,3 +11,4 @@ src/**
 test/**
 webpack.config.babel.js
 *.iml
+build/

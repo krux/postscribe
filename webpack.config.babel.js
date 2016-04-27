@@ -26,5 +26,6 @@ export default {
     filename: `${pkg.name}.js`,
     library: 'postscribe',
     libraryTarget: 'umd'
-  }
+  },
+  devtool: 'source-map'
 };
