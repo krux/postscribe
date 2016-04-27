@@ -20,6 +20,7 @@ import esdoc from 'gulp-esdoc';
 import path from 'path';
 
 const DIST = 'dist';
+const BUILD = 'build';
 
 const BANNER = [
   '/**',
@@ -75,7 +76,7 @@ function test(configName, failOnError = true, karmaOptions = {}) {
 gulp.task('default', ['clean', 'lint', 'build', 'doc', 'test']);
 
 gulp.task('clean', () => {
-  return del.sync([`${DIST}/**`]);
+  return del.sync([`${DIST}/**`, `${BUILD}/**`]);
 });
 
 gulp.task('build', build(webpackConfig));

@@ -30,8 +30,6 @@ module.exports = config => {
       }
     },
 
-    dir: 'dist/test-reports/coverage/',
-
     reporters: [
       {type: 'text-summary'},
       {type: 'text'}
