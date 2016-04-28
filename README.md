@@ -1,5 +1,7 @@
 # Overview
 
+[![Join the chat at https://gitter.im/krux/postscribe](https://badges.gitter.im/krux/postscribe.svg)](https://gitter.im/krux/postscribe?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Version](https://img.shields.io/npm/v/postscribe.svg)](http://npmjs.com/package/postscribe)
 [![License](https://img.shields.io/npm/l/postscribe.svg)](http://npmjs.com/package/postscribe)
 [![Build Status](https://travis-ci.org/krux/postscribe.svg?branch=master)](https://travis-ci.org/krux/postscribe)
