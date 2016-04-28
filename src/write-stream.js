@@ -386,7 +386,7 @@ export default class WriteStream {
   _writeStyleToken(tok) {
     const el = this._buildStyle(tok);
 
-    this._insertStyle(el);
+    this._insertCursor(el, PROXY_STYLE);
 
     // Set content
     if (tok.content) {
@@ -419,41 +419,16 @@ export default class WriteStream {
 
   /**
    * Append a span to the stream. That span will act as a cursor
-   * (i.e. insertion point) for the style.
-   *
-   * @param {String} id The ID of the span.
-   * @private
-   */
-  _insertSpan(id) {
-    this._writeImpl(`<span id="${id}"/>`);
-
-    // Grab that span from the DOM.
-    return this.doc.getElementById(id);
-  }
-
-  /**
-   * Insert style into DOM where it would naturally be written.
+   * (i.e. insertion point) for the element.
    *
    * @param {Object} el The element
+   * @param {string} which The type of proxy element
    */
-  _insertStyle(el) {
-    const cursor = this._insertSpan(PROXY_STYLE);
+  _insertCursor(el, which) {
+    this._writeImpl(`<span id="${which}"/>`);
 
-    // Replace cursor with style.
-    if (cursor) {
-      cursor.parentNode.replaceChild(el, cursor);
-    }
-  }
+    const cursor = this.doc.getElementById(which);
 
-  /**
-   * Insert script into DOM where it would naturally be written.
-   *
-   * @param {Object} el The element
-   */
-  _insertScript(el) {
-    const cursor = this._insertSpan(PROXY_SCRIPT);
-
-    // Replace cursor with script.
     if (cursor) {
       cursor.parentNode.replaceChild(el, cursor);
     }
@@ -522,7 +497,7 @@ export default class WriteStream {
     }
 
     try {
-      this._insertScript(el);
+      this._insertCursor(el, PROXY_SCRIPT);
       if (!el.src || asyncRelease) {
         done();
       }
