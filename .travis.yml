@@ -34,3 +34,9 @@ notifications:
       - joshua.newman@krux.com
     on_success: [change]
     on_failure: [always]
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/9520ebd6229614169878
+    on_success: change
+    on_failure: always
+    on_start: never
