@@ -35,7 +35,7 @@ module.exports = config => {
     reporters: [
       {type: 'text-summary'},
       {type: 'text'},
-      {type: 'lcov'}
+      {type: 'lcov', dir: '../build/test-reports/coverage/'}
     ]
   };
 
