@@ -7,6 +7,11 @@ engines:
       - javascript
   eslint:
     enabled: true
+    checks:
+      strict:
+        enabled: false
+      keyword-spacing:
+        enabled: false
   fixme:
     enabled: true
 ratings:
