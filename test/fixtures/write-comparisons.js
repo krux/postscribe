@@ -16,8 +16,7 @@ export default {
   docwrite: {
     'remainder': [
       new Uri('remote/write-remote-and-inline-script.js'),
-      'A<script src="remote/write-remote-and-inline-script.js">',
-      '</script>B',
+      new Html('A<script src="remote/write-remote-and-inline-script.js">', '</script>B'),
       new Uri('remote/write-remote-and-inline-script.js')
     ],
     'docwrite outside parent of script': new Html(`<div>A<script type="text/javascript">document.write("B</div>C");<\/script>D`),
@@ -103,6 +102,14 @@ export default {
       new Uri('remote/write-remote-script.js'),
       '<div id="local">Local</div>'
     ]
+  },
+  'complete node after several writes': {
+    'writes JS inside tag': '<script src="remote/write-multi-script.js"><\/script>',
+    'writes CSS inside tag': '<script src="remote/write-multi-style.js"><\/script>',
+    'writes textarea inside tag': '<script src="remote/write-multi-style.js"><\/script>',
+    'writes iframe inside tag': '<script src="remote/write-multi-style.js"><\/script>',
+    'writes noscript inside tag': '<script src="remote/write-multi-style.js"><\/script>',
+    'writes text inside tag': '<script src="remote/write-multi-div.js"><\/script>'
   },
   'nesting scripts': {
     // Broken in IE10 see: https://github.com/krux/postscribe/issues/154
