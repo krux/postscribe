@@ -57,7 +57,7 @@ function docWriteResults(...def) {
       dfd.resolve(removeHiddenElements(doc.body).innerHTML);
     }
   }, 1);
-
+  doc.write('</body>');
   doc.close();
   return dfd.promise();
 }
