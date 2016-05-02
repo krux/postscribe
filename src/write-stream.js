@@ -185,7 +185,7 @@ export default class WriteStream {
   }
 
   /**
-   * Write a contiguous non-script tokens (a chunk)
+   * Write contiguous non-script tokens (a chunk)
    *
    * @param {Array<Object>} tokens The tokens
    * @returns {{tokens, raw, actual, proxy}|null}
@@ -288,7 +288,6 @@ export default class WriteStream {
     const stack = [this.proxyRoot];
 
     // use shift/unshift so that children are walked in document order
-
     while (utils.existy(node = stack.shift())) {
       const isElement = node.nodeType === 1;
       const isProxy = isElement && getData(node, 'proxyof');

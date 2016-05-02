@@ -16,16 +16,25 @@ export function compare(def) {
 
     if (tp !== td) {
       console.warn(`Unmatched\n\npostscribe: ${JSON.stringify(tp)}\n\ndoc.write ${JSON.stringify(td)}`);
+      try {console['trace']();} catch(e) {}
     }
     return tp === td;
   });
 }
 
+/**
+ * Writes compared HTML to an iframe using document.write and provides the results.
+ *
+ * @param def Test definitions to write
+ * @returns {Promise<string>} Promise to the innerHTML written by document.write w/ scripts and styles removed.
+ */
 function docWriteResults(...def) {
+  const DONE_ID = 'done-marker';
   const win = iframe();
   const doc = win.document;
   const dfd = $.Deferred();
 
+  doc.write('<body>');
   $.map(def, d => {
     if (d instanceof Uri) {
       doc.write(`<script src="${d.value}"><\/script>`);
@@ -37,14 +46,17 @@ function docWriteResults(...def) {
       doc.write(d);
     }
   });
+  doc.write(`<script src="remote/write-done-marker.js"></script>`);
 
-  if (doc.body) {
-    dfd.resolve(removeHiddenElements(doc.body).innerHTML);
-  } else {
-    $(win).on('load', () => {
-      dfd.resolve(removeHiddenElements(win.document.body).innerHTML);
-    });
-  }
+
+  const handle = setInterval(() => {
+    const marker = doc.getElementById(DONE_ID);
+    if (marker) {
+      clearInterval(handle);
+      marker.parentNode.removeChild(marker);
+      dfd.resolve(removeHiddenElements(doc.body).innerHTML);
+    }
+  }, 1);
 
   doc.close();
   return dfd.promise();

@@ -104,6 +104,11 @@ export default {
       '<div id="local">Local</div>'
     ]
   },
+  'complete node after several writes': {
+    'skip:writes JS inside tag': '<script src="remote/write-multi-script.js"><\/script>',
+    'skip:writes CSS inside tag': '<script>console.trace();</script><script src="remote/write-multi-style.js"><\/script>',
+    'writes text inside tag': '<script src="remote/write-multi-div.js"><\/script>'
+  },
   'nesting scripts': {
     // Broken in IE10 see: https://github.com/krux/postscribe/issues/154
     'skip:script written within another should complete': "<script>document.write('<script type=\"text/javascript\" src=\"remote/write-using-query-string.js?k=1&k2=2\"><\\/script>')<\/script>"
