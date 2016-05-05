@@ -1,23 +1,22 @@
 /* eslint-env node */
-import process from 'process';
 import gulp from 'gulp';
-import pkg from './package.json';
-import {Server as Karma} from 'karma';
+import path from 'path';
 import del from 'del';
+import pkg from './package.json';
+import webpackConfig from './webpack.config.babel.js';
+import webpack from 'webpack';
+import webpackStream from 'webpack-stream';
+import WebpackDevServer from 'webpack-dev-server';
+import {Server as Karma} from 'karma';
 import gutil from 'gulp-util';
 import rename from 'gulp-rename';
 import uglify from 'gulp-uglify';
 import filter from 'gulp-filter';
 import stripDebug from 'gulp-strip-debug';
-import webpack from 'webpack';
-import webpackStream from 'webpack-stream';
-import webpackConfig from './webpack.config.babel.js';
-import WebpackDevServer from 'webpack-dev-server';
 import eslint from 'gulp-eslint';
 import jscs from 'gulp-jscs';
 import header from 'gulp-header';
 import esdoc from 'gulp-esdoc';
-import path from 'path';
 
 const DIST = 'dist';
 const BUILD = 'build';
@@ -35,7 +34,14 @@ const BANNER = [
   ''
 ].join('\n');
 
-const LINTABLE_PATTERN = ['*.js', 'src/**/*.js', 'test/random.js', 'test/helpers.js', 'test/generate_expected.phantom.js', 'test/unit/**.js'];
+const LINTABLE_PATTERN = [
+  '*.js',
+  'src/**/*.js',
+  'test/random.js',
+  'test/helpers.js',
+  'test/generate_expected.phantom.js',
+  'test/unit/**.js'
+];
 
 function build(config) {
   const basename = path.basename(config.output.filename, path.extname(config.output.filename));
@@ -66,14 +72,17 @@ function test(configName, failOnError = true, karmaOptions = {}) {
     if (err) {
       gutil.log('[test]', 'Tests failed');
       if (failOnError) {
-        process.exit(err);
+        done(new gutil.PluginError('karma', 'Tests failed'));
+      } else {
+        done();
       }
+    } else {
+      done();
     }
-    done();
   }).start();
 }
 
-gulp.task('default', ['clean', 'lint', 'build', 'doc', 'test']);
+gulp.task('default', ['lint', 'build', 'doc', 'test']);
 
 gulp.task('clean', () => {
   return del.sync([`${DIST}/**`, `${BUILD}/**`]);
@@ -119,16 +128,16 @@ gulp.task('serve', ['build'], done => {
     }
   }).listen(pkg.config.ports.cdn, 'localhost', (err, stats) => {
     if (err) {
-      throw new gutil.PluginError('webpack', err);
-    }
+      done(new gutil.PluginError('webpack', err));
+    } else {
+      if (stats) {
+        gutil.log('[serve]', stats.toString({
+          colors: true
+        }));
+      }
 
-    if (stats) {
-      gutil.log('[serve]', stats.toString({
-        colors: true
-      }));
+      done();
     }
-
-    done();
   });
 });
 
