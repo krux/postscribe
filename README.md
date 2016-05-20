@@ -40,7 +40,7 @@ PostScribe overrides `document.write`. It is best and safest to use PostScribe a
 If you just want to use the script without installing anything, use the following to load the script from *cdnjs*:
 
 ```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/postscribe/2.0.5/postscribe.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/postscribe/2.0.6/postscribe.min.js"></script>
 ```
 
 ### NPM
