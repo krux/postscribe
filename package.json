@@ -42,7 +42,7 @@
     "babel-register": "6.9.0",
     "babelify": "7.3.0",
     "cz-conventional-changelog": "1.1.6",
-    "del": "2.2.0",
+    "del": "2.2.1",
     "eslint": "2.13.1",
     "expect.js": "0.3.1",
     "gulp": "3.9.1",
