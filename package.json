@@ -50,7 +50,7 @@
     "gulp-esdoc": "0.2.0",
     "gulp-eslint": "2.0.0",
     "gulp-filter": "4.0.0",
-    "gulp-header": "1.8.3",
+    "gulp-header": "1.8.4",
     "gulp-jscs": "3.0.2",
     "gulp-rename": "1.2.2",
     "gulp-strip-debug": "1.1.0",
