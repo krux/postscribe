@@ -51,7 +51,7 @@
     "gulp-eslint": "2.0.0",
     "gulp-filter": "4.0.0",
     "gulp-header": "1.8.7",
-    "gulp-jscs": "3.0.2",
+    "gulp-jscs": "4.0.0",
     "gulp-rename": "1.2.2",
     "gulp-strip-debug": "1.1.0",
     "gulp-uglify": "1.5.4",
