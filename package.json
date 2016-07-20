@@ -48,7 +48,7 @@
     "gulp": "3.9.1",
     "gulp-babel": "6.1.2",
     "gulp-esdoc": "0.2.0",
-    "gulp-eslint": "2.0.0",
+    "gulp-eslint": "2.1.0",
     "gulp-filter": "4.0.0",
     "gulp-header": "1.8.3",
     "gulp-jscs": "3.0.2",
