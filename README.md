@@ -56,11 +56,13 @@ Postscribe runs in browsers, so this assumes you're using a module bundler like 
 
 ### Bower
 
-You can include `postscribe` using *bower*:
+You can include `postscribe` using *bower* by installing from the CDN URL:
 
 ```console
-bower install --save postscribe
+bower install --save https://cdnjs.cloudflare.com/ajax/libs/postscribe/2.0.6/postscribe.min.js
 ```
+
+The library will exist at `<components_folder>/postscribe/index.js`.
 
 ## Accessing
 
