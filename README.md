@@ -103,7 +103,17 @@ postscribe(element, html, options);
 * *element:* a DOM Element, jQuery object, or id selector (e.g. "#mydiv")
 * *html:* an html string or a function that takes a DOM Document and writes to it.
 * *options:* a hash of options
-  * *done:* a callback that will be called when writing is finished.
+  * *afterAsync*: a callback called when an async script has loaded
+  * *afterDequeue*: a callback called immediately before removing from the write queue
+  * *afterStreamStart*: a callback called sync after a stream's first thread release
+  * *afterWrite*: a callback called after writing buffered document.write calls
+  * *done:* a callback that will be called when writing is finished
+  * *autoFix*: a boolean that allows disabling the autoFix feature of prescribe
+  * *beforeEnqueue*: a callback called immediately before adding to the write queue
+  * *beforeWriteToken*: a callback called before writing a token
+  * *beforeWrite*: a callback called before writing buffered document.write calls
+  * *error*: a function that throws the error by default, but could be overwritten
+  * *releaseAsync*: a boolean whether to let scripts w/ async attribute set fall out of the queue
 
 If you just want to mess around, include the js files at the top of an html page that contains the following:
 
