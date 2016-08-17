@@ -71,7 +71,7 @@
     "karma-sauce-launcher": "1.0.0",
     "karma-sinon": "1.0.5",
     "karma-sourcemap-loader": "0.3.7",
-    "karma-webpack": "1.7.0",
+    "karma-webpack": "1.8.0",
     "mocha": "3.0.2",
     "phantomjs-prebuilt": "2.1.12",
     "semantic-release": "^4.3.5",
