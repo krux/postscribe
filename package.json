@@ -73,7 +73,7 @@
     "karma-sourcemap-loader": "0.3.7",
     "karma-webpack": "1.7.0",
     "mocha": "2.5.3",
-    "phantomjs-prebuilt": "2.1.7",
+    "phantomjs-prebuilt": "2.1.11",
     "semantic-release": "^4.3.5",
     "sinon": "1.17.4",
     "watchify": "3.7.0",
