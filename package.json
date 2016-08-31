@@ -78,7 +78,7 @@
     "sinon": "1.17.5",
     "watchify": "3.7.0",
     "webpack": "1.13.2",
-    "webpack-dev-server": "1.15.0",
+    "webpack-dev-server": "1.15.1",
     "webpack-stream": "3.2.0"
   },
   "config": {
