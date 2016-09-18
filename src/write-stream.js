@@ -544,23 +544,19 @@ export default class WriteStream {
 
     function success() {
       cleanup();
-      if (done != null) done();
+      if (done != null) {
+        done();
+      }
       done = null;
     }
 
     function failure(err) {
       cleanup();
       error(err);
-      if (done != null) done();
-      done = null;
-    }
-
-    function addEventListener(el, evt, handler) {
-      if (el.addEventListener) {
-        el.addEventListener(evt, handler, false);
-      } else if (el.attachEvent) {
-        el.attachEvent(`on${evt}`, handler);
+      if (done != null) {
+        done();
       }
+      done = null;
     }
 
     function reattachEventListener(el, evt) {
@@ -579,7 +575,7 @@ export default class WriteStream {
           try {
             el._onload.apply(this, Array.prototype.slice.call(arguments, 0));
           } catch (err) {
-            failure({msg: `onload handler failed ${err} @ ${el.src}`})
+            failure({msg: `onload handler failed ${err} @ ${el.src}`});
           }
         }
         success();
@@ -590,9 +586,11 @@ export default class WriteStream {
           try {
             el._onerror.apply(this, Array.prototype.slice.call(arguments, 0));
           } catch (err) {
+            failure({msg: `onerror handler failed ${err} @ ${el.src}`});
+            return;
           }
         }
-        failure({msg: `remote script failed ${el.src}`})
+        failure({msg: `remote script failed ${el.src}`});
       },
 
       onreadystatechange() {
