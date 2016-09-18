@@ -28,7 +28,8 @@ export default {
 
   preprocessors: {
     '*.js': ['webpack', 'sourcemap'],
-    'unit/**/*.js': ['webpack', 'sourcemap']
+    'unit/**/*.js': ['webpack', 'sourcemap'],
+    'bugs/**/*.js': ['webpack', 'sourcemap']
   },
 
   // generate_expected breaks the path a bit b/c it's writing relative to itself.

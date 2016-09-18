@@ -454,7 +454,7 @@ export default class WriteStream {
   _onScriptDone(tok) {
     // Pop script and check nesting.
     if (tok !== this.scriptStack[0]) {
-      this.options.error({message: 'Bad script nesting or script finished twice'});
+      this.options.error({msg: 'Bad script nesting or script finished twice'});
       return;
     }
 
@@ -544,26 +544,62 @@ export default class WriteStream {
 
     function success() {
       cleanup();
-      done();
+      if (done != null) done();
+      done = null;
     }
 
     function failure(err) {
       cleanup();
       error(err);
-      done();
+      if (done != null) done();
+      done = null;
     }
 
-    // Set handlers
-    Object.assign(el, {
-      onload: () => success(),
+    function addEventListener(el, evt, handler) {
+      if (el.addEventListener) {
+        el.addEventListener(evt, handler, false);
+      } else if (el.attachEvent) {
+        el.attachEvent(`on${evt}`, handler);
+      }
+    }
 
-      onreadystatechange: () => {
+    function reattachEventListener(el, evt) {
+      const handler = el[`on${evt}`];
+      if (handler != null) {
+        el[`_on${evt}`] = handler;
+      }
+    }
+
+    reattachEventListener(el, 'load');
+    reattachEventListener(el, 'error');
+
+    Object.assign(el, {
+      onload() {
+        if (el._onload) {
+          try {
+            el._onload.apply(this, Array.prototype.slice.call(arguments, 0));
+          } catch (err) {
+            failure({msg: `onload handler failed ${err} @ ${el.src}`})
+          }
+        }
+        success();
+      },
+
+      onerror() {
+        if (el._onerror) {
+          try {
+            el._onerror.apply(this, Array.prototype.slice.call(arguments, 0));
+          } catch (err) {
+          }
+        }
+        failure({msg: `remote script failed ${el.src}`})
+      },
+
+      onreadystatechange() {
         if (/^(loaded|complete)$/.test(el.readyState)) {
           success();
         }
-      },
-
-      onerror: () => failure({message: `remote script failed ${el.src}`})
+      }
     });
   }
 
