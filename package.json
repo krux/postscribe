@@ -31,7 +31,7 @@
     "prescribe": ">=1.1.1"
   },
   "devDependencies": {
-    "babel-core": "6.17.0",
+    "babel-core": "6.18.0",
     "babel-eslint": "7.1.0",
     "babel-loader": "6.2.7",
     "babel-plugin-transform-es3-member-expression-literals": "6.8.0",
