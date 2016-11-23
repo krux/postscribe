@@ -28,7 +28,7 @@
   "main": "dist/postscribe.js",
   "browser": "dist/postscribe.js",
   "dependencies": {
-    "prescribe": ">=1.1.1"
+    "prescribe": ">=1.1.2"
   },
   "devDependencies": {
     "babel-core": "6.18.2",
