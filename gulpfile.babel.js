@@ -56,7 +56,7 @@ function build(config) {
     .pipe(stripDebug())
     .pipe(rename({basename: basename, extname: '.js'}))
     .pipe(gulp.dest(DIST))
-    .pipe(uglify())
+    .pipe(uglify({compress: {properties: false}, output: {'quote_keys': true}}))
     .pipe(header(BANNER))
     .pipe(rename({basename: basename, extname: '.min.js'}))
     .pipe(gulp.dest(DIST))
