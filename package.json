@@ -77,7 +77,7 @@
     "semantic-release": "^6.3.2",
     "sinon": "1.17.6",
     "watchify": "3.7.0",
-    "webpack": "1.14.0",
+    "webpack": "2.2.1",
     "webpack-dev-server": "1.16.2",
     "webpack-stream": "3.2.0"
   },
