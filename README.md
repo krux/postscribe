@@ -40,7 +40,7 @@ PostScribe overrides `document.write`. It is best and safest to use PostScribe a
 If you just want to use the script without installing anything, use the following to load the script from *cdnjs*:
 
 ```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/postscribe/2.0.6/postscribe.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/postscribe/2.0.8/postscribe.min.js"></script>
 ```
 
 ### NPM
@@ -59,7 +59,7 @@ Postscribe runs in browsers, so this assumes you're using a module bundler like 
 You can include `postscribe` using *bower* by installing from the CDN URL:
 
 ```console
-bower install --save https://cdnjs.cloudflare.com/ajax/libs/postscribe/2.0.6/postscribe.min.js
+bower install --save https://cdnjs.cloudflare.com/ajax/libs/postscribe/2.0.8/postscribe.min.js
 ```
 
 The library will exist at `<components_folder>/postscribe/index.js`.
