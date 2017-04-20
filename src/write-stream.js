@@ -540,9 +540,13 @@ export default class WriteStream {
       el = el.onload = el.onreadystatechange = el.onerror = null;
     }
 
+		function doNothing() {}
     const error = this.options.error;
+		const originalOnLoad = el.onload || doNothing;
+		const originalOnError = el.onerror || doNothing;
 
     function success() {
+			originalOnLoad();
       cleanup();
       if (done != null) {
         done();
@@ -551,6 +555,7 @@ export default class WriteStream {
     }
 
     function failure(err) {
+			originalOnError();
       cleanup();
       error(err);
       if (done != null) {
