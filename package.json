@@ -54,7 +54,7 @@
     "gulp-jscs": "4.0.0",
     "gulp-rename": "1.2.2",
     "gulp-strip-debug": "1.1.0",
-    "gulp-uglify": "2.0.0",
+    "gulp-uglify": "3.0.0",
     "isparta": "4.0.0",
     "isparta-loader": "2.0.0",
     "jquery": "1.12.4",
