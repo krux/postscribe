@@ -1,5 +1,7 @@
 # Overview
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/krux/postscribe.svg)](https://greenkeeper.io/)
+
 [![Version](https://img.shields.io/npm/v/postscribe.svg)](http://npmjs.com/package/postscribe)
 [![License](https://img.shields.io/npm/l/postscribe.svg)](http://npmjs.com/package/postscribe)
 [![Build Status](https://travis-ci.org/krux/postscribe.svg?branch=master)](https://travis-ci.org/krux/postscribe)
