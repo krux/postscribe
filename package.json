@@ -75,7 +75,7 @@
     "mocha": "3.2.0",
     "phantomjs-prebuilt": "2.1.14",
     "semantic-release": "^6.3.2",
-    "sinon": "1.17.7",
+    "sinon": "2.3.0",
     "watchify": "3.7.0",
     "webpack": "1.14.0",
     "webpack-dev-server": "1.16.2",
