@@ -113,5 +113,20 @@ describe('tokenprocessing', () => {
     );
   });
 
-});
+  it('does something wierd.', done => {
+    const div = document.createElement('div');
+    div.id = 'document-write-async';
+    document.body.appendChild(div);
+    postscribe(div, '<script>document.write("<scr"+"ipt async src=\'remote/describe-write.js\'></scr"+"ipt>");</script>', {
+      releaseAsync: true,
+      done: () => {
+        expect(div.innerHTML).to.contain('<script async="" src="remote/describe-write.js"></script>');
+        done();
+      },
+      error: (error) => {
+        done(error);
+      }
+    });
+  });
 
+});
