@@ -57,7 +57,7 @@
     "gulp-uglify": "2.0.0",
     "isparta": "4.0.0",
     "isparta-loader": "2.0.0",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "jscs": "3.0.7",
     "json-loader": "0.5.4",
     "karma": "^4.1.0",
