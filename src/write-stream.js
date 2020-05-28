@@ -1,4 +1,4 @@
-import HtmlParser from 'prescribe';
+import HtmlParser from '@monet/prescribe';
 import * as utils from './utils';
 
 /**
@@ -93,7 +93,7 @@ export default class WriteStream {
     this.options = options;
     this.doc = root.ownerDocument;
     this.win = this.doc.defaultView || this.doc.parentWindow;
-    this.parser = new HtmlParser('', {autoFix: options.autoFix});
+    this.parser = new HtmlParser('', {autoFix: options.autoFix, allowInvalidHTML: true});
 
     // Actual elements by id.
     this.actuals = [root];

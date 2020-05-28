@@ -13,6 +13,14 @@ describe('selfclosing', () => {
     ).then(r => expect(r).to.be.ok()).always(done);
   });
 
+  it('Handles broken HTML', done => {
+    wc.compare(
+      '<div>Example <br \\="" /> Hello World</div><h1>Ok</h1>'
+    ).then(r => {
+      expect(r).to.not.be.ok();
+    }).always(done);
+  });
+
   it('Handles closed self-closing tags that\'re closed w/ a slash.', done => {
     wc.compare(
       '<div><object><param name="allowFullScreen" value="true" /><param></param></object></div>'
