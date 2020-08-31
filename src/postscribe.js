@@ -161,7 +161,7 @@ export default function postscribe(el, html, options) {
 
   // id selector
   if ((/^#/).test(el)) {
-    el = window.document.getElementById(el.substr(1));
+    el = window !== 'undefined' ? window.document.getElementById(el.substr(1)) : el.jquery ? el[0] : el;
   } else {
     el = el.jquery ? el[0] : el;
   }
