@@ -3,11 +3,11 @@
   "version": "0.1.2",
   "description": "Asynchronously write javascript, even with document.write.",
   "homepage": "https://krux.github.io/postscribe",
-  "bugs": "https://github.com/krux/postscribe/issues",
+  "bugs": "https://github.com/AppMonet/postscribe/issues",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/krux/postscribe.git"
+    "url": "git://github.com/AppMonet/postscribe.git"
   },
   "keywords": [
     "document.write",
