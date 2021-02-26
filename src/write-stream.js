@@ -1,4 +1,4 @@
-import HtmlParser from '@monet/prescribe';
+import HtmlParser from '@appmonet/prescribe';
 import * as utils from './utils';
 
 /**

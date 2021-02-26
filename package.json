@@ -1,5 +1,5 @@
 {
-  "name": "@monet/postscribe",
+  "name": "@appmonet/postscribe",
   "version": "0.1.1",
   "description": "Asynchronously write javascript, even with document.write.",
   "homepage": "https://krux.github.io/postscribe",
@@ -26,10 +26,11 @@
       "web": "https://github.com/jnewman"
     }
   ],
-  "main": "dist/@monet/postscribe.js",
-  "browser": "dist/@monet/postscribe.js",
+  "main": "dist/@appmonet/postscribe.js",
+  "browser": "dist/@appmonet/postscribe.js",
   "dependencies": {
-    "@monet/prescribe": "0.1.2"
+    "@appmonet/prescribe": "0.1.2",
+    "gulp-cli": "^2.3.0"
   },
   "devDependencies": {
     "babel-core": "6.20.0",
@@ -103,8 +104,8 @@
     "compact": false
   },
   "scripts": {
-    "build": "gulp build",
-    "clean": "gulp clean",
+    "build": "./node_modules/gulp-cli/bin/gulp.js build",
+    "clean": "./node_modules/bin/gulp clean",
     "doc": "gulp doc",
     "lint": "gulp lint",
     "semantic-release": "semantic-release pre && gulp build && npm publish && semantic-release post",
