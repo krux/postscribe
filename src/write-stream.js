@@ -454,6 +454,11 @@ export default class WriteStream {
   _onScriptDone(tok) {
     // Pop script and check nesting.
     if (tok !== this.scriptStack[0]) {
+      if (this.deferredRemote === tok) {
+        // probably using document.write to output an async script with releaseAsync set to true
+        this.deferredRemote = null;
+        return;
+      }
       this.options.error({msg: 'Bad script nesting or script finished twice'});
       return;
     }
