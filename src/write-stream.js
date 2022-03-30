@@ -380,7 +380,7 @@ export default class WriteStream {
   /**
    * Sets nonce to scripts and style tags that are generated to support CSP
    *
-   *  @param {HTMLElement} el The script/ style tag to be associated with nonce
+   *  @param {HTMLElement} el The script/style tag to be associated with nonce
    */
   _setNonce(el) {
     if (this.options.nonce) {
