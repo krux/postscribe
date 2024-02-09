@@ -1,3 +1,5 @@
+# THIS REPOSITORY IS NO LONGER MAINTAINED AND WILL BE ARCHIVED SHORTLY.
+
 # Overview
 
 [![Version](https://img.shields.io/npm/v/postscribe.svg)](http://npmjs.com/package/postscribe)
