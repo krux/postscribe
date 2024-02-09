@@ -378,13 +378,24 @@ export default class WriteStream {
   }
 
   /**
+   * Sets nonce to scripts and style tags that are generated to support CSP
+   *
+   *  @param {HTMLElement} el The script/style tag to be associated with nonce
+   */
+  _setNonce(el) {
+    if (this.options.nonce) {
+      el.nonce = this.options.nonce;
+    }
+  }
+
+  /**
    * Build a style and insert it into the DOM.
    *
    * @param {Object} tok The token
    */
   _writeStyleToken(tok) {
     const el = this._buildStyle(tok);
-
+    this._setNonce(el);
     this._insertCursor(el, PROXY_STYLE);
 
     // Set content
@@ -485,7 +496,7 @@ export default class WriteStream {
     const el = this._buildScript(tok);
     const asyncRelease = this._shouldRelease(el);
     const afterAsync = this.options.afterAsync;
-
+    this._setNonce(el);
     if (tok.src) {
       // Fix for attribute "SRC" (capitalized). IE does not recognize it.
       el.src = tok.src;
